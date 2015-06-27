@@ -23,8 +23,9 @@ Object::Object()
     float s[]={1, 1, 1};
     float t[]={0, 0, 0};
     float c[]={1, 1, 1};
-    this->is_selected = false;
-    this->render_mode = true;
+
+    index_internal = 0;
+
     this->rotation.insert(this->rotation.end(), r, r+3);
     this->translation.insert(this->translation.end(), t, t+3);
     this->scale.insert(this->scale.end(), s, s+3 );
@@ -34,8 +35,6 @@ Object::Object()
 Object::Object(vector < float *> vertex)
 {
 
-    is_selected = false;
-    this->render_mode = true;
     this->vertex      =  vertex;
     float r[]={0, 0, 0};
     float s[]={1, 1, 1};
@@ -130,6 +129,11 @@ void Object::setRenderMode(bool mode)
 bool Object::getRenderMode()
 {
     return this->render_mode;
+}
+
+void Object::setHitIndexInternal(int val)
+{
+    hit_index_internal = val; 
 }
 
 void Object::draw(int index_load)
