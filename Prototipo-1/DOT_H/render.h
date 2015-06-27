@@ -22,14 +22,10 @@ public:
 
 	/*metodos que auxiliam no set do ambiente opengl e desenhos de primitvas basicas*/
 	static bool status_projection;
-	void drawDisc(float R, float X, float Y, float Z);
-	void drawCircle(vector <double *> points, double ray);
-	void drawLineStripVector(vector < double * > point);
-	void drawSphereVector(vector <double *> coordenate, double ray);
 	static void viewport3D(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y, const float *obsP);
 	void drawGlQuadStripVector(vector <double *> array , int n, int m);
 	static void renderObjects(vector <Object *> objects, bool render_mode);
-	static vector <int > render(vector <Object *> objects,  vector <float > proj,  int x, int y, bool render_mode);
+	static unsigned int render(vector <Object *> objects,  vector <float > proj,  int x, int y, bool render_mode);
 	static vector <float > worldPoint(int x, int y);
 
 

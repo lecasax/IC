@@ -8,10 +8,10 @@ static int hits; // Number of entries in hit buffer.
 static unsigned int buffer[1024]; // Hit buffer.
 	
 
-vector <int > findClosestHit(int hits, unsigned int buffer[])
+unsigned int  findClosestHit(int hits, unsigned int buffer[])
 {
    unsigned int *ptr, minZ;
-   vector <int > closestName;
+   unsigned int  closestName = 0;
    minZ= 0xffffffff; // 2^32 - 1
    ptr = buffer;
    for (int i = 0; i < hits; i++){
@@ -20,8 +20,8 @@ vector <int > findClosestHit(int hits, unsigned int buffer[])
 
          minZ = *ptr;
          ptr += 2;
-         if(*ptr != 0) {closestName.push_back(*ptr);}
-         cout << "AQUI EU ESTOU HITANO O ITEM: " << *ptr << endl;
+         closestName = *ptr;
+         //cout << "AQUI EU ESTOU HITANO O ITEM: " << closestName << endl;
          ptr++;
 
       }else {
@@ -32,7 +32,7 @@ vector <int > findClosestHit(int hits, unsigned int buffer[])
     return closestName;
 }
 
-vector <int > Render::render(vector <Object *> objects,  vector <float > proj,  int x, int y, bool render_mode)
+unsigned int Render::render(vector <Object *> objects,  vector <float > proj,  int x, int y, bool render_mode)
 
 {
     int viewport[4]; // Viewport data.
@@ -48,7 +48,7 @@ vector <int > Render::render(vector <Object *> objects,  vector <float > proj,  
 
         // Define a viewing volume corresponding to selecting in 3 x 3 region around the cursor.
         glLoadIdentity();
-        gluPickMatrix((float)x, (float) (viewport[3] - y) , 4.0, 4.0, viewport);
+        gluPickMatrix((float)x, (float) (viewport[3] - y) , 12.0, 12.0, viewport);
         gluPerspective( proj[0], proj[1], proj[2], proj[3] );
         glTranslatef(1, 0, 0);
         glMatrixMode( GL_MODELVIEW );
@@ -82,9 +82,9 @@ void Render::renderObjects(vector <Object *> objects, bool render_mode)
     for (int i = 0; i <  (int) objects.size() ; ++i) {
 
         //glLoadName(i+1); // register object.
-        cout << "Modo de renderizacao: " << objects[i]->getRenderMode() << endl;
-        objects[i]->draw(i);
         objects[i]->setRenderMode(render_mode);
+        objects[i]->draw(i);
+        cout << "Modo de renderizacao: " << objects[i]->getRenderMode() << endl;
         //glPopName();
     }
 
