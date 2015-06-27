@@ -1,4 +1,5 @@
 #include <GL/glut.h>
+#include "BezierCurve.h"
 #include "manager.h"
 #include "render.h"
 #include "object.h"
@@ -80,10 +81,13 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     cube3->translateObject(trans2);
     //grid->setColor(color);
 
+    Object *bezier = new BezierCurve(0,0,0);
+    
     world.push_back(grid);
-    world.push_back(cube);
-    world.push_back(cube2);
-    world.push_back(cube3);
+    world.push_back(bezier);
+    //world.push_back(cube);
+    //world.push_back(cube2);
+    //world.push_back(cube3);
 
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 }
@@ -123,25 +127,6 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
 
 }
 
-int getMinDepth(vector<int > obj_selected, vector <Object *> world)
-
-{
-    int index = 0;
-    if (obj_selected.size() > 0){
-        float min = world[0]->getDepth();
-        for(int i = 0; i < obj_selected.size(); i++){
-            if( world[obj_selected[i]]->getDepth() >=  min ){
-
-                min = world[obj_selected[i]]->getDepth();
-                index = obj_selected[i];
-            }
-        }
-        return index;
-    } else {
-        return 0;
-    }
-}
-
 void BasicGLPane::mouseDown(wxMouseEvent& event) 
 {
     //criar aqui o evento do cursor
@@ -173,13 +158,21 @@ void BasicGLPane::rightClick(wxMouseEvent& event)
     proj.push_back(45.0); proj.push_back((float)getWidth()/(float)getHeight()); 
     proj.push_back(0.1); proj.push_back(400);
     
-    vector <int > obj_selected = Render::render(world,  proj,  event.GetX(), event.GetY(), render_mode);
-    int obj_sel = getMinDepth(obj_selected, world) ;
-    
+    unsigned int obj_selected = Render::render(world,  proj,  event.GetX(), event.GetY(), render_mode);
+    //int obj_sel = getMinDepth(obj_selected, world) ;
+    cout << "Objeto selecionado: " << obj_selected << endl;
     //modificando o estado do objeto selecionado
-    if(obj_sel){
-        last_object_selected = obj_sel;
-        world[obj_sel]->setSelected(true);
+    if(!render_mode && obj_selected){
+        cout << "Modo edicao selecionando um ponto....." << endl;
+        world[last_object_selected]->setHitIndexInternal((int)obj_selected);
+
+    } else {
+
+        if(obj_selected){
+            cout << "Modo objeto selecionando um objeto...." << endl;
+            last_object_selected = (int)obj_selected;
+            world[(int)obj_selected]->setSelected(true);
+        }
     }
     cout << "Ultimo objeto selecionado: " << last_object_selected << endl;
     displayScene();
@@ -193,8 +186,8 @@ void BasicGLPane::mouseLeftWindow(wxMouseEvent& event)
 }
 void BasicGLPane::keyPressed(wxKeyEvent& event) 
 {
- //Por aqui a logica dos modos objetos e edicao, como no blender, apertar o tab deve alternar entre os modos;
-      //WXK_TAB <-- tecla tab
+    //Por aqui a logica dos modos objetos e edicao, como no blender, apertar o tab deve alternar entre os modos;
+    //WXK_TAB <-- tecla tab
     //cout <<"Chave A: " <<WXK_CONTROL_A << endl;
     char a = 65;
     wxChar uc = event.GetUnicodeKey();

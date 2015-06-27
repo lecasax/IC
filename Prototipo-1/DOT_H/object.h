@@ -66,8 +66,8 @@ public:
 	vector <float >getRotation();
 	virtual void draw(int index_load);
 	void setSelected(bool is_selected);
-+	void setRenderMode(bool mode);
-+	bool getRenderMode();
+	void setRenderMode(bool mode);
+	bool getRenderMode();
 	float getDepth();
 
 	void setHitIndexInternal(int val);
