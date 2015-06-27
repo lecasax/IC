@@ -1,5 +1,5 @@
 #include "render.h"
-
+#include <iostream>
 using namespace std;
 
 #define N 40.0 // Number of vertices on the boundary of the disc.
@@ -32,7 +32,7 @@ vector <int > findClosestHit(int hits, unsigned int buffer[])
     return closestName;
 }
 
-vector <int > Render::render(vector <Object *> objects,  vector <float > proj,  int x, int y)
+vector <int > Render::render(vector <Object *> objects,  vector <float > proj,  int x, int y, bool render_mode)
 
 {
     int viewport[4]; // Viewport data.
@@ -58,7 +58,7 @@ vector <int > Render::render(vector <Object *> objects,  vector <float > proj,  
         glPushName(0); 
 
         //charmar a renderObjects aqui
-        renderObjects(objects);
+        renderObjects(objects, render_mode);
 
         hits = glRenderMode(GL_RENDER); // Return to rendering mode, returning number of hits.
 
@@ -71,7 +71,7 @@ vector <int > Render::render(vector <Object *> objects,  vector <float > proj,  
     return findClosestHit(hits, buffer);
 }
 
-void Render::renderObjects(vector <Object *> objects)
+void Render::renderObjects(vector <Object *> objects, bool render_mode)
 {
     //cout << "Tamanho dos vertices do cubo: " << objects[0]->getVertex().size() << " Size world: " << objects.size() << endl;
 
@@ -82,8 +82,9 @@ void Render::renderObjects(vector <Object *> objects)
     for (int i = 0; i <  (int) objects.size() ; ++i) {
 
         //glLoadName(i+1); // register object.
-        
+        cout << "Modo de renderizacao: " << objects[i]->getRenderMode() << endl;
         objects[i]->draw(i);
+        objects[i]->setRenderMode(render_mode);
         //glPopName();
     }
 
