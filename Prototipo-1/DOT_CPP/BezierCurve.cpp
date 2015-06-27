@@ -295,17 +295,18 @@ void BezierCurve::draw(int index_load)
             m[count] = mat[k][j];
             count++;
         }   
-    }	
-    render_mode = 1;
-    if(render_mode != 1){
+    }	    
+    if(render_mode != 1 && this->is_selected){
     	// Modo Edição
+    	index_internal = 0;
     	
     	for(i = 0; i < sizeSeg; i++){
 
     		// Point 1
-    		glLoadName(index_load);
+    		index_internal++;
+    		glLoadName(index_internal);
     		glColor4f(BLACK);
-    		if(this->is_selected){
+    		if(index_internal == hit_index_internal){
     			glColor4f(ORANGE);
     			this->setSelectSegments(i,1);
     		}
@@ -317,7 +318,7 @@ void BezierCurve::draw(int index_load)
     		index_load++;
     		glLoadName(index_load);
     		glColor4f(BLACK);
-    		if(this->is_selected){
+    		if(index_internal == hit_index_internal){
     			glColor4f(ORANGE);
     			this->setSelectSegments(i,0);
     		}
@@ -328,7 +329,7 @@ void BezierCurve::draw(int index_load)
     		index_load++;
     		glLoadName(index_load);
     		glColor4f(BLACK);
-    		if(this->is_selected){
+    		if(index_internal == hit_index_internal){
     			glColor4f(ORANGE);
     			this->setSelectSegments(i,2);
     		}
@@ -345,10 +346,6 @@ void BezierCurve::draw(int index_load)
 			pt = segments[i].getP2();
 			glVertex3f(pt[0],pt[1],pt[2]);
 			glEnd();
-    	}
-
-    	if(!this->is_selected){
-    		this->setSelectSegments(-1,-1);
     	}
 
     } else { 	
