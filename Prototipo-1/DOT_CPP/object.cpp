@@ -122,9 +122,14 @@ void Object::setSelected(bool is_selected)
 }
 
 
-void Object::setRenderMode(int mode)
+void Object::setRenderMode(bool mode)
 {
     this->render_mode = mode;
+}
+
+bool Object::getRenderMode()
+{
+    return this->render_mode;
 }
 
 void Object::draw(int index_load)

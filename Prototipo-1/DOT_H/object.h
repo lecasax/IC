@@ -43,7 +43,9 @@ public:
 	vector <float >getRotation();
 	virtual void draw(int index_load);
 	void setSelected(bool is_selected);
-	void setRenderMode(int mode);
+	void setRenderMode(bool mode);
+	bool getRenderMode();
+
 	float getDepth();
 
 protected:

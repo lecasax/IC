@@ -28,11 +28,15 @@ EVT_PAINT(BasicGLPane::render)
 
 
 END_EVENT_TABLE()
- 
+
+//To Opengl 
 static float obsP[] =  { -50, 100, 250, 0, 0, 0, 0, 1, 0 };
+
+//To objects
 vector <Object *> world;
-vector<int > obj_selected;
+//vector<int > obj_selected;
 int last_object_selected = 0;
+bool render_mode = true;
 
 BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE)
@@ -140,25 +144,7 @@ int getMinDepth(vector<int > obj_selected, vector <Object *> world)
 
 void BasicGLPane::mouseDown(wxMouseEvent& event) 
 {
-    //simulando a criacao de objetos
-    vector <float > pointWorld = Render::worldPoint(event.GetX(), event.GetY());
-    cout << "X: " << pointWorld[0] << "Y: " << pointWorld[1] << "Z: " << pointWorld[2] << endl;
-    //world[1].translateObject(pointWorld);
-    vector <float > proj;
-    proj.push_back(45.0); proj.push_back((float)getWidth()/(float)getHeight()); 
-    proj.push_back(0.1); proj.push_back(400);
-    
-    obj_selected = Render::render(world,  proj,  event.GetX(), event.GetY());
-    int obj_sel = getMinDepth(obj_selected, world) ;
-    
-    //modificando o estado do objeto selecionado
-    last_object_selected = obj_sel;
-    if(obj_sel){
-
-        world[obj_sel]->setSelected(true);
-    }
-    cout << "Ultimo objeto selecionado: " << last_object_selected << endl;
-    displayScene();
+    //criar aqui o evento do cursor
 }
 
 
@@ -179,6 +165,25 @@ void BasicGLPane::mouseReleased(wxMouseEvent& event)
 void BasicGLPane::rightClick(wxMouseEvent& event) 
 {
 
+    //simulando a criacao de objetos
+    //vector <float > pointWorld = Render::worldPoint(event.GetX(), event.GetY());
+    //cout << "X: " << pointWorld[0] << "Y: " << pointWorld[1] << "Z: " << pointWorld[2] << endl;
+    //world[1].translateObject(pointWorld);
+    vector <float > proj;
+    proj.push_back(45.0); proj.push_back((float)getWidth()/(float)getHeight()); 
+    proj.push_back(0.1); proj.push_back(400);
+    
+    vector <int > obj_selected = Render::render(world,  proj,  event.GetX(), event.GetY(), render_mode);
+    int obj_sel = getMinDepth(obj_selected, world) ;
+    
+    //modificando o estado do objeto selecionado
+    if(obj_sel){
+        last_object_selected = obj_sel;
+        world[obj_sel]->setSelected(true);
+    }
+    cout << "Ultimo objeto selecionado: " << last_object_selected << endl;
+    displayScene();
+
 }
 void BasicGLPane::mouseLeftWindow(wxMouseEvent& event) 
 {
@@ -196,8 +201,13 @@ void BasicGLPane::keyPressed(wxKeyEvent& event)
     cout << uc << endl;
     if (uc != WXK_NONE){
         if ( uc == WXK_TAB){
-            //modo edicao....
+            //modo edicao e objeto....
             cout << "Evento de tab..." <<  endl;
+            if(world.size() > 1 && last_object_selected){
+                cout << "Mudando o modo de renderezicao..." << endl;
+                render_mode = !render_mode;
+                //world[last_object_selected]->setRenderMode(render_mode);
+            }
         }
         
         if (uc == WXK_SPACE){
@@ -208,7 +218,7 @@ void BasicGLPane::keyPressed(wxKeyEvent& event)
             cout << "Evento de A..." <<  endl;
         }
     }
-
+    displayScene();
 }
 void BasicGLPane::keyReleased(wxKeyEvent& event) 
 {
@@ -271,7 +281,7 @@ void BasicGLPane::displayScene()
     Render::viewport3D(0,0, getWidth(), getHeight(), obsP);
    
     //glScalef(100, 100, 100);
-    Render::renderObjects(world);
+    Render::renderObjects(world, render_mode);
    
     glFlush();
     SwapBuffers();
