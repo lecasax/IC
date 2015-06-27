@@ -296,7 +296,7 @@ void BezierCurve::draw(int index_load)
             count++;
         }   
     }	
-
+    render_mode = 1;
     if(render_mode != 1){
     	// Modo Edição
     	
