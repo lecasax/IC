@@ -24,7 +24,7 @@ public:
 	static bool status_projection;
 	static void viewport3D(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y, const float *obsP);
 	void drawGlQuadStripVector(vector <double *> array , int n, int m);
-	static void renderObjects(vector <Object *> objects, bool render_mode);
+	static void renderObjects(vector <Object *> objects, bool render_mode, bool is_selecting);
 	static unsigned int render(vector <Object *> objects,  vector <float > proj,  int x, int y, bool render_mode);
 	static vector <float > worldPoint(int x, int y);
 
