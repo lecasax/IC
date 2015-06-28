@@ -1,3 +1,4 @@
+#include <GL/glut.h>
 #include <vector>
 #include "object.h"
 

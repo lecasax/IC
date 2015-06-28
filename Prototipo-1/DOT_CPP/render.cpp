@@ -48,7 +48,7 @@ unsigned int Render::render(vector <Object *> objects,  vector <float > proj,  i
 
         // Define a viewing volume corresponding to selecting in 3 x 3 region around the cursor.
         glLoadIdentity();
-        gluPickMatrix((float)x, (float) (viewport[3] - y) , 12.0, 12.0, viewport);
+        gluPickMatrix((float)x, (float) (viewport[3] - y) , 20.0, 20.0, viewport);
         gluPerspective( proj[0], proj[1], proj[2], proj[3] );
         glTranslatef(1, 0, 0);
         glMatrixMode( GL_MODELVIEW );

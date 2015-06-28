@@ -82,9 +82,11 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     //grid->setColor(color);
 
     Object *bezier = new BezierCurve(0,0,0);
+    Object *bezier2 = new BezierCurve(-50,0,0);
     
     world.push_back(grid);
     world.push_back(bezier);
+    world.push_back(bezier2);
     //world.push_back(cube);
     //world.push_back(cube2);
     //world.push_back(cube3);
@@ -170,8 +172,10 @@ void BasicGLPane::rightClick(wxMouseEvent& event)
 
         if(obj_selected){
             cout << "Modo objeto selecionando um objeto...." << endl;
+            world[last_object_selected]->setSelected(false);
             last_object_selected = (int)obj_selected;
             world[(int)obj_selected]->setSelected(true);
+
         }
     }
     cout << "Ultimo objeto selecionado: " << last_object_selected << endl;

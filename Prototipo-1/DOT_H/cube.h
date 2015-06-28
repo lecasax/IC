@@ -23,7 +23,7 @@ public:
 	Cube();
 	Cube(vector < float * > vertex);
 	~Cube();
-	void draw(int index_load);
+	void draw(int index_load,  bool is_selecting);
 
 };
 

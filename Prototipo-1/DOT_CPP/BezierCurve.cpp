@@ -273,7 +273,6 @@ void BezierCurve::ponteiro(float x,float y,float z, int size)
 
 void BezierCurve::draw(int index_load,  bool is_selecting)
 {
-
 	int i,k,j;
 	int sizeSeg = (int) segments.size();
 	int sizeCur = (int) ptsCurv.size();
@@ -296,12 +295,46 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
             count++;
         }   
     }	    
-    if(render_mode != 1 && this->is_selected){
+
+    if( !render_mode && this->is_selected){
+
     	// Modo Edição
     	index_internal = 0;
     	
     	for(i = 0; i < sizeSeg; i++){
 
+    		if(!is_selecting){
+
+	    		//Line
+				glColor4f(BLACK);
+				glPushMatrix();
+				glBegin(GL_LINES);
+				pt = segments[i].getP1();
+				glVertex3f(pt[0],pt[1],pt[2]);
+				pt = segments[i].getP2();
+				glVertex3f(pt[0],pt[1],pt[2]);
+				glEnd();
+				glPopMatrix();
+
+				this->updatePtsCurv();
+
+				if(this->is_selected){
+					glColor4f(GREEN);
+				} else {
+					glColor4f(RED);
+				}
+
+				glPushMatrix();
+					glBegin(GL_LINE_STRIP);
+					for(j = 0; j < sizeCur; j+=3){
+						glVertex3f(ptsCurv[j],ptsCurv[j+1],ptsCurv[j+2]);
+					}
+					glEnd();
+				glPopMatrix();
+			}
+
+
+    		cout << " modo edição " << endl;
     		// Point 1
     		index_internal++;
     		glLoadName(index_internal);
@@ -310,64 +343,62 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
     			glColor4f(ORANGE);
     			this->setSelectSegments(i,1);
     		}
-    		pt = segments[1].getP1();
-    		ponteiro(pt[0],pt[1],pt[2],3);
-    		
+    		pt = segments[i].getP1();
+    		glPushMatrix();
+    		glTranslatef(pt[0],pt[1],0);
+    		glutSolidCube(2);
+    		glPopMatrix();
     		
     		// Point C
-    		index_load++;
-    		glLoadName(index_load);
+    		index_internal++;
+    		glLoadName(index_internal);
     		glColor4f(BLACK);
     		if(index_internal == hit_index_internal){
     			glColor4f(ORANGE);
     			this->setSelectSegments(i,0);
     		}
     		pt = segments[i].getC();
-    		ponteiro(pt[0],pt[1],pt[2],3);
+    		glPushMatrix();
+    		glTranslatef(pt[0],pt[1],pt[2]);
+    		glutSolidCube(2);
+    		glPopMatrix();    		
 
     		// Pointe 2
-    		index_load++;
-    		glLoadName(index_load);
+    		index_internal++;
+    		glLoadName(index_internal);
     		glColor4f(BLACK);
     		if(index_internal == hit_index_internal){
     			glColor4f(ORANGE);
     			this->setSelectSegments(i,2);
     		}
     		pt = segments[i].getP2();
-    		ponteiro(pt[0],pt[1],pt[2],3); 
+    		glPushMatrix();
+    		glTranslatef(pt[0],pt[1],pt[2]);
+    		glutSolidCube(2);
+    		glPopMatrix();    		
 
-
-    		// Line
-    		index_load++;
-			glColor4f(BLACK);
-			glBegin(GL_LINES);
-			pt = segments[i].getP1();
-			glVertex3f(pt[0],pt[1],pt[2]);
-			pt = segments[i].getP2();
-			glVertex3f(pt[0],pt[1],pt[2]);
-			glEnd();
     	}
 
-    } else { 	
+    } else {
+
 		// Modo Objeto
+		cout << " modo objeto " << endl;
     	glLoadName(index_load);
-    }
 
-	this->updatePtsCurv();
+		this->updatePtsCurv();
 
-	if(this->is_selected){
-		glColor4f(GREEN);
-	} else {
-		glColor4f(RED);
-	}
-
-	glPushMatrix();
-		glBegin(GL_LINE_STRIP);
-		for(i = 0; i < sizeCur; i+=3){
-			glVertex3f(ptsCurv[i],ptsCurv[i+1],ptsCurv[i+2]);
+		if(this->is_selected){
+			glColor4f(GREEN);
+		} else {
+			glColor4f(RED);
 		}
-		glEnd();
-	glPopMatrix();
 
-	this->is_selected = false;
+		glPushMatrix();
+			glBegin(GL_LINE_STRIP);
+			for(i = 0; i < sizeCur; i+=3){
+				glVertex3f(ptsCurv[i],ptsCurv[i+1],ptsCurv[i+2]);
+			}
+			glEnd();
+		glPopMatrix();
+    }
 }
