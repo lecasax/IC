@@ -82,9 +82,9 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     //grid->setColor(color);
 
     Object *bezier = new BezierCurve(0,0,0);
-    Object *bezier2 = new BezierCurve(-50,0,0);
-    Object *bspline = new BSplines(0,50,0);
-    Object *nurb = new Nurbs(-50,50,0);
+    Object *bezier2 = new BezierCurve(0,0,0);
+    Object *bspline = new BSplines(0,0,0);
+    Object *nurb = new Nurbs(0,0,0);
 
     world.push_back(grid);
     world.push_back(bezier);
@@ -144,16 +144,17 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
         y = event.GetY();
         worldC = Render::worldPoint(x,y);
 
-        //cout << "Ponto_X " << worldC[0] << " Ponto_Y " << worldC[1] << " Ponto_Z " << worldC[2] << endl;
-        name = world[last_object_selected]->getTipo();
+        if(render_mode){
 
-        if(name == "BSplines" || name == "Nurbs"){
+            world[last_object_selected]->translateObject(worldC);
 
-            world[last_object_selected]->setPtControle(worldC[0],worldC[1],worldC[2]);
-        }
+        } else {            
+            name = world[last_object_selected]->getTipo();
 
-        if(name == "BezierCurve"){
-            world[last_object_selected]->setPositionSeg(worldC[0],worldC[1],worldC[2]);
+            if(name == "BSplines" || name == "Nurbs" || name == "BezierCurve"){
+
+                world[last_object_selected]->setPtControle(worldC[0],worldC[1],worldC[2]);
+            }
         }
 
         displayScene();
@@ -164,7 +165,6 @@ void BasicGLPane::mouseDown(wxMouseEvent& event)
 {
     //criar aqui o evento do cursor
 }
-
 
 void BasicGLPane::mouseWheelMoved(wxMouseEvent& event) 
 {

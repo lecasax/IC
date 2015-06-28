@@ -156,7 +156,4 @@ string Object::getTipo()
 }
 
 // Metodos da Curva
-void Object::setPtControle(float x, float y, float z)
-{}
-void Object::setPositionSeg(float x, float y,float z)
-{}
+void Object::setPtControle(float x, float y, float z) {}

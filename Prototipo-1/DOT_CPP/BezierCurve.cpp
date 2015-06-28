@@ -32,6 +32,7 @@ BezierCurve::BezierCurve(float x, float y,float z):Object()
 	quant = 80;
 
 	setTipo("BezierCurve");
+	this->updatePtsCurv();
 }
 
 // Destrutor
@@ -145,20 +146,20 @@ void BezierCurve::setQuant(int valor)
 
 // Altera a posição do ponto de um segmento que está
 // selecionado
-void BezierCurve::setPositionSeg(float x, float y,float z)
+void BezierCurve::setPtControle(float x, float y,float z)
 {
 	if(selectSegments != -1 ){
 
 		if(segments[selectSegments].getPtSelect() == 0){
-			segments[selectSegments].setC(x,y,z);
+			segments[selectSegments].setC(x-translation[0],y-translation[1],z-translation[2]);
 		}
 
 		if(segments[selectSegments].getPtSelect() == 1){
-			segments[selectSegments].setP1(x,y,z);
+			segments[selectSegments].setP1(x-translation[0],y-translation[1],z-translation[2]);
 		}
 
 		if(segments[selectSegments].getPtSelect() == 2){
-			segments[selectSegments].setP2(x,y,z);
+			segments[selectSegments].setP2(x-translation[0],y-translation[1],z-translation[2]);
 		}				
 	}
 }
@@ -322,7 +323,6 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
 			glPopMatrix();    	
 		}
 
-    	
     	for(i = 0; i < sizeSeg; i++){
 
     		cout << " modo edição " << endl;
@@ -388,9 +388,7 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
 		// Modo Objeto
 		if(render_mode){
 
-	    	glLoadName(index_load);
-
-			this->updatePtsCurv();
+	    	glLoadName(index_load);			
 
 			if(this->is_selected){
 				glColor4f(GREEN);
@@ -406,11 +404,7 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
 				glEnd();
 			glPopMatrix();
 
-		} else if(!is_selecting){
-
-	    	glLoadName(index_load);
-
-			this->updatePtsCurv();
+		} else if(!is_selecting){			
 
 			if(this->is_selected){
 				glColor4f(GREEN);

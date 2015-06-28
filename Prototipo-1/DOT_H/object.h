@@ -74,10 +74,12 @@ public:
 
 	void setHitIndexInternal(int val);
 
-
+	/*****************************************************/
 	// Metodos das Curvas
+	// Altera a posição do ponto de um segmento que está
+	// selecionado	
 	virtual void setPtControle(float x, float y, float z);
-	virtual void setPositionSeg(float x, float y,float z);
+
 
 protected:
 

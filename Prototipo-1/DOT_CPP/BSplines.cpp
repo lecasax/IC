@@ -38,6 +38,8 @@ BSplines::BSplines(float x, float y, float z):Object()
 	// Tipo Curva BSpline
 	setTipo("BSplines");
 	iniNo();
+
+	this->updatePtsCurv();
 }
 
 //Construtor
@@ -331,9 +333,9 @@ void BSplines::setPtControle(float x, float y, float z)
 {
 	if(ptcSelec >= 0){
 
-		ptControle[ptcSelec][0] = x;
-		ptControle[ptcSelec][1] = y;
-		ptControle[ptcSelec][2] = z;
+		ptControle[ptcSelec][0] = x-translation[0];
+		ptControle[ptcSelec][1] = y-translation[1];
+		ptControle[ptcSelec][2] = z-translation[2];
 	}
 }
 
@@ -663,7 +665,6 @@ void BSplines::draw(int index_load,  bool is_selecting)
     			this->setPtcSelec(i);
     		}
 
-
     		glPushMatrix();
     		glTranslatef(ptControle[i][0],ptControle[i][1],ptControle[i][2]);
     		glutSolidCube(2);
@@ -699,7 +700,6 @@ void BSplines::draw(int index_load,  bool is_selecting)
 			glEnd();
 			glDisable(GL_LINE_STIPPLE);
 
-
 			// Nós
 			pt = getImgNo();
 			glColor4f(SKY);
@@ -709,8 +709,8 @@ void BSplines::draw(int index_load,  bool is_selecting)
 
 				glVertex3f(pt[j],pt[j+1],pt[j+2]);
 			}
-			glEnd();
 
+			glEnd();
 		}    	
 
     } else {
@@ -718,9 +718,7 @@ void BSplines::draw(int index_load,  bool is_selecting)
 		// Modo Objeto
 		if(render_mode){
 					
-	    	glLoadName(index_load);
-
-			this->updatePtsCurv();
+	    	glLoadName(index_load);			
 
 			if(this->is_selected){
 				glColor4f(GREEN);
@@ -737,10 +735,8 @@ void BSplines::draw(int index_load,  bool is_selecting)
 			glPopMatrix();
 
 		} else if(!is_selecting){
-
-	    	glLoadName(index_load);
-
-			this->updatePtsCurv();
+			// Modo Edição nao selecionado
+	    	glLoadName(index_load);			
 
 			if(this->is_selected){
 				glColor4f(GREEN);

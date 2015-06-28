@@ -42,6 +42,8 @@ Nurbs::Nurbs(float x, float y, float z):BSplines()
 
 	// Tipo Curva Nurbs
 	setTipo("Nurbs");
+
+	this->updatePtsCurv();
 }
 
 // Destrutor

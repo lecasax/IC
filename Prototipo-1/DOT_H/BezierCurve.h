@@ -39,7 +39,7 @@ public:
 
 	// Altera a posição do ponto de um segmento que está
 	// selecionado
-	void setPositionSeg(float x, float y,float z);
+	void setPtControle(float x, float y,float z);
 
 	// Adciona um Segmento extremo da curva, 
 	// os Segmentos extremos da Curva
