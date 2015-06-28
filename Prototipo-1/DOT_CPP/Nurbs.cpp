@@ -27,26 +27,26 @@ Nurbs::Nurbs(float x, float y, float z):BSplines()
 	ptControle.push_back(p3);
 	ptControle.push_back(p4);
 
-	pesos.push_back(0.2);
 	pesos.push_back(0.1);
 	pesos.push_back(1);
-	pesos.push_back(0.4);
+	pesos.push_back(1.9);
+	pesos.push_back(1.1);
+
+	/*
+	pesos.push_back(0.2);
+	pesos.push_back(1);
+	pesos.push_back(1);
+	pesos.push_back(0.2);	*/
 	
 	iniNo();
 
 	// Tipo Curva Nurbs
-	setTipo(2);
+	setTipo("Nurbs");
 }
 
 // Destrutor
 Nurbs::~Nurbs(void)
 {
-}
-
-
-void Nurbs::setTipo(int val)
-{
-	tipo = val;
 }
 
 // Retorna a lista de Pesos

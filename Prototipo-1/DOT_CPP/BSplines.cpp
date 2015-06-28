@@ -36,7 +36,7 @@ BSplines::BSplines(float x, float y, float z):Object()
 	
 
 	// Tipo Curva BSpline
-	setTipo(1);
+	setTipo("BSplines");
 	iniNo();
 }
 
@@ -84,11 +84,6 @@ int BSplines::addPtControle(void)
 	}
 
 	return 1;
-}
-
-void BSplines::setTipo(int val)
-{
-	tipo = val;
 }
 
 // Adiciona um Ponto de Controle Extremo

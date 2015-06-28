@@ -79,6 +79,4 @@ private:
 	vector< vector<float> > usedControlPts();
 
 	void ponteiro(float x,float y,float z, int size);
-
-	void setTipo(int val);	
 };

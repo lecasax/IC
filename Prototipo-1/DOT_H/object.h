@@ -65,6 +65,8 @@ public:
 	void rotateObject(vector <float > newRotation);
 	vector <float >getRotation();
 	virtual void draw(int index_load, bool is_selecting);
+	void setTipo(const char * val);
+	string getTipo();
 	void setSelected(bool is_selected);
 	void setRenderMode(bool mode);
 	bool getRenderMode();
@@ -72,6 +74,10 @@ public:
 
 	void setHitIndexInternal(int val);
 
+
+	// Metodos das Curvas
+	virtual void setPtControle(float x, float y, float z);
+	virtual void setPositionSeg(float x, float y,float z);
 
 protected:
 

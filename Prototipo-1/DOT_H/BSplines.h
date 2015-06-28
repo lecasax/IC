@@ -126,6 +126,4 @@ protected:
 	// k é a ordem de continuidade da curva
 	// u é o parametro
 	double bspline(int i, int k, double u);
-
-	virtual void setTipo(int val);
 };

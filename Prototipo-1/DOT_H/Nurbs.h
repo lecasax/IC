@@ -43,7 +43,4 @@ private:
 
 	// Inicializa a lista de nós
 	void iniNo();
-
-	void setTipo(int val);
-
 };

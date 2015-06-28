@@ -31,13 +31,7 @@ BezierCurve::BezierCurve(float x, float y,float z):Object()
 	selectSegments = -1;
 	quant = 80;
 
-	setTipo(0);
-}
-
-
-void BezierCurve::setTipo(int val){
-
-	tipo = val;
+	setTipo("BezierCurve");
 }
 
 // Destrutor
@@ -342,7 +336,7 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
     		}
     		pt = segments[i].getP1();
     		glPushMatrix();
-    		glTranslatef(pt[0],pt[1],0);
+    		glTranslatef(pt[0],pt[1],pt[2]);
     		glutSolidCube(2);
     		glPopMatrix();
     		

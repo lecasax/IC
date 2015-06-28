@@ -127,10 +127,37 @@ void BasicGLPane::mouseMiddleDclick(wxMouseEvent &event)
 
 }
 void BasicGLPane::mouseMoved(wxMouseEvent& event )
-{
+{   
+    // Capturando Coordenadas do Mouse na Tela
+    int x = 0, y = 0;
 
-        //displayScene(); 
+    // Cordenadas do Mouse no Mundo
+    vector<float> worldC;
 
+    // Nome do Objeto Selecionado
+    string name;
+
+    if(event.Dragging() && event.LeftIsDown()){
+
+        // Convertendo Coordenadas do mouse em coordenadas no Mundo
+        x = event.GetX();
+        y = event.GetY();
+        worldC = Render::worldPoint(x,y);
+
+        //cout << "Ponto_X " << worldC[0] << " Ponto_Y " << worldC[1] << " Ponto_Z " << worldC[2] << endl;
+        name = world[last_object_selected]->getTipo();
+
+        if(name == "BSplines" || name == "Nurbs"){
+
+            world[last_object_selected]->setPtControle(worldC[0],worldC[1],worldC[2]);
+        }
+
+        if(name == "BezierCurve"){
+            world[last_object_selected]->setPositionSeg(worldC[0],worldC[1],worldC[2]);
+        }
+
+        displayScene();
+    }    
 }
 
 void BasicGLPane::mouseDown(wxMouseEvent& event) 

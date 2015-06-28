@@ -143,3 +143,20 @@ void Object::draw(int index_load,  bool is_selecting)
 {
     cout << "Funcao virtual chamada...." << endl;
 }
+
+void Object::setTipo(const char * val)
+{
+    string nome(val);
+    tipo = nome;
+}
+
+string Object::getTipo()
+{
+    return tipo;
+}
+
+// Metodos da Curva
+void Object::setPtControle(float x, float y, float z)
+{}
+void Object::setPositionSeg(float x, float y,float z)
+{}

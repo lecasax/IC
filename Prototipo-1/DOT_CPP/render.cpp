@@ -137,14 +137,18 @@ vector <float > Render::worldPoint(int x, int y)
     glGetIntegerv( GL_VIEWPORT, viewport );
 
     //Read the window z value from the z-buffer 
-    glReadPixels( x, viewport[3]-y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z );   
-    if (z == 1) z -= 0.0001;
+    //glReadPixels( x, viewport[3]-y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z );   
+    //if (z == 1)
+     z = 1 - 0.0002;
     //Use the gluUnProject to get the world co-ordinates of
     //the point the user clicked and save in objx, objy, objz.
     gluUnProject( x, viewport[3]-y, z, modelview, projection, viewport, &objx, &objy, &objz );
     float v[] = {(float)objx, (float)objy, (float)objz};
     vector<float > p;
-    p.insert(p.end(), v, v+3);
+    //p.insert(p.end(), v, v+3);
+    p.push_back(objx);
+    p.push_back(objy);
+    p.push_back(objz);
 
     return p;
 }
