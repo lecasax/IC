@@ -24,8 +24,8 @@ Object::Object()
     float t[]={0, 0, 0};
     float c[]={1, 1, 1};
 
-    index_internal = 0;
-
+    this->index_internal = 0;
+    this->is_selected = false;
     this->rotation.insert(this->rotation.end(), r, r+3);
     this->translation.insert(this->translation.end(), t, t+3);
     this->scale.insert(this->scale.end(), s, s+3 );
@@ -40,6 +40,9 @@ Object::Object(vector < float *> vertex)
     float s[]={1, 1, 1};
     float t[]={0, 0, 0};
     float c[]={1, 1, 1};
+
+    this->is_selected = false;
+    this->index_internal = 0;
 
     this->rotation.insert(this->rotation.end(), r, r+3);
     this->translation.insert(this->translation.end(), t, t+3);

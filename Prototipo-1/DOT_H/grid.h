@@ -23,7 +23,7 @@ public:
 	Grid();
 	Grid(vector < float * > vertex);
 	~Grid();
-	void draw(int index_load);
+	void draw(int index_load,  bool is_selecting);
 
 };
 
