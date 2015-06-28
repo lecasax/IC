@@ -52,7 +52,7 @@ public:
 	int removeSegment();
 
 	// draw
-	void draw(int index_load);
+	void draw(int index_load,  bool is_selecting);
 	
 private:
 

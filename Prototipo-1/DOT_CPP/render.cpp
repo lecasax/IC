@@ -58,7 +58,7 @@ unsigned int Render::render(vector <Object *> objects,  vector <float > proj,  i
         glPushName(0); 
 
         //charmar a renderObjects aqui
-        renderObjects(objects, render_mode);
+        renderObjects(objects, render_mode, true);
 
         hits = glRenderMode(GL_RENDER); // Return to rendering mode, returning number of hits.
 
@@ -71,7 +71,7 @@ unsigned int Render::render(vector <Object *> objects,  vector <float > proj,  i
     return findClosestHit(hits, buffer);
 }
 
-void Render::renderObjects(vector <Object *> objects, bool render_mode)
+void Render::renderObjects(vector <Object *> objects, bool render_mode, bool is_selecting)
 {
     //cout << "Tamanho dos vertices do cubo: " << objects[0]->getVertex().size() << " Size world: " << objects.size() << endl;
 
@@ -83,7 +83,7 @@ void Render::renderObjects(vector <Object *> objects, bool render_mode)
 
         //glLoadName(i+1); // register object.
         objects[i]->setRenderMode(render_mode);
-        objects[i]->draw(i);
+        objects[i]->draw(i, is_selecting);
         cout << "Modo de renderizacao: " << objects[i]->getRenderMode() << endl;
         //glPopName();
     }
