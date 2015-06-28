@@ -34,7 +34,7 @@ public:
 	int rmvPtControle();
 
 	// draw
-	void draw(int index_load,  bool is_selecting);	
+	//void draw(int index_load,  bool is_selecting);	
 
 private:
 

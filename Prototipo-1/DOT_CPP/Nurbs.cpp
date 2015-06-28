@@ -27,10 +27,10 @@ Nurbs::Nurbs(float x, float y, float z):BSplines()
 	ptControle.push_back(p3);
 	ptControle.push_back(p4);
 
+	pesos.push_back(0.2);
+	pesos.push_back(0.1);
 	pesos.push_back(1);
-	pesos.push_back(1);
-	pesos.push_back(1);
-	pesos.push_back(1);
+	pesos.push_back(0.4);
 	
 	iniNo();
 
@@ -246,9 +246,4 @@ void Nurbs::iniNo()
 	}
 
 	normaNos();
-}
-
-void Nurbs::draw(int index_load,  bool is_selecting)
-{
-
 }
