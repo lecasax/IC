@@ -247,3 +247,8 @@ void Nurbs::iniNo()
 
 	normaNos();
 }
+
+void Nurbs::draw(int index_load,  bool is_selecting)
+{
+
+}

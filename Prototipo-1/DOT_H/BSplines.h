@@ -78,6 +78,9 @@ public:
 	// Atualiza/Processa os Pontos da Curva B-Spline
 	virtual void updatePtsCurv();
 
+	// draw
+	void draw(int index_load,  bool is_selecting);	
+
 protected:
 
 	// Quantidade de Pontos da Curva

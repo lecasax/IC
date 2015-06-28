@@ -619,3 +619,117 @@ float BSplines::bspline(int i, int k, double u)
       return ( coef1 * bspline(i, k-1, u) + coef2 * bspline(i+1 ,k-1 ,u) );
    }
 }
+
+void BSplines::draw(int index_load,  bool is_selecting)
+{
+	int i,k,j;
+	int sizePtc = (int) ptControle.size();
+	int sizeCur = (int) ptsCurv.size();
+	vector<float> pt;
+
+	GLfloat m[16];
+	vector <float > c = getColor();
+    vector <float > r = getRotation();
+    vector <float > t = getTranslation();
+    vector <float > s = getScale();
+
+    glm::quat quat (glm::vec3(r[0]*PI/BASE, r[1]*PI/BASE, r[2]*PI/BASE));
+    glm::quat quaternion = quat ; 
+    glm::mat4 mat  = glm::toMat4(quaternion);
+
+    int count = 0;
+    for ( k = 0; k < 4; ++k){
+        for ( j = 0; j < 4; ++j){
+            m[count] = mat[k][j];
+            count++;
+        }   
+    }	    
+
+    if( !render_mode && this->is_selected){
+
+    	// Modo Edição
+    	index_internal = 0;
+
+    	if(!is_selecting){
+
+			this->updatePtsCurv();
+
+			if(this->is_selected){
+				glColor4f(GREEN);
+			} else {
+				glColor4f(RED);
+			}
+			// Desenha Curva
+			glPushMatrix();
+				glBegin(GL_LINE_STRIP);
+				for(j = 0; j < sizeCur; j+=3){
+					glVertex3f(ptsCurv[j],ptsCurv[j+1],ptsCurv[j+2]);
+				}
+				glEnd();
+			glPopMatrix();
+
+			// Linha entre cada Ponto de Controle
+			glColor4f(BLACK);
+			glLineStipple(1,0xAAAA);
+			glEnable(GL_LINE_STIPPLE);
+			glBegin(GL_LINE_STRIP);
+			for(j = 0; j < sizePtc; j++){
+				glVertex3f(ptControle[j][0],ptControle[j][1],ptControle[j][2]);
+			} 
+			glEnd();
+			glDisable(GL_LINE_STIPPLE);
+
+
+			// Nós
+			pt = this->getImgNo();
+			glColor4f(SKY);
+			glPointSize(5);
+			glBegin(GL_POINTS);
+			for(j = 0; j < (int) pt.size(); j+= 3){
+
+				glVertex3f(pt[j],pt[j+1],pt[j+2]);
+			}
+			glEnd();
+
+		}
+
+    	for(i = 0; i < sizePtc; i++){
+
+    		index_internal++;
+
+    		glLoadName(index_internal);
+    		glColor4f(BLACK);
+    		if(index_internal == hit_index_internal){
+    			glColor4f(ORANGE);
+    			this->setPtcSelec(i);
+    		}
+
+
+    		glPushMatrix();
+    		glTranslatef(ptControle[i][0],ptControle[i][1],ptControle[i][2]);
+    		glutSolidCube(2);
+    		glPopMatrix();
+    	}
+
+    } else {
+
+		// Modo Objeto		
+    	glLoadName(index_load);
+
+		this->updatePtsCurv();
+
+		if(this->is_selected){
+			glColor4f(GREEN);
+		} else {
+			glColor4f(RED);
+		}
+
+		glPushMatrix();
+			glBegin(GL_LINE_STRIP);
+			for(i = 0; i < sizeCur; i+=3){
+				glVertex3f(ptsCurv[i],ptsCurv[i+1],ptsCurv[i+2]);
+			}
+			glEnd();
+		glPopMatrix();
+    }
+}
