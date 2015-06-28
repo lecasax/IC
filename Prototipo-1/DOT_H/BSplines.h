@@ -125,7 +125,7 @@ protected:
 	// i é o indice
 	// k é a ordem de continuidade da curva
 	// u é o parametro
-	float bspline(int i, int k, double u);
+	double bspline(int i, int k, double u);
 
 	virtual void setTipo(int val);
 };

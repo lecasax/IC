@@ -591,9 +591,9 @@ void BSplines::iniNo()
 // i é o indice
 // k é a ordem de continuidade da curva
 // u é o parametro
-float BSplines::bspline(int i, int k, double u)
+double BSplines::bspline(int i, int k, double u)
 {	
-   float coef1, coef2;
+   double coef1, coef2;
    if ( k == 1 )
    {
 	  if ( i == 0 ) if ( ( nos[i] <= u ) && ( u <= nos[i+1] ) ) return 1.0;
@@ -643,12 +643,37 @@ void BSplines::draw(int index_load,  bool is_selecting)
             m[count] = mat[k][j];
             count++;
         }   
-    }	    
+    }
+
+    glPushMatrix();
+    // Aplicar Transformações Geométricas
+    glColor3f(c[0],c[1],c[2]);
+    glScalef(s[0], s[1], s[2]);
+    glTranslatef(t[0],t[1],t[2]);
+    glMultMatrixf(m);     
 
     if( !render_mode && this->is_selected){
 
     	// Modo Edição
     	index_internal = 0;
+
+    	for(i = 0; i < sizePtc; i++){
+
+    		index_internal++;
+
+    		glLoadName(index_internal);
+    		glColor4f(BLACK);
+    		if(index_internal == hit_index_internal){
+    			glColor4f(ORANGE);
+    			this->setPtcSelec(i);
+    		}
+
+
+    		glPushMatrix();
+    		glTranslatef(ptControle[i][0],ptControle[i][1],ptControle[i][2]);
+    		glutSolidCube(2);
+    		glPopMatrix();
+    	}
 
     	if(!is_selecting){
 
@@ -681,7 +706,7 @@ void BSplines::draw(int index_load,  bool is_selecting)
 
 
 			// Nós
-			pt = this->getImgNo();
+			pt = getImgNo();
 			glColor4f(SKY);
 			glPointSize(5);
 			glBegin(GL_POINTS);
@@ -691,45 +716,52 @@ void BSplines::draw(int index_load,  bool is_selecting)
 			}
 			glEnd();
 
-		}
-
-    	for(i = 0; i < sizePtc; i++){
-
-    		index_internal++;
-
-    		glLoadName(index_internal);
-    		glColor4f(BLACK);
-    		if(index_internal == hit_index_internal){
-    			glColor4f(ORANGE);
-    			this->setPtcSelec(i);
-    		}
-
-
-    		glPushMatrix();
-    		glTranslatef(ptControle[i][0],ptControle[i][1],ptControle[i][2]);
-    		glutSolidCube(2);
-    		glPopMatrix();
-    	}
+		}    	
 
     } else {
 
-		// Modo Objeto		
-    	glLoadName(index_load);
+		// Modo Objeto
+		if(render_mode){
+					
+	    	glLoadName(index_load);
 
-		this->updatePtsCurv();
+			this->updatePtsCurv();
 
-		if(this->is_selected){
-			glColor4f(GREEN);
-		} else {
-			glColor4f(RED);
-		}
-
-		glPushMatrix();
-			glBegin(GL_LINE_STRIP);
-			for(i = 0; i < sizeCur; i+=3){
-				glVertex3f(ptsCurv[i],ptsCurv[i+1],ptsCurv[i+2]);
+			if(this->is_selected){
+				glColor4f(GREEN);
+			} else {
+				glColor4f(RED);
 			}
-			glEnd();
-		glPopMatrix();
+
+			glPushMatrix();
+				glBegin(GL_LINE_STRIP);
+				for(i = 0; i < sizeCur; i+=3){
+					glVertex3f(ptsCurv[i],ptsCurv[i+1],ptsCurv[i+2]);
+				}
+				glEnd();
+			glPopMatrix();
+
+		} else if(!is_selecting){
+
+	    	glLoadName(index_load);
+
+			this->updatePtsCurv();
+
+			if(this->is_selected){
+				glColor4f(GREEN);
+			} else {
+				glColor4f(RED);
+			}
+
+			glPushMatrix();
+				glBegin(GL_LINE_STRIP);
+				for(i = 0; i < sizeCur; i+=3){
+					glVertex3f(ptsCurv[i],ptsCurv[i+1],ptsCurv[i+2]);
+				}
+				glEnd();
+			glPopMatrix();
+		}
     }
+
+    glPopMatrix();
 }

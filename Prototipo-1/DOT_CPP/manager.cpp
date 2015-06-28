@@ -84,11 +84,13 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     Object *bezier = new BezierCurve(0,0,0);
     Object *bezier2 = new BezierCurve(-50,0,0);
     Object *bspline = new BSplines(0,50,0);
+    Object *nurb = new Nurbs(-50,50,0);
 
     world.push_back(grid);
     world.push_back(bezier);
     world.push_back(bezier2);
     world.push_back(bspline);
+    world.push_back(nurb);
     //world.push_back(cube);
     //world.push_back(cube2);
     //world.push_back(cube3);
