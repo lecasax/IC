@@ -136,7 +136,7 @@ void Object::setHitIndexInternal(int val)
     hit_index_internal = val; 
 }
 
-void Object::draw(int index_load)
+void Object::draw(int index_load,  bool is_selecting)
 {
     cout << "Funcao virtual chamada...." << endl;
 }

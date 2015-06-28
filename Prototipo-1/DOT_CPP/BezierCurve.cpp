@@ -271,7 +271,7 @@ void BezierCurve::ponteiro(float x,float y,float z, int size)
 	glEnd();
 }
 
-void BezierCurve::draw(int index_load)
+void BezierCurve::draw(int index_load,  bool is_selecting)
 {
 
 	int i,k,j;

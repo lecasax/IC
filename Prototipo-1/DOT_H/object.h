@@ -64,7 +64,7 @@ public:
 	vector <float >getTranslation();
 	void rotateObject(vector <float > newRotation);
 	vector <float >getRotation();
-	virtual void draw(int index_load);
+	virtual void draw(int index_load, bool is_selecting);
 	void setSelected(bool is_selected);
 	void setRenderMode(bool mode);
 	bool getRenderMode();

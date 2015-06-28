@@ -274,7 +274,7 @@ void BasicGLPane::displayScene()
     Render::viewport3D(0,0, getWidth(), getHeight(), obsP);
    
     //glScalef(100, 100, 100);
-    Render::renderObjects(world, render_mode);
+    Render::renderObjects(world, render_mode, false);
    
     glFlush();
     SwapBuffers();
