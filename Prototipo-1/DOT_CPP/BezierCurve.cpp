@@ -300,39 +300,28 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
 
     	// Modo Edição
     	index_internal = 0;
-    	
-    	for(i = 0; i < sizeSeg; i++){
 
-    		if(!is_selecting){
+    	if(!is_selecting){
 
-	    		//Line
-				glColor4f(BLACK);
-				glPushMatrix();
-				glBegin(GL_LINES);
-				pt = segments[i].getP1();
-				glVertex3f(pt[0],pt[1],pt[2]);
-				pt = segments[i].getP2();
-				glVertex3f(pt[0],pt[1],pt[2]);
-				glEnd();
-				glPopMatrix();
+			this->updatePtsCurv();
 
-				this->updatePtsCurv();
-
-				if(this->is_selected){
-					glColor4f(GREEN);
-				} else {
-					glColor4f(RED);
-				}
-
-				glPushMatrix();
-					glBegin(GL_LINE_STRIP);
-					for(j = 0; j < sizeCur; j+=3){
-						glVertex3f(ptsCurv[j],ptsCurv[j+1],ptsCurv[j+2]);
-					}
-					glEnd();
-				glPopMatrix();
+			if(this->is_selected){
+				glColor4f(GREEN);
+			} else {
+				glColor4f(RED);
 			}
 
+			glPushMatrix();
+				glBegin(GL_LINE_STRIP);
+				for(j = 0; j < sizeCur; j+=3){
+					glVertex3f(ptsCurv[j],ptsCurv[j+1],ptsCurv[j+2]);
+				}
+				glEnd();
+			glPopMatrix();    	
+		}
+
+    	
+    	for(i = 0; i < sizeSeg; i++){
 
     		cout << " modo edição " << endl;
     		// Point 1
@@ -375,8 +364,21 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
     		glPushMatrix();
     		glTranslatef(pt[0],pt[1],pt[2]);
     		glutSolidCube(2);
-    		glPopMatrix();    		
+    		glPopMatrix(); 
 
+
+    		if(!is_selecting){
+	    		//Line
+				glColor4f(BLACK);
+				glPushMatrix();
+				glBegin(GL_LINES);
+				pt = segments[i].getP1();
+				glVertex3f(pt[0],pt[1],pt[2]);
+				pt = segments[i].getP2();
+				glVertex3f(pt[0],pt[1],pt[2]);
+				glEnd();
+				glPopMatrix();
+			}
     	}
 
     } else {

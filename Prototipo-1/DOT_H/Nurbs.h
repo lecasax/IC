@@ -33,6 +33,9 @@ public:
 	// Remove o Ponto de Controle Selecionado
 	int rmvPtControle();
 
+	// draw
+	void draw(int index_load,  bool is_selecting);	
+
 private:
 
 	// Lista de Pesos
