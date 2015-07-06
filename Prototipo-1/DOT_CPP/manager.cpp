@@ -76,22 +76,11 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
 
 
     Object *grid = new Grid[1];
-    Object *cube = new Cube[1];
-    Object *cube2 = new Cube[1];
-    Object *cube3 = new Cube[1];
-
-    cube2->translateObject(trans);
-    cube2->scaleObject(scale);
-    cube2->setColor(color);
-    cube->scaleObject(scale);
-    cube3->scaleObject(scale);
-    cube3->translateObject(trans2);
     //grid->setColor(color);
 
     Object *bezier = new BezierCurve(0,0,0);
-    Object *bezier2 = new BezierCurve(-50,0,0);
-    Object *bspline = new BSplines(0,50,0);
-<<<<<<< HEAD
+    Object *bezier2 = new BezierCurve(0,0,0);
+    Object *bspline = new BSplines(0,0,0);
     Object *surfaceBezier = new SurfaceBezier() ;
     Object *surfaceNurbs = new SurfaceNurbs() ;
     surfaceNurbs->translateObject(trans);
@@ -107,15 +96,14 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     world.push_back(surfaceBezier);
     world.push_back(surfaceNurbs);
 
-=======
-    Object *nurb = new Nurbs(-50,50,0);
+    Object *nurb = new Nurbs(0,0,0);
 
     world.push_back(grid);
     world.push_back(bezier);
     world.push_back(bezier2);
     world.push_back(bspline);
     world.push_back(nurb);
->>>>>>> bbfd4a67c9642c4b2152a6acee094a528b7ae1aa
+
     //world.push_back(cube);
     //world.push_back(cube2);
     //world.push_back(cube3);
