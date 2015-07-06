@@ -299,6 +299,14 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
     glTranslatef(t[0],t[1],t[2]);
     glMultMatrixf(m);
 
+
+    glPushMatrix();
+    // Aplicar Transformações Geométricas
+    glColor3f(c[0],c[1],c[2]);
+    glScalef(s[0], s[1], s[2]);
+    glTranslatef(t[0],t[1],t[2]);
+    glMultMatrixf(m);
+
     if( !render_mode && this->is_selected){
 
         // Modo Edição
@@ -385,6 +393,7 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
 
     } else {
 
+<<<<<<< HEAD
         // Modo Objeto
         if(render_mode){
 
@@ -423,3 +432,49 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
     }
     glPopMatrix();
 }
+=======
+		// Modo Objeto
+		if(render_mode){
+
+	    	glLoadName(index_load);
+
+			this->updatePtsCurv();
+
+			if(this->is_selected){
+				glColor4f(GREEN);
+			} else {
+				glColor4f(RED);
+			}
+
+			glPushMatrix();
+				glBegin(GL_LINE_STRIP);
+				for(i = 0; i < sizeCur; i+=3){
+					glVertex3f(ptsCurv[i],ptsCurv[i+1],ptsCurv[i+2]);
+				}
+				glEnd();
+			glPopMatrix();
+
+		} else if(!is_selecting){
+
+	    	glLoadName(index_load);
+
+			this->updatePtsCurv();
+
+			if(this->is_selected){
+				glColor4f(GREEN);
+			} else {
+				glColor4f(RED);
+			}
+
+			glPushMatrix();
+				glBegin(GL_LINE_STRIP);
+				for(i = 0; i < sizeCur; i+=3){
+					glVertex3f(ptsCurv[i],ptsCurv[i+1],ptsCurv[i+2]);
+				}
+				glEnd();
+			glPopMatrix();
+		}
+    }
+    glPopMatrix();
+}
+>>>>>>> bbfd4a67c9642c4b2152a6acee094a528b7ae1aa

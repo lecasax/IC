@@ -34,7 +34,11 @@ public:
 	int rmvPtControle();
 
 	// draw
+<<<<<<< HEAD
 	//void draw(int index_load,  bool is_selecting);
+=======
+	//void draw(int index_load,  bool is_selecting);	
+>>>>>>> bbfd4a67c9642c4b2152a6acee094a528b7ae1aa
 
 private:
 

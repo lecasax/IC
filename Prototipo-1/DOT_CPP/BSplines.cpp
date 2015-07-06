@@ -589,7 +589,11 @@ void BSplines::iniNo()
 // k é a ordem de continuidade da curva
 // u é o parametro
 double BSplines::bspline(int i, int k, double u)
+<<<<<<< HEAD
 {
+=======
+{	
+>>>>>>> bbfd4a67c9642c4b2152a6acee094a528b7ae1aa
    double coef1, coef2;
    if ( k == 1 )
    {
@@ -639,7 +643,11 @@ void BSplines::draw(int index_load,  bool is_selecting)
         for ( j = 0; j < 4; ++j){
             m[count] = mat[k][j];
             count++;
+<<<<<<< HEAD
         }
+=======
+        }   
+>>>>>>> bbfd4a67c9642c4b2152a6acee094a528b7ae1aa
     }
 
     glPushMatrix();
@@ -647,7 +655,11 @@ void BSplines::draw(int index_load,  bool is_selecting)
     glColor3f(c[0],c[1],c[2]);
     glScalef(s[0], s[1], s[2]);
     glTranslatef(t[0],t[1],t[2]);
+<<<<<<< HEAD
     glMultMatrixf(m);
+=======
+    glMultMatrixf(m);     
+>>>>>>> bbfd4a67c9642c4b2152a6acee094a528b7ae1aa
 
     if( !render_mode && this->is_selected){
 
@@ -665,6 +677,10 @@ void BSplines::draw(int index_load,  bool is_selecting)
     			this->setPtcSelec(i);
     		}
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> bbfd4a67c9642c4b2152a6acee094a528b7ae1aa
     		glPushMatrix();
     		glTranslatef(ptControle[i][0],ptControle[i][1],ptControle[i][2]);
     		glutSolidCube(2);
@@ -710,15 +726,26 @@ void BSplines::draw(int index_load,  bool is_selecting)
 				glVertex3f(pt[j],pt[j+1],pt[j+2]);
 			}
 
+<<<<<<< HEAD
 			glEnd();
 		}
+=======
+		}    	
+>>>>>>> bbfd4a67c9642c4b2152a6acee094a528b7ae1aa
 
     } else {
 
 		// Modo Objeto
 		if(render_mode){
+<<<<<<< HEAD
 
 	    	glLoadName(index_load);
+=======
+					
+	    	glLoadName(index_load);
+
+			this->updatePtsCurv();
+>>>>>>> bbfd4a67c9642c4b2152a6acee094a528b7ae1aa
 
 			if(this->is_selected){
 				glColor4f(GREEN);
@@ -735,6 +762,7 @@ void BSplines::draw(int index_load,  bool is_selecting)
 			glPopMatrix();
 
 		} else if(!is_selecting){
+<<<<<<< HEAD
 			// Modo Edição nao selecionado
 	    	glLoadName(index_load);
 
@@ -744,6 +772,19 @@ void BSplines::draw(int index_load,  bool is_selecting)
 				glColor4f(RED);
 			}
 
+=======
+
+	    	glLoadName(index_load);
+
+			this->updatePtsCurv();
+
+			if(this->is_selected){
+				glColor4f(GREEN);
+			} else {
+				glColor4f(RED);
+			}
+
+>>>>>>> bbfd4a67c9642c4b2152a6acee094a528b7ae1aa
 			glPushMatrix();
 				glBegin(GL_LINE_STRIP);
 				for(i = 0; i < sizeCur; i+=3){

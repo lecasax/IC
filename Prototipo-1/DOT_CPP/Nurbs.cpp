@@ -27,6 +27,7 @@ Nurbs::Nurbs(float x, float y, float z):BSplines()
 	ptControle.push_back(p3);
 	ptControle.push_back(p4);
 
+<<<<<<< HEAD
 	pesos.push_back(0.1);
 	pesos.push_back(1);
 	pesos.push_back(1.9);
@@ -38,6 +39,13 @@ Nurbs::Nurbs(float x, float y, float z):BSplines()
 	pesos.push_back(1);
 	pesos.push_back(0.2);	*/
 
+=======
+	pesos.push_back(0.2);
+	pesos.push_back(0.1);
+	pesos.push_back(1);
+	pesos.push_back(0.4);
+	
+>>>>>>> bbfd4a67c9642c4b2152a6acee094a528b7ae1aa
 	iniNo();
 
 	// Tipo Curva Nurbs

@@ -91,6 +91,7 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     Object *bezier = new BezierCurve(0,0,0);
     Object *bezier2 = new BezierCurve(-50,0,0);
     Object *bspline = new BSplines(0,50,0);
+<<<<<<< HEAD
     Object *surfaceBezier = new SurfaceBezier() ;
     Object *surfaceNurbs = new SurfaceNurbs() ;
     surfaceNurbs->translateObject(trans);
@@ -106,6 +107,15 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     world.push_back(surfaceBezier);
     world.push_back(surfaceNurbs);
 
+=======
+    Object *nurb = new Nurbs(-50,50,0);
+
+    world.push_back(grid);
+    world.push_back(bezier);
+    world.push_back(bezier2);
+    world.push_back(bspline);
+    world.push_back(nurb);
+>>>>>>> bbfd4a67c9642c4b2152a6acee094a528b7ae1aa
     //world.push_back(cube);
     //world.push_back(cube2);
     //world.push_back(cube3);
