@@ -1,5 +1,7 @@
 #include <GL/glut.h>
 #include "BezierCurve.h"
+#include "bezierSurface.h"
+#include "nurbsSurface.h"
 #include "manager.h"
 #include "render.h"
 #include "object.h"
@@ -30,7 +32,7 @@ EVT_PAINT(BasicGLPane::render)
 
 END_EVENT_TABLE()
 
-//To Opengl 
+//To Opengl
 static float obsP[] =  { -50, 100, 250, 0, 0, 0, 0, 1, 0 };
 
 //To objects
@@ -38,6 +40,11 @@ vector <Object *> world;
 //vector<int > obj_selected;
 int last_object_selected = 0;
 bool render_mode = true;
+vector <float > ROTATION(3, 0);
+float SCALE = 1.0;
+
+/*Variaveis de rotacao do cenario*/
+int start_x, start_y, start_angle_x, start_angle_y, angle_x = 0, angle_y = 0;
 
 BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE)
@@ -46,7 +53,7 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     m_context = new wxGLContext(this);
     //No construtor na funcionou
     //Render::viewport3D(0,0, getWidth(), getHeight(), obsP);
- 
+
      // To avoid flashing on MSW
 
     int argc = 1;
@@ -59,14 +66,14 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     float  c[] = {0, 0, 1} ;
     float  r[] = {0, 45, 0};
     float  s[] = {20.5, 20.5, 20.5};
-    float  t[] = {0.0, 0.0, 1.0};
-    float  t2[] = {2.0, 0.0, 0.0};
+    float  t[] = {-80.0, 4.0, 0.0};
+    float  t2[] = {80.0, 4.0, 0.0};
     vector<float> rotate (r, r + sizeof(r) / sizeof(float));
     vector<float > color (c, c + sizeof(c) / sizeof(float) );
     vector<float > scale (s, s + sizeof(s) / sizeof(float) );
     vector<float > trans (t, t + sizeof(t) / sizeof(float) );
     vector<float > trans2 (t2, t2 + sizeof(t2) / sizeof(float) );
-    
+
 
     Object *grid = new Grid[1];
     Object *cube = new Cube[1];
@@ -84,29 +91,39 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     Object *bezier = new BezierCurve(0,0,0);
     Object *bezier2 = new BezierCurve(-50,0,0);
     Object *bspline = new BSplines(0,50,0);
+    Object *surfaceBezier = new SurfaceBezier() ;
+    Object *surfaceNurbs = new SurfaceNurbs() ;
+    surfaceNurbs->translateObject(trans);
+    surfaceBezier->translateObject(trans2);
+
+
+
 
     world.push_back(grid);
     world.push_back(bezier);
-    world.push_back(bezier2);
-    world.push_back(bspline);
+    //world.push_back(bezier2);
+    //world.push_back(bspline);
+    world.push_back(surfaceBezier);
+    world.push_back(surfaceNurbs);
+
     //world.push_back(cube);
     //world.push_back(cube2);
     //world.push_back(cube3);
 
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 }
- 
+
 BasicGLPane::~BasicGLPane()
 {
     delete m_context;
 }
- 
+
 void BasicGLPane::mouseMiddleUp(wxMouseEvent& event)
 
 {
 
     displayScene();
-    
+
 }
 
 
@@ -115,7 +132,13 @@ void BasicGLPane::mouseMiddleDown(wxMouseEvent& event)
 {
 
     cout << "Botao do meio para baixo" << endl;
- 
+    //quando o botao do mouse abaixa seta as variaveis para a logica da rotacao//
+    start_angle_x = angle_x;
+    start_angle_y = angle_y;
+
+    start_x = event.GetX();
+    start_y = event.GetY();
+    //------------------------------------------------------------------------//
 }
 
 
@@ -127,31 +150,87 @@ void BasicGLPane::mouseMiddleDclick(wxMouseEvent &event)
 void BasicGLPane::mouseMoved(wxMouseEvent& event )
 {
 
-        //displayScene(); 
+    /*Move os pontos de controle das curvas */
+    // Capturando Coordenadas do Mouse na Tela
+    int x = 0, y = 0;
+
+    // Cordenadas do Mouse no Mundo
+    vector<float> worldC;
+
+    // Nome do Objeto Selecionado
+    string name;
+
+    if(event.Dragging() && event.LeftIsDown()){
+
+        // Convertendo Coordenadas do mouse em coordenadas no Mundo
+        x = event.GetX();
+        y = event.GetY();
+        worldC = Render::worldPoint(x,y);
+
+        if(render_mode){
+
+            name = world[last_object_selected]->getTipo();
+
+            if(name == "BSplines" || name == "Nurbs" || name == "BezierCurve"){
+
+                world[last_object_selected]->translateObject(worldC);
+            }
+
+        } else {
+            name = world[last_object_selected]->getTipo();
+
+            if(name == "BSplines" || name == "Nurbs" || name == "BezierCurve"){
+
+                world[last_object_selected]->setPtControle(worldC[0],worldC[1],worldC[2]);
+            }
+        }
+
+        displayScene();
+    }
+
+
+    //displayScene();
+    if(event.Dragging() && event.MiddleIsDown()){
+
+        //cout << "R_X: " << rotation_x << ", " << "R_Y: " << rotation_y << endl;
+        angle_x = start_angle_x + (event.GetX() - start_x);
+        angle_y = start_angle_y + (event.GetY() - start_y);
+        ROTATION[0] = angle_y;
+        ROTATION[1] = angle_x;
+        displayScene();
+
+    }
 
 }
 
-void BasicGLPane::mouseDown(wxMouseEvent& event) 
+void BasicGLPane::mouseDown(wxMouseEvent& event)
 {
     //criar aqui o evento do cursor
 }
 
 
-void BasicGLPane::mouseWheelMoved(wxMouseEvent& event) 
+void BasicGLPane::mouseWheelMoved(wxMouseEvent& event)
 {
-    cout << "mouseWheelMoved" << endl;
-    cout << "X: " << event.GetX() << "Y: "<< event.GetY();
+
+    event.GetWheelRotation()  > 0 ? SCALE+=0.0625 : SCALE-=0.0625;
+    if(SCALE == 0){
+        SCALE = 0.0625;
+    }
+    if (SCALE >= 1.0){
+        SCALE = 1.0;
+    }
+    cout << "SCALE---" << SCALE << endl;
     displayScene();
 }
 
 
-void BasicGLPane::mouseReleased(wxMouseEvent& event) 
+void BasicGLPane::mouseReleased(wxMouseEvent& event)
 {
     cout << "mouseReleased" << endl;
 }
 
 
-void BasicGLPane::rightClick(wxMouseEvent& event) 
+void BasicGLPane::rightClick(wxMouseEvent& event)
 {
 
     //simulando a criacao de objetos
@@ -159,10 +238,10 @@ void BasicGLPane::rightClick(wxMouseEvent& event)
     //cout << "X: " << pointWorld[0] << "Y: " << pointWorld[1] << "Z: " << pointWorld[2] << endl;
     //world[1].translateObject(pointWorld);
     vector <float > proj;
-    proj.push_back(45.0); proj.push_back((float)getWidth()/(float)getHeight()); 
+    proj.push_back(45.0); proj.push_back((float)getWidth()/(float)getHeight());
     proj.push_back(0.1); proj.push_back(400);
-    
-    unsigned int obj_selected = Render::render(world,  proj,  event.GetX(), event.GetY(), render_mode);
+
+    unsigned int obj_selected = Render::render(world,  proj,  event.GetX(), event.GetY(), render_mode, ROTATION, SCALE);
     //int obj_sel = getMinDepth(obj_selected, world) ;
     cout << "Objeto selecionado: " << obj_selected << endl;
     //modificando o estado do objeto selecionado
@@ -184,13 +263,13 @@ void BasicGLPane::rightClick(wxMouseEvent& event)
     displayScene();
 
 }
-void BasicGLPane::mouseLeftWindow(wxMouseEvent& event) 
+void BasicGLPane::mouseLeftWindow(wxMouseEvent& event)
 {
 
     cout << "mouseLeftWindow\n";
 
 }
-void BasicGLPane::keyPressed(wxKeyEvent& event) 
+void BasicGLPane::keyPressed(wxKeyEvent& event)
 {
     //Por aqui a logica dos modos objetos e edicao, como no blender, apertar o tab deve alternar entre os modos;
     //WXK_TAB <-- tecla tab
@@ -208,7 +287,7 @@ void BasicGLPane::keyPressed(wxKeyEvent& event)
                 //world[last_object_selected]->setRenderMode(render_mode);
             }
         }
-        
+
         if (uc == WXK_SPACE){
             cout << "Evendo do espaco...." << endl;
         }
@@ -219,7 +298,7 @@ void BasicGLPane::keyPressed(wxKeyEvent& event)
     }
     displayScene();
 }
-void BasicGLPane::keyReleased(wxKeyEvent& event) 
+void BasicGLPane::keyReleased(wxKeyEvent& event)
 {
 
 
@@ -232,38 +311,38 @@ void BasicGLPane::optionsActions(int id)
 {
 
     displayScene();
-} 
+}
 
 void BasicGLPane::getCoordenateWorldMouse(int mouseX, int mouseY, double *pointStart)
 
 {
 
-    
+
 }
 
 void BasicGLPane::resized(wxSizeEvent& evt)
 {
 //  wxGLCanvas::OnSize(evt);
- 
+
     Refresh();
 }
- 
- 
+
+
 int BasicGLPane::getWidth()
 {
     return GetSize().x;
 }
- 
+
 int BasicGLPane::getHeight()
 {
     return GetSize().y;
 }
- 
- 
+
+
 void BasicGLPane::render( wxPaintEvent& evt )
 {
     displayScene();
-   
+
 }
 
 
@@ -272,16 +351,16 @@ void BasicGLPane::displayScene()
 {
 
     if(!IsShown()) return;
- 
+
     wxGLCanvas::SetCurrent(*m_context);
     wxPaintDC(this); // only to be used in paint events. use wxClientDC to paint outside the paint event
-    
+
     //toda as vezes tem que definir a projecao......
     Render::viewport3D(0,0, getWidth(), getHeight(), obsP);
-   
+
     //glScalef(100, 100, 100);
-    Render::renderObjects(world, render_mode, false);
-   
+    Render::renderObjects(world, render_mode, false, ROTATION, SCALE);
+
     glFlush();
     SwapBuffers();
 

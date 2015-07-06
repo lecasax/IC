@@ -33,11 +33,13 @@ BSplines::BSplines(float x, float y, float z):Object()
 	ptControle.push_back(p2);
 	ptControle.push_back(p3);
 	ptControle.push_back(p4);
-	
+
 
 	// Tipo Curva BSpline
-	setTipo(1);
+	setTipo("BSplines");
 	iniNo();
+
+	this->updatePtsCurv();
 }
 
 //Construtor
@@ -66,7 +68,7 @@ int BSplines::addPtControle(void)
 
 		ptControle.insert(ptControle.begin(), aux);
 
-		insertNode(0);		
+		insertNode(0);
 
 	} else if(ptcSelec == ((int) ptControle.size()) -1) {
 
@@ -84,11 +86,6 @@ int BSplines::addPtControle(void)
 	}
 
 	return 1;
-}
-
-void BSplines::setTipo(int val)
-{
-	tipo = val;
 }
 
 // Adiciona um Ponto de Controle Extremo
@@ -133,7 +130,7 @@ vector<float> BSplines::getImgNo()
 	double coefs = 0;
 	float x = 0, y = 0, z = 0;
 
-	vector<float> pts;	
+	vector<float> pts;
 
 	for(i = ordCurva-1; i <= ((int) nos.size())-ordCurva; i++){
 
@@ -142,10 +139,10 @@ vector<float> BSplines::getImgNo()
 		for(j = 0; j < (int) ptControle.size(); j++)
 		{
 			coefs = bspline(j,ordCurva,nos[i]);
-			
+
 			x = x + (coefs * ptControle[j][0]);
-			
-			y = y + (coefs * ptControle[j][1]);		
+
+			y = y + (coefs * ptControle[j][1]);
 
 			z = z + (coefs *ptControle[j][2]);
 		}
@@ -189,8 +186,8 @@ int BSplines::getPtcSelec()
 }
 
 // Retorna os pontos da curva B-Spline
-// A Cada 3 elementos da lista tem-se um ponto representando 
-// px,py,pz 	
+// A Cada 3 elementos da lista tem-se um ponto representando
+// px,py,pz
 vector<float> BSplines::getPtsCurva()
 {
 	return ptsCurv;
@@ -220,7 +217,7 @@ int BSplines::incNo(double inc)
 			for(i = noSelec; i > 0; i--){
 
 				if(nos[i-1] >= nos[i]){
-					
+
 					nos[i-1] = nos[i];
 					j++;
 
@@ -267,11 +264,11 @@ int BSplines::incNo(double inc)
 
 // Remove o Ponto de Controle Selecionado
 int BSplines::rmvPtControle()
-{	
+{
 	if(ptcSelec == 0) {
 
 		ptControle.erase(ptControle.begin());
-		
+
 		rmvNode(0);
 
 	} else if(ptcSelec == (int) ptControle.size()-1) {
@@ -286,13 +283,13 @@ int BSplines::rmvPtControle()
 
 		ptControle.erase(ptControle.begin()+ptcSelec);
 
-		rmvNode(2);	
+		rmvNode(2);
 
 	} else {
-		
+
 		return 0;
 	}
-	
+
 	return 1;
 }
 
@@ -306,11 +303,11 @@ void BSplines::setNoSelec(int id)
 void BSplines::setOrdCurva(int ord)
 {
 	int dif = ord - ordCurva;
-	
+
 	ordCurva = ord;
 
 	if(dif < 0){
-		
+
 		while(dif < 0){
 
 			rmvNode(1);
@@ -336,9 +333,9 @@ void BSplines::setPtControle(float x, float y, float z)
 {
 	if(ptcSelec >= 0){
 
-		ptControle[ptcSelec][0] = x;
-		ptControle[ptcSelec][1] = y;
-		ptControle[ptcSelec][2] = z;
+		ptControle[ptcSelec][0] = x-translation[0];
+		ptControle[ptcSelec][1] = y-translation[1];
+		ptControle[ptcSelec][2] = z-translation[2];
 	}
 }
 
@@ -356,14 +353,14 @@ void BSplines::setQuant(int valor)
 
 // Atualiza/Processa os Pontos da Curva B-Spline
 void BSplines::updatePtsCurv()
-{		
+{
 	int i = 0;
 	double t = 0, inic = nos[ordCurva-1], fim = nos[ ((int)nos.size())-ordCurva];
 	double inc = ( fim - inic ) / quant;
 	float x = 0, y = 0, z = 0;
 	float coefbs = 0;
 	vector<float> pts;
-			
+
 	if(inic == fim){
 
 		inic = nos[ordCurva-1];
@@ -374,25 +371,25 @@ void BSplines::updatePtsCurv()
 	for(t = inic; t <= fim; t+=inc){
 
 		x = y = z = 0;
-		
+
 		for(i = 0; i < (int) ptControle.size(); i++){
 
-			coefbs = bspline(i,ordCurva,t);			
+			coefbs = bspline(i,ordCurva,t);
 
-			x = x + (coefbs * ptControle[i][0]);			
+			x = x + (coefbs * ptControle[i][0]);
 
-			y = y + (coefbs * ptControle[i][1]);			
+			y = y + (coefbs * ptControle[i][1]);
 
-			z = z + (coefbs * ptControle[i][2]);			
+			z = z + (coefbs * ptControle[i][2]);
 		}
-		
+
 		pts.push_back(x);
 		pts.push_back(y);
 		pts.push_back(z);
-		
+
 	}
 
-	ptsCurv = pts;	
+	ptsCurv = pts;
 }
 
 /* Private */
@@ -406,28 +403,28 @@ void BSplines::gerencNo()
 	int k = 0;
 
 	while(j < (int) nos.size()){
-		
+
 		i = 0;
 
 		while(nos[i+j] == nos[i+1+j] && (i+j) < (int) nos.size() -1){
 
 			i++;
 		}
-		
+
 		if( i + 1 > ordCurva){
-			
+
 			 if (i + j < (int) nos.size() -1){
-			
-				dif = nos[i+1+j] - nos[i+j];			
+
+				dif = nos[i+1+j] - nos[i+j];
 
 				for(k = i+j; k < (int) nos.size(); k++){
 					nos[k] = nos[k] + dif;
 				}
 
 			} else {
-				
+
 				dif = nos[j] - nos[j-1];
-				
+
 				for(k = j; k >= 0; k--){
 
 					nos[k] = nos[k] - dif;
@@ -500,7 +497,7 @@ void BSplines::insertNode(int tipo)
 	normaNos();
 }
 
-// Remove um nó 
+// Remove um nó
 void BSplines::rmvNode(int tipo)
 {
 	int j = 0;
@@ -516,7 +513,7 @@ void BSplines::rmvNode(int tipo)
 		i++;
 
 		dif = nos[i+1] - nos[i];
-		
+
 		nos.erase(nos.begin()+i);
 
 		for(j = i; j > 0; j--){
@@ -546,7 +543,7 @@ void BSplines::rmvNode(int tipo)
 
 		i = ptcSelec + ordCurva - 2;
 
-		dif = nos[i+1] - nos[i];		
+		dif = nos[i+1] - nos[i];
 
 		nos.erase(nos.begin()+i);
 
@@ -591,9 +588,9 @@ void BSplines::iniNo()
 // i é o indice
 // k é a ordem de continuidade da curva
 // u é o parametro
-float BSplines::bspline(int i, int k, double u)
-{	
-   float coef1, coef2;
+double BSplines::bspline(int i, int k, double u)
+{
+   double coef1, coef2;
    if ( k == 1 )
    {
 	  if ( i == 0 ) if ( ( nos[i] <= u ) && ( u <= nos[i+1] ) ) return 1.0;
@@ -634,7 +631,7 @@ void BSplines::draw(int index_load,  bool is_selecting)
     vector <float > s = getScale();
 
     glm::quat quat (glm::vec3(r[0]*PI/BASE, r[1]*PI/BASE, r[2]*PI/BASE));
-    glm::quat quaternion = quat ; 
+    glm::quat quaternion = quat ;
     glm::mat4 mat  = glm::toMat4(quaternion);
 
     int count = 0;
@@ -642,13 +639,37 @@ void BSplines::draw(int index_load,  bool is_selecting)
         for ( j = 0; j < 4; ++j){
             m[count] = mat[k][j];
             count++;
-        }   
-    }	    
+        }
+    }
+
+    glPushMatrix();
+    // Aplicar Transformações Geométricas
+    glColor3f(c[0],c[1],c[2]);
+    glScalef(s[0], s[1], s[2]);
+    glTranslatef(t[0],t[1],t[2]);
+    glMultMatrixf(m);
 
     if( !render_mode && this->is_selected){
 
     	// Modo Edição
     	index_internal = 0;
+
+    	for(i = 0; i < sizePtc; i++){
+
+    		index_internal++;
+
+    		glLoadName(index_internal);
+    		glColor4f(BLACK);
+    		if(index_internal == hit_index_internal){
+    			glColor4f(ORANGE);
+    			this->setPtcSelec(i);
+    		}
+
+    		glPushMatrix();
+    		glTranslatef(ptControle[i][0],ptControle[i][1],ptControle[i][2]);
+    		glutSolidCube(2);
+    		glPopMatrix();
+    	}
 
     	if(!is_selecting){
 
@@ -675,13 +696,12 @@ void BSplines::draw(int index_load,  bool is_selecting)
 			glBegin(GL_LINE_STRIP);
 			for(j = 0; j < sizePtc; j++){
 				glVertex3f(ptControle[j][0],ptControle[j][1],ptControle[j][2]);
-			} 
+			}
 			glEnd();
 			glDisable(GL_LINE_STIPPLE);
 
-
 			// Nós
-			pt = this->getImgNo();
+			pt = getImgNo();
 			glColor4f(SKY);
 			glPointSize(5);
 			glBegin(GL_POINTS);
@@ -689,47 +709,50 @@ void BSplines::draw(int index_load,  bool is_selecting)
 
 				glVertex3f(pt[j],pt[j+1],pt[j+2]);
 			}
+
 			glEnd();
-
 		}
-
-    	for(i = 0; i < sizePtc; i++){
-
-    		index_internal++;
-
-    		glLoadName(index_internal);
-    		glColor4f(BLACK);
-    		if(index_internal == hit_index_internal){
-    			glColor4f(ORANGE);
-    			this->setPtcSelec(i);
-    		}
-
-
-    		glPushMatrix();
-    		glTranslatef(ptControle[i][0],ptControle[i][1],ptControle[i][2]);
-    		glutSolidCube(2);
-    		glPopMatrix();
-    	}
 
     } else {
 
-		// Modo Objeto		
-    	glLoadName(index_load);
+		// Modo Objeto
+		if(render_mode){
 
-		this->updatePtsCurv();
+	    	glLoadName(index_load);
 
-		if(this->is_selected){
-			glColor4f(GREEN);
-		} else {
-			glColor4f(RED);
-		}
-
-		glPushMatrix();
-			glBegin(GL_LINE_STRIP);
-			for(i = 0; i < sizeCur; i+=3){
-				glVertex3f(ptsCurv[i],ptsCurv[i+1],ptsCurv[i+2]);
+			if(this->is_selected){
+				glColor4f(GREEN);
+			} else {
+				glColor4f(RED);
 			}
-			glEnd();
-		glPopMatrix();
+
+			glPushMatrix();
+				glBegin(GL_LINE_STRIP);
+				for(i = 0; i < sizeCur; i+=3){
+					glVertex3f(ptsCurv[i],ptsCurv[i+1],ptsCurv[i+2]);
+				}
+				glEnd();
+			glPopMatrix();
+
+		} else if(!is_selecting){
+			// Modo Edição nao selecionado
+	    	glLoadName(index_load);
+
+			if(this->is_selected){
+				glColor4f(GREEN);
+			} else {
+				glColor4f(RED);
+			}
+
+			glPushMatrix();
+				glBegin(GL_LINE_STRIP);
+				for(i = 0; i < sizeCur; i+=3){
+					glVertex3f(ptsCurv[i],ptsCurv[i+1],ptsCurv[i+2]);
+				}
+				glEnd();
+			glPopMatrix();
+		}
     }
+
+    glPopMatrix();
 }

@@ -50,7 +50,7 @@ Cube::~Cube(){}
 
 
 void Cube::draw(int index_load,  bool is_selecting)
-{	
+{
 
     if(!is_selecting){
     	GLfloat m[16];
@@ -60,7 +60,7 @@ void Cube::draw(int index_load,  bool is_selecting)
         vector <float > s = getScale();
 
         glm::quat quat (glm::vec3(r[0]*PI/BASE, r[1]*PI/BASE, r[2]*PI/BASE));
-        glm::quat quaternion = quat ; 
+        glm::quat quaternion = quat ;
         glm::mat4 mat  = glm::toMat4(quaternion);
 
         int count = 0;
@@ -68,7 +68,7 @@ void Cube::draw(int index_load,  bool is_selecting)
             for (int j = 0; j < 4; ++j){
                 m[count] = mat[k][j];
                 count++;
-            }   
+            }
         }
         glLoadName(index_load); // register object.
         glPushMatrix();
@@ -84,7 +84,7 @@ void Cube::draw(int index_load,  bool is_selecting)
             vector < float * > vertex = getVertex();
 
             for (int j = 0; j < (int) vertex.size(); ++j){
-                
+
                 glVertex3fv(vertex[j]);
             }
             glEnd();

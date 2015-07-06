@@ -28,13 +28,13 @@ public:
 	// Adiciona um Ponto de Controle Extremo
 	// Um dos Pontos de Controles Extremos
 	// tem de estarem selecionados
-	int addPtControle(float x, float y, float z);	
+	int addPtControle(float x, float y, float z);
 
 	// Remove o Ponto de Controle Selecionado
 	int rmvPtControle();
 
 	// draw
-	void draw(int index_load,  bool is_selecting);	
+	//void draw(int index_load,  bool is_selecting);
 
 private:
 
@@ -43,7 +43,4 @@ private:
 
 	// Inicializa a lista de nós
 	void iniNo();
-
-	void setTipo(int val);
-
 };

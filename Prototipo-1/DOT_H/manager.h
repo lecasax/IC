@@ -10,24 +10,24 @@ using namespace std;
 class BasicGLPane : public wxGLCanvas
 {
     wxGLContext*	m_context;
- 
+
 public:
 
 	//construtor e destrutors
 	BasicGLPane(wxFrame* parent, int* args);
 	virtual ~BasicGLPane();
- 
+
  	//metodos do opengl
 	void resized(wxSizeEvent& evt);
 	int getWidth();
 	int getHeight();
- 
+
 	//metodos auxiliares
  	void getCoordenateWorldMouse(int mouseX, int mouseY, double *point);
  	void optionsActions(int id);
  	void quadrado(float base, float altura);
 	void render(wxPaintEvent& evt);
- 
+
 	// events mouse
 	void mouseMoved(wxMouseEvent& event);
 	void mouseDown(wxMouseEvent& event);
@@ -43,10 +43,10 @@ public:
 
 	//events menubar
 	void OnQuit(wxCommandEvent& event);
- 
+
 	//events display
 	void displayScene();
-	
+
 
  	//macro for table of the events
 	DECLARE_EVENT_TABLE()

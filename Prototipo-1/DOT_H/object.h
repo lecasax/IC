@@ -65,12 +65,20 @@ public:
 	void rotateObject(vector <float > newRotation);
 	vector <float >getRotation();
 	virtual void draw(int index_load, bool is_selecting);
+	void setTipo(const char * val);
+	string getTipo();
 	void setSelected(bool is_selected);
 	void setRenderMode(bool mode);
 	bool getRenderMode();
 	float getDepth();
 
 	void setHitIndexInternal(int val);
+
+	/*****************************************************/
+	// Metodos das Curvas
+	// Altera a posição do ponto de um segmento que está
+	// selecionado
+	virtual void setPtControle(float x, float y, float z);
 
 
 protected:

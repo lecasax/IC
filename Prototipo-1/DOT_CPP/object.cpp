@@ -30,7 +30,7 @@ Object::Object()
     this->translation.insert(this->translation.end(), t, t+3);
     this->scale.insert(this->scale.end(), s, s+3 );
     this->color.insert(this->color.end(), c, c+3);
-    
+
 }
 Object::Object(vector < float *> vertex)
 {
@@ -48,13 +48,13 @@ Object::Object(vector < float *> vertex)
     this->translation.insert(this->translation.end(), t, t+3);
     this->scale.insert(this->scale.end(), s, s+3 );
     this->color.insert(this->color.end(), c, c+3);
-    
+
 }
 
 
 Object::~Object()
 {
-    
+
 }
 
 vector <float *> Object::getVertex()
@@ -92,7 +92,7 @@ vector <float > Object::getScale()
 {
     return this->scale;
 }
-    
+
 void Object::translateObject( vector <float > newTranslation)
 
 {
@@ -136,10 +136,24 @@ bool Object::getRenderMode()
 
 void Object::setHitIndexInternal(int val)
 {
-    hit_index_internal = val; 
+    hit_index_internal = val;
 }
 
 void Object::draw(int index_load,  bool is_selecting)
 {
     cout << "Funcao virtual chamada...." << endl;
 }
+
+void Object::setTipo(const char * val)
+{
+    string nome(val);
+    tipo = nome;
+}
+
+string Object::getTipo()
+{
+    return tipo;
+}
+
+// Metodos da Curva
+void Object::setPtControle(float x, float y, float z) {}

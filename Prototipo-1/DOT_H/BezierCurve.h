@@ -16,7 +16,7 @@ public:
 	BezierCurve(float x, float y,float z);
 	~BezierCurve(void);
 
-	// Atualiza os pontos da Curva 
+	// Atualiza os pontos da Curva
 	void updatePtsCurv();
 
 	// Retorna os pontos da Curva
@@ -39,30 +39,30 @@ public:
 
 	// Altera a posição do ponto de um segmento que está
 	// selecionado
-	void setPositionSeg(float x, float y,float z);
+	void setPtControle(float x, float y,float z);
 
-	// Adciona um Segmento extremo da curva, 
+	// Adciona um Segmento extremo da curva,
 	// os Segmentos extremos da Curva
 	// tem de estar selecionados
 	int addSegment();
 
-	// Remove um Segmento extremo da curva, 
+	// Remove um Segmento extremo da curva,
 	// os Segmentos extremos da Curva
 	// tem de estar selecionados
 	int removeSegment();
 
 	// draw
 	void draw(int index_load,  bool is_selecting);
-	
+
 private:
 
 	// Bezier Cubica
 	BezierCubic bzcubic;
 
-	// Todos os Pontos da Curva de Bezier 
+	// Todos os Pontos da Curva de Bezier
 	// Pontos da Curva de Bezier Cubica
-	// A Cada 3 elementos tem-se um ponto representando 
-	// px,py,pz 	
+	// A Cada 3 elementos tem-se um ponto representando
+	// px,py,pz
 	vector<float> ptsCurv;
 
 	// Lista de Segmentos de Controle da Curva
@@ -79,6 +79,4 @@ private:
 	vector< vector<float> > usedControlPts();
 
 	void ponteiro(float x,float y,float z, int size);
-
-	void setTipo(int val);	
 };
