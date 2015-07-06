@@ -30,7 +30,7 @@ Object::Object()
     this->translation.insert(this->translation.end(), t, t+3);
     this->scale.insert(this->scale.end(), s, s+3 );
     this->color.insert(this->color.end(), c, c+3);
-
+    
 }
 Object::Object(vector < float *> vertex)
 {
@@ -48,13 +48,13 @@ Object::Object(vector < float *> vertex)
     this->translation.insert(this->translation.end(), t, t+3);
     this->scale.insert(this->scale.end(), s, s+3 );
     this->color.insert(this->color.end(), c, c+3);
-
+    
 }
 
 
 Object::~Object()
 {
-
+    
 }
 
 vector <float *> Object::getVertex()
@@ -83,16 +83,18 @@ void Object::setPrimitive(int GL_PRIMITIVE)
 }
 
 
-void Object::scaleObject(vector <float > newScale)
+void Object::scaleObject(float x, float y, float z)
 {
-    this->scale = newScale;
+    this->scale[0] = x;
+    this->scale[0] = y;
+    this->scale[0] = z;
 }
 
 vector <float > Object::getScale()
 {
     return this->scale;
 }
-
+    
 void Object::translateObject( vector <float > newTranslation)
 
 {
@@ -136,7 +138,7 @@ bool Object::getRenderMode()
 
 void Object::setHitIndexInternal(int val)
 {
-    hit_index_internal = val;
+    hit_index_internal = val; 
 }
 
 void Object::draw(int index_load,  bool is_selecting)
@@ -157,3 +159,5 @@ string Object::getTipo()
 
 // Metodos da Curva
 void Object::setPtControle(float x, float y, float z) {}
+
+void Object::updatePtsCurv() {}

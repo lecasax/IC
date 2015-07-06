@@ -58,7 +58,7 @@ public:
 	int  getPrimitive();
 	void setColor( vector <float > color);
 	vector <float >  getColor();
-	void scaleObject(vector <float > newScale);
+	void scaleObject(float x, float y, float z);
 	vector <float > getScale();
 	void translateObject( vector <float > newTranslation);
 	vector <float >getTranslation();
@@ -77,8 +77,11 @@ public:
 	/*****************************************************/
 	// Metodos das Curvas
 	// Altera a posição do ponto de um segmento que está
-	// selecionado
+	// selecionado	
 	virtual void setPtControle(float x, float y, float z);
+
+		// Atualiza os pontos da Curva 
+	virtual void updatePtsCurv();
 
 
 protected:

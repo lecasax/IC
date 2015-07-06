@@ -1,17 +1,17 @@
 #include "BezierCubic.h"
 
-// Construtor
+// Construtor 
 BezierCubic::BezierCubic(void)
 {
 }
 
-// Destrutor
+// Destrutor 
 BezierCubic::~BezierCubic(void)
 {
 }
 
-// Função que calcula e retorna os pontos da curva de Beizer
-// Recebe o paramêtro t, que representa a a quantidade de pontos
+// Função que calcula e retorna os pontos da curva de Beizer 
+// Recebe o paramêtro t, que representa a a quantidade de pontos 
 vector<float> BezierCubic::processaPontoControle(int quant)
 {
 	double t = 0;
@@ -42,8 +42,8 @@ vector<float> BezierCubic::processaPontoControle(int quant)
 	return pontosCurva;
 }
 
-// Define os 4 pontos de controle da curva de Bezier Cubica
-// Recebe como paramêtro os 4 pontos de controle
+// Define os 4 pontos de controle da curva de Bezier Cubica 
+// Recebe como paramêtro os 4 pontos de controle 
 void BezierCubic::setPtControles(float p1[], float p2[], float p3[], float p4[])
 {
 	ptC1[0] = p1[0];
