@@ -20,8 +20,8 @@ SurfaceNurbs::SurfaceNurbs():Object()
 
     setTipo("nurbsSurface");
 
-    this->RESOLUTIONI = 16; //resolucao na direcao I
-    this->RESOLUTIONJ = 16; // resolucao na direcao J
+    this->RESOLUTIONI = 6; //resolucao na direcao I
+    this->RESOLUTIONJ = 6; // resolucao na direcao J
 
     this->NI = 5;  //dimensao na direcao de u
     this->NJ = 5; // dimensao na direcao de v
