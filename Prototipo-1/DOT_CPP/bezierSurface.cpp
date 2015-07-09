@@ -146,14 +146,39 @@ void SurfaceBezier::translateObject( vector <float > newTranslation)
 
 void SurfaceBezier::setPtControle(float x, float y, float z)
 {
+    //saiu de primeira....uhru...
     //glm::inverse()
-
-
+    //Rotacao de todo o cenario
+    int count = 0;
     int i = ( (hit_index_internal-1) / (NI + 1) );
     int j = ( (hit_index_internal-1) % (NJ + 1) );
+
+    vector <float > r = getRotation();
+    GLfloat matrix[16];
+    glm::quat quat (glm::vec3(r[0]*PI/BASE, r[1]*PI/BASE, r[2]*PI/BASE));
+    glm::quat quaternion = quat ;
+    glm::mat4 mat  = glm::toMat4(quaternion);
+    for (int k = 0; k < 4; ++k){
+        for (int j = 0; j < 4; ++j){
+            matrix[count] = mat[k][j];
+            count++;
+        }
+    }
+
     controlPoints[i][j][0] = (x-translation[0])/scale[0];
     controlPoints[i][j][1] = (y-translation[1])/scale[1];
     controlPoints[i][j][2] = (z-translation[2])/scale[2];
+
+    glm::mat4 INVERSE_ROTATE = glm::inverse(mat);
+    glm::vec4 reverse_point = INVERSE_ROTATE * glm::vec4(controlPoints[i][j][0],
+                                                         controlPoints[i][j][1],
+                                                         controlPoints[i][j][2],
+                                                         1.0f
+                                                         );
+    controlPoints[i][j][0] = reverse_point[0];
+    controlPoints[i][j][1] = reverse_point[1];
+    controlPoints[i][j][2] = reverse_point[2];
+
     surface3dBezierRenderNUBRS();
 }
 
