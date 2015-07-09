@@ -77,7 +77,7 @@ void Render::renderObjects(vector <Object *> objects, bool render_mode, bool is_
     //cout << "Tamanho dos vertices do cubo: " << objects[0]->getVertex().size() << " Size world: " << objects.size() << endl;
 
    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   gluLookAt(-50, 100, 200, 0, 0, 0, 0, 1, 0);
+   gluLookAt(0, 100, 200, 0, 0, 0, 0, 1, 0);
 
    //Rotacao de todo o cenario
     GLfloat matrix[16];
