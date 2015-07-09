@@ -30,7 +30,7 @@ Object::Object()
     this->translation.insert(this->translation.end(), t, t+3);
     this->scale.insert(this->scale.end(), s, s+3 );
     this->color.insert(this->color.end(), c, c+3);
-    
+
 }
 Object::Object(vector < float *> vertex)
 {
@@ -48,13 +48,13 @@ Object::Object(vector < float *> vertex)
     this->translation.insert(this->translation.end(), t, t+3);
     this->scale.insert(this->scale.end(), s, s+3 );
     this->color.insert(this->color.end(), c, c+3);
-    
+
 }
 
 
 Object::~Object()
 {
-    
+
 }
 
 vector <float *> Object::getVertex()
@@ -86,15 +86,15 @@ void Object::setPrimitive(int GL_PRIMITIVE)
 void Object::scaleObject(float x, float y, float z)
 {
     this->scale[0] = x;
-    this->scale[0] = y;
-    this->scale[0] = z;
+    this->scale[1] = y;
+    this->scale[2] = z;
 }
 
 vector <float > Object::getScale()
 {
     return this->scale;
 }
-    
+
 void Object::translateObject( vector <float > newTranslation)
 
 {
@@ -114,6 +114,17 @@ vector <float > Object::getRotation()
 {
     return this->rotation;
 }
+
+void Object::setGlobalTranslation(vector <float > newTranslation)
+{
+    this->global_translation = newTranslation;
+}
+
+vector <float > Object::getGlobalTranslation()
+{
+    return this->global_translation;
+}
+
 
 float Object::getDepth()
 {
@@ -138,7 +149,11 @@ bool Object::getRenderMode()
 
 void Object::setHitIndexInternal(int val)
 {
-    hit_index_internal = val; 
+    hit_index_internal = val;
+}
+int Object::getHitIndexInternal()
+{
+    return hit_index_internal;
 }
 
 void Object::draw(int index_load,  bool is_selecting)

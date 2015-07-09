@@ -38,6 +38,10 @@ static float obsP[] =  { -50, 100, 250, 0, 0, 0, 0, 1, 0 };
 //To objects
 vector <Object *> world;
 //vector<int > obj_selected;
+vector <float > PROJ(4, 0);
+
+unsigned int last_click_object = 0;
+
 int last_object_selected = 0;
 bool render_mode = true;
 vector <float > ROTATION(3, 0);
@@ -65,7 +69,7 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
 
     float  c[] = {0, 0, 1} ;
     float  r[] = {0, 45, 0};
-    float  s[] = {20.5, 20.5, 20.5};
+    float  s[] = {.5, .5, .5};
     float  t[] = {-80.0, 4.0, 0.0};
     float  t2[] = {80.0, 4.0, 0.0};
     vector<float> rotate (r, r + sizeof(r) / sizeof(float));
@@ -85,9 +89,9 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     Object *surfaceNurbs = new SurfaceNurbs() ;
     surfaceNurbs->translateObject(trans);
     surfaceBezier->translateObject(trans2);
-
-
-
+    surfaceBezier->scaleObject(2.5, 2.5, 2.5);
+    surfaceNurbs->scaleObject(2.5, 2.5, 2.5);
+    surfaceBezier->rotateObject(rotate);
 
     world.push_back(grid);
     world.push_back(bezier);
@@ -98,11 +102,11 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
 
     Object *nurb = new Nurbs(0,0,0);
 
-    world.push_back(grid);
-    world.push_back(bezier);
-    world.push_back(bezier2);
-    world.push_back(bspline);
-    world.push_back(nurb);
+    //world.push_back(grid);
+    //world.push_back(bezier);
+    //world.push_back(bezier2);
+    //world.push_back(bspline);
+    //world.push_back(nurb);
 
     //world.push_back(cube);
     //world.push_back(cube2);
@@ -164,22 +168,22 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
         x = event.GetX();
         y = event.GetY();
         worldC = Render::worldPoint(x,y);
-
+        name = world[last_object_selected]->getTipo();
+        cout << "last_click_object: " << last_click_object << "---" << "last_object_selected: " << last_object_selected << endl;
         if(render_mode){
 
-            name = world[last_object_selected]->getTipo();
-
-            if(name == "BSplines" || name == "Nurbs" || name == "BezierCurve"){
-
-                world[last_object_selected]->translateObject(worldC);
+            if(name == "BSplines" || name == "Nurbs" || name == "BezierCurve" || "bezierSurface" || "nurbsSurface"){
+                if (last_object_selected && last_object_selected == last_click_object){
+                    world[last_object_selected]->translateObject(worldC);
+                }
             }
 
         } else {
-            name = world[last_object_selected]->getTipo();
 
-            if(name == "BSplines" || name == "Nurbs" || name == "BezierCurve"){
-
-                world[last_object_selected]->setPtControle(worldC[0],worldC[1],worldC[2]);
+            if(name == "BSplines" || name == "Nurbs" || name == "BezierCurve"|| "bezierSurface" || "nurbsSurface"){
+                if (last_object_selected &&  last_click_object == world[last_object_selected]->getHitIndexInternal()){
+                    world[last_object_selected]->setPtControle(worldC[0],worldC[1],worldC[2]);
+                }
             }
         }
 
@@ -195,6 +199,7 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
         angle_y = start_angle_y + (event.GetY() - start_y);
         ROTATION[0] = angle_y;
         ROTATION[1] = angle_x;
+        //cout << "R_X: " << angle_x << ", " << "R_Y: " << angle_y << endl;
         displayScene();
 
     }
@@ -203,6 +208,14 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
 
 void BasicGLPane::mouseDown(wxMouseEvent& event)
 {
+    vector <float > proj;
+    proj.push_back(45.0); proj.push_back((float)getWidth()/(float)getHeight());
+    proj.push_back(0.1); proj.push_back(400);
+
+    //pegando o objeto que atingido pelo ultimo clique do botao esquerdo...
+    cout << "Mouse down event..." << endl;
+    last_click_object = Render::render(world,  proj,  event.GetX(), event.GetY(), render_mode, ROTATION, SCALE);
+
     //criar aqui o evento do cursor
 }
 
@@ -213,9 +226,6 @@ void BasicGLPane::mouseWheelMoved(wxMouseEvent& event)
     event.GetWheelRotation()  > 0 ? SCALE+=0.0625 : SCALE-=0.0625;
     if(SCALE == 0){
         SCALE = 0.0625;
-    }
-    if (SCALE >= 1.0){
-        SCALE = 1.0;
     }
     cout << "SCALE---" << SCALE << endl;
     displayScene();
@@ -246,6 +256,7 @@ void BasicGLPane::rightClick(wxMouseEvent& event)
     if(!render_mode && obj_selected){
         cout << "Modo edicao selecionando um ponto....." << endl;
         world[last_object_selected]->setHitIndexInternal((int)obj_selected);
+        last_click_object = (int)obj_selected;
 
     } else {
 

@@ -81,34 +81,46 @@ void Render::renderObjects(vector <Object *> objects, bool render_mode, bool is_
 
    //Rotacao de todo o cenario
     GLfloat matrix[16];
-    glm::quat quat  (glm::vec3((r[0]*PI/BASE)/2, 0*PI/BASE, 0*PI/BASE));
-    glm::quat quat2 (glm::vec3(0*PI/BASE, (r[1]*PI/BASE)/2, 0*PI/BASE));
+    glm::quat quat  (glm::vec3((r[0]*PI/BASE)/4, 0*PI/BASE, 0*PI/BASE));
+    glm::quat quat2 (glm::vec3(0*PI/BASE, (r[1]*PI/BASE)/4, 0*PI/BASE));
     glm::quat quaternion = quat * quat2;
     glm::mat4 mat  = glm::toMat4(quaternion);
     int count = 0;
     for (int k = 0; k < 4; ++k){
         for (int j = 0; j < 4; ++j){
             matrix[count] = mat[k][j];
+            //cout << matrix[count] << ", ";
             count++;
         }
+        cout << endl;
     }
-    //glPushMatrix();
     glMultMatrixf(matrix);
-    glPushMatrix();
+    //glPushMatrix();
+    //glPushMatrix();
+
+    //Escala para dar Zoom.
     glScalef(s, s, s);
 
     //if (!is_selecting){
         //glRotatef(r[0]/2, 1.0, .0, 0.0);
         //glRotatef(r[1]/2, 0.0, 1.0, 0.0);
     //}
+
     for (int i = 0; i <  (int) objects.size() ; ++i) {
 
+        vector <float > t = objects[i]->getTranslation();
+        glm::vec4  res = mat * glm::vec4(t[0],t[1],t[2], 1.0f);
+        t[0]=res[0];
+        t[1]=res[1];
+        t[2]=res[2];
+        objects[i]->setGlobalTranslation(t);
         //glLoadName(i+1); // register object.
         objects[i]->setRenderMode(render_mode);
+
         objects[i]->draw(i, is_selecting);
-        cout << "Modo de renderizacao: " << objects[i]->getRenderMode() << endl;
+        //cout << "Modo de renderizacao: " << objects[i]->getRenderMode() << endl;
     }
-    glPopName();
+    //glPopName();
     glPopMatrix();
 }
 
@@ -157,9 +169,8 @@ vector <float > Render::worldPoint(int x, int y)
     glGetIntegerv( GL_VIEWPORT, viewport );
 
     //Read the window z value from the z-buffer
-    //glReadPixels( x, viewport[3]-y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z );
-    //if (z == 1)
-     z = 1 - 0.0002;
+    glReadPixels( x, viewport[3]-y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z );
+    z = 1 - 0.0002;
     //Use the gluUnProject to get the world co-ordinates of
     //the point the user clicked and save in objx, objy, objz.
     gluUnProject( x, viewport[3]-y, z, modelview, projection, viewport, &objx, &objy, &objz );
@@ -169,6 +180,6 @@ vector <float > Render::worldPoint(int x, int y)
     p.push_back(objx);
     p.push_back(objy);
     p.push_back(objz);
-
+    cout << "\n\n\nPonto Mouse world " << "X: " << objx << "Y: " << objy << "Z: " << objz << endl;
     return p;
 }

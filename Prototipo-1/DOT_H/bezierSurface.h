@@ -1,4 +1,4 @@
-/* 
+    /*
  * File:   lista.h
  * Author: leandro
  *
@@ -33,8 +33,10 @@ public:
     vector <double *> getControlPoints();
     void draw(int index_load,  bool is_selecting);
     void drawControlPoint(int hit);
+    void drawControlPolygon();
     void drawGlQuadStripVector(vector <double *> array , int n, int m, int type);
-
+    void setPtControle(float x, float y, float z);
+    void translateObject( vector <float > newTranslation);
 
 private:
 
@@ -42,13 +44,12 @@ private:
 
     vector<vector <double > > weight;
     vector<vector<vector<double > > > controlPoints;
-    
+
     int NI;  //dimensao na direcao de u
     int NJ; // dimensao na direcao de v
 
     int  RESOLUTIONI; //resolucao na direcao I
     int  RESOLUTIONJ; // resolucao na direcao J
-
 
 };
 

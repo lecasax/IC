@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   lista.h
  * Author: leandro
  *
@@ -34,14 +34,16 @@ public:
     void drawGlQuadStripVector(vector <double *> array , int n, int m, int type);
     void draw(int index_load,  bool is_selecting);
     void drawControlPoint(int hit);
+    void drawControlPolygon();
     void surface3dBsplineRenderNURBS();
     vector <double *> createControlPointsSpehere();
     vector <double *> getControlPoints();
+    void setPtControle(float x, float y, float z);
 
 private:
 
     vector <double *> surfaceNurbs;
-    
+
     vector<vector <double > > weight;
     vector<vector<vector<double > > > controlPoints;
 
@@ -58,7 +60,7 @@ private:
     //vector <double > vknots;
     double *uknots;
     double *vknots;
-    
+
 
 };
 

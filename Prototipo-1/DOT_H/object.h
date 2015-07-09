@@ -31,6 +31,8 @@
 
 #include  <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/glm.hpp>
 
 #include <GL/glu.h>
 #include <GL/gl.h>
@@ -60,7 +62,6 @@ public:
 	vector <float >  getColor();
 	void scaleObject(float x, float y, float z);
 	vector <float > getScale();
-	void translateObject( vector <float > newTranslation);
 	vector <float >getTranslation();
 	void rotateObject(vector <float > newRotation);
 	vector <float >getRotation();
@@ -71,18 +72,21 @@ public:
 	void setRenderMode(bool mode);
 	bool getRenderMode();
 	float getDepth();
+	void setGlobalTranslation(vector <float > newTranslation);
+	vector <float > getGlobalTranslation();
 
 	void setHitIndexInternal(int val);
-
+	int  getHitIndexInternal();
 	/*****************************************************/
 	// Metodos das Curvas
 	// Altera a posição do ponto de um segmento que está
-	// selecionado	
+	// selecionado
 	virtual void setPtControle(float x, float y, float z);
 
-		// Atualiza os pontos da Curva 
+		// Atualiza os pontos da Curva
 	virtual void updatePtsCurv();
 
+	virtual void translateObject( vector <float > newTranslation);
 
 protected:
 
@@ -93,6 +97,8 @@ protected:
 	vector < float  > translation;
 	vector < float  > scale;
 	vector < float  > color;
+	vector < float  > global_translation;
+
 	bool is_selected;
 
 	// Indice dos Objetos Interno no Modo Edição
