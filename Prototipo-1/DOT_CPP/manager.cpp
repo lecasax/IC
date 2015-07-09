@@ -45,6 +45,7 @@ unsigned int last_click_object = 0;
 int last_object_selected = 0;
 bool render_mode = true;
 vector <float > ROTATION(3, 0);
+vector <float > LAST_MOUSE_POSITION_DRAGG(3, 0);
 float SCALE = 1.0;
 
 /*Variaveis de rotacao do cenario*/
@@ -141,6 +142,8 @@ void BasicGLPane::mouseMiddleDown(wxMouseEvent& event)
     start_x = event.GetX();
     start_y = event.GetY();
     //------------------------------------------------------------------------//
+
+
 }
 
 
@@ -157,7 +160,8 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
     int x = 0, y = 0;
 
     // Cordenadas do Mouse no Mundo
-    vector<float> worldC;
+    vector<float > worldC(3, 0);
+    vector<float > worldC2(3, 0);
 
     // Nome do Objeto Selecionado
     string name;
@@ -170,11 +174,18 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
         worldC = Render::worldPoint(x,y);
         name = world[last_object_selected]->getTipo();
         cout << "last_click_object: " << last_click_object << "---" << "last_object_selected: " << last_object_selected << endl;
+
         if(render_mode){
 
             if(name == "BSplines" || name == "Nurbs" || name == "BezierCurve" || "bezierSurface" || "nurbsSurface"){
                 if (last_object_selected && last_object_selected == last_click_object){
-                    world[last_object_selected]->translateObject(worldC);
+
+                    vector <float > object_position =  world[last_object_selected]->getTranslation();
+                    worldC2[0] = object_position[0] + worldC[0] - LAST_MOUSE_POSITION_DRAGG[0];
+                    worldC2[1] = object_position[1] + worldC[1] - LAST_MOUSE_POSITION_DRAGG[1];
+                    worldC2[2] = object_position[2] + worldC[2] - LAST_MOUSE_POSITION_DRAGG[2];
+                    LAST_MOUSE_POSITION_DRAGG = worldC;
+                    world[last_object_selected]->translateObject(worldC2);
                 }
             }
 
@@ -216,7 +227,8 @@ void BasicGLPane::mouseDown(wxMouseEvent& event)
     cout << "Mouse down event..." << endl;
     last_click_object = Render::render(world,  proj,  event.GetX(), event.GetY(), render_mode, ROTATION, SCALE);
 
-    //criar aqui o evento do cursor
+    //PEGA A ULTIMA POSICAO CLICADA COM O BOTAO ESQUERDO PAARA USA NO DRAGG---//
+    LAST_MOUSE_POSITION_DRAGG = Render::worldPoint(event.GetX(),event.GetY());
 }
 
 
