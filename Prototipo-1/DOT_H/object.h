@@ -34,6 +34,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
 
+#include <GL/glut.h>
 #include <GL/glu.h>
 #include <GL/gl.h>
 #include <vector>
@@ -63,9 +64,11 @@ public:
 	void scaleObject(float x, float y, float z);
 	vector <float > getScale();
 	vector <float >getTranslation();
-	void rotateObject(vector <float > newRotation);
 	vector <float >getRotation();
-	virtual void draw(int index_load, bool is_selecting);
+	virtual void rotateObject(vector <float > newRotation);
+	virtual void setGlobalScale( float x, float y, float z);
+	virtual void setGlobalRotation( float x, float y, float z);
+	virtual void draw(int index_load, bool is_selecting, int size_world);
 	void setTipo(const char * val);
 	string getTipo();
 	void setSelected(bool is_selected);
@@ -87,6 +90,12 @@ public:
 	virtual void updatePtsCurv();
 
 	virtual void translateObject( vector <float > newTranslation);
+
+	virtual int getSizeControlPoints();
+
+	virtual vector <float > getControlPointSelected();
+
+	virtual void setPtControleModifier(float x, float y, float z);
 
 protected:
 
@@ -111,6 +120,9 @@ protected:
 	bool visible;
 	int GL_PRIMITIVE;
 	string tipo;
+
+	vector <float > globalScale;
+	vector <float > globaRotation;
 };
 
 

@@ -1,5 +1,4 @@
 #include "bezierSurface.h"
-#include <stdio.h>
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
@@ -12,8 +11,9 @@ SurfaceBezier::SurfaceBezier():Object()
 
 {
 
-    setTipo("bezierSurface");
+    setTipo("Bezier Surface");
 
+    modifier = Modifier(translation[0], translation[1], translation[2]);
 
     this->NI = 3;  //dimensao na direcao de u
     this->NJ = 3; // dimensao na direcao de v
@@ -21,11 +21,9 @@ SurfaceBezier::SurfaceBezier():Object()
     this->RESOLUTIONI = 4; //resolucao na direcao I
     this->RESOLUTIONJ = 4; // resolucao na direcao J
 
-    vector<vector <double > > w(NI+1,vector <double >(NJ+1, 0));
-    weight = w;
+    weight = vector<vector <double > > (NI+1,vector <double >(NJ+1, 0));
 
-    vector<vector<vector <double > > > cP(NI+1,vector<vector<double> >(NJ+1,vector <double>(3,0)));
-    controlPoints  = cP;
+    controlPoints = vector<vector<vector <double > > > (NI+1,vector<vector<double> >(NJ+1,vector <double>(3,0)));
 
     createControlPoints();
 
@@ -39,8 +37,8 @@ SurfaceBezier::SurfaceBezier():Object()
 SurfaceBezier::SurfaceBezier(int ni, int nj, int resolutioni, int resolutionj):Object()
 
 {
-    cout << "NA superifice de bezier ...."<< endl;
 
+    setTipo("Bezier Surface");
     this->NI = ni-1;  //dimensao na direcao de u
     this->NJ = nj-1; // dimensao na direcao de v
 
@@ -144,26 +142,39 @@ void SurfaceBezier::translateObject( vector <float > newTranslation)
     this->translation = newTranslation;
 }
 
+void SurfaceBezier::rotateObject(vector <float > newRotation)
+{
+    this->rotation = newRotation;
+
+}
+
+
+void SurfaceBezier::setGlobalScale( float x, float y, float z)
+{
+
+    this->globalScale[0] = x;
+    this->globalScale[1] = y;
+    this->globalScale[2] = z;
+}
+
+void SurfaceBezier::setPtControleModifier(float x, float y, float z)
+{
+    int i = ( (hit_index_internal-1) / (NI + 1) );
+    int j = ( (hit_index_internal-1) % (NJ + 1) );
+    controlPoints[i][j][0] = x;
+    controlPoints[i][j][1] = y;
+    controlPoints[i][j][2] = z;
+    surface3dBezierRenderNUBRS();
+}
 void SurfaceBezier::setPtControle(float x, float y, float z)
 {
-    //saiu de primeira....uhru...
-    //glm::inverse()
-    //Rotacao de todo o cenario
-    int count = 0;
     int i = ( (hit_index_internal-1) / (NI + 1) );
     int j = ( (hit_index_internal-1) % (NJ + 1) );
 
     vector <float > r = getRotation();
-    GLfloat matrix[16];
     glm::quat quat (glm::vec3(r[0]*PI/BASE, r[1]*PI/BASE, r[2]*PI/BASE));
     glm::quat quaternion = quat ;
     glm::mat4 mat  = glm::toMat4(quaternion);
-    for (int k = 0; k < 4; ++k){
-        for (int j = 0; j < 4; ++j){
-            matrix[count] = mat[k][j];
-            count++;
-        }
-    }
 
     controlPoints[i][j][0] = (x-translation[0])/scale[0];
     controlPoints[i][j][1] = (y-translation[1])/scale[1];
@@ -180,6 +191,17 @@ void SurfaceBezier::setPtControle(float x, float y, float z)
     controlPoints[i][j][2] = reverse_point[2];
 
     surface3dBezierRenderNUBRS();
+}
+
+vector <float > SurfaceBezier::getControlPointSelected()
+{
+    int i = ( (hit_index_internal-1) / (NI + 1) );
+    int j = ( (hit_index_internal-1) % (NJ + 1) );
+    vector <float > selectedPoint(3, 0);
+    selectedPoint[0] = controlPoints[i][j][0];
+    selectedPoint[1] = controlPoints[i][j][1];
+    selectedPoint[2] = controlPoints[i][j][2];
+    return  selectedPoint;
 }
 
 vector <double *>  SurfaceBezier::getControlPoints()
@@ -229,6 +251,10 @@ void SurfaceBezier::createControlPoints(void)
 
 }
 
+int SurfaceBezier::getSizeControlPoints()
+{
+    return (NI+1) * (NJ+1);
+}
 void SurfaceBezier::movePointControlSurfaceBspline(double *p, int index)
 {
 
@@ -258,9 +284,9 @@ void SurfaceBezier::preencheMatrizPesos(){
 
             //weight[i][j] = (double) ( rand() % 100 );
             weight[i][j] =  1.0;
-            cout << weight[i][j] << ", ";
+            //cout << weight[i][j] << ", ";
         }
-        cout << endl;
+        //cout << endl;
     }
 }
 
@@ -346,7 +372,7 @@ void SurfaceBezier::drawControlPolygon()
     }
 }
 
-void SurfaceBezier::draw(int index_load,  bool is_selecting)
+void SurfaceBezier::draw(int index_load,  bool is_selecting, int size_world)
 
 {
     GLfloat m[16];
@@ -367,24 +393,47 @@ void SurfaceBezier::draw(int index_load,  bool is_selecting)
         }
     }
 
+    //modificador
+    if(render_mode && is_selected){
+        glPushMatrix();
+        glTranslatef(translation[0], translation[1]-20, translation[2]);
+        glScalef(1/globalScale[0], 1/globalScale[1], 1/globalScale[2]);
+        modifier.draw( size_world-1, true);
+        glPopMatrix();
+    }
+
+    else if (!render_mode && is_selected && hit_index_internal >= 1){
+        int i = ( (hit_index_internal-1) / (NI + 1) );
+        int j = ( (hit_index_internal-1) % (NJ + 1) );
+        glPushMatrix();
+        glTranslatef(t[0],t[1],t[2]);
+        glScalef(s[0], s[1], s[2]);
+        glMultMatrixf(m);
+        glTranslatef(controlPoints[i][j][0], controlPoints[i][j][1], controlPoints[i][j][2]);
+        glScalef(0.8, 0.8, 0.8);
+        glScalef(1/s[0], 1/s[1], 1/s[2]);
+        glScalef(1/globalScale[0], 1/globalScale[1], 1/globalScale[2]);
+        modifier.draw( (NI+1)*(NJ+1), true);
+        glPopMatrix();
+    }
 
     glPushMatrix();
     glTranslatef(t[0],t[1],t[2]);
     glScalef(s[0], s[1], s[2]);
     glMultMatrixf(m);
-    //drawControlPoint(getControlPoints());
-    //glColor3f(0, 0, 0);
 
     //modo objeto
     if(render_mode){
-        glLoadName(index_load);
 
         if (is_selected){
+            //modifier.draw( ( ( index_load-1 ) * 4 ) + 1, true);
             glColor4f(GREEN);
         } else {
             glColor4f(GRAY1);
         }
 
+        glLoadName(index_load);
+        //glLoadName(  index_load );
         drawGlQuadStripVector(surfaceBezier, RESOLUTIONI+1, RESOLUTIONJ+1, 1);
 
     //modo Edicao

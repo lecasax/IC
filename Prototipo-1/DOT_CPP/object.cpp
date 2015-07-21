@@ -24,13 +24,14 @@ Object::Object()
     float t[]={0, 0, 0};
     float c[]={1, 1, 1};
 
+    this->hit_index_internal = 0;
     this->index_internal = 0;
     this->is_selected = false;
     this->rotation.insert(this->rotation.end(), r, r+3);
     this->translation.insert(this->translation.end(), t, t+3);
     this->scale.insert(this->scale.end(), s, s+3 );
     this->color.insert(this->color.end(), c, c+3);
-
+    this->globalScale = vector <float > (3, 1);
 }
 Object::Object(vector < float *> vertex)
 {
@@ -115,6 +116,19 @@ vector <float > Object::getRotation()
     return this->rotation;
 }
 
+void Object::setGlobalScale( float x, float y, float z)
+{
+    this->globalScale[0] = x;
+    this->globalScale[1] = y;
+    this->globalScale[2] = z;
+}
+void Object::setGlobalRotation( float x, float y, float z)
+{
+    this->globaRotation[0] = x;
+    this->globaRotation[1] = y;
+    this->globaRotation[2] = z;
+}
+
 void Object::setGlobalTranslation(vector <float > newTranslation)
 {
     this->global_translation = newTranslation;
@@ -156,7 +170,7 @@ int Object::getHitIndexInternal()
     return hit_index_internal;
 }
 
-void Object::draw(int index_load,  bool is_selecting)
+void Object::draw(int index_load,  bool is_selecting, int size_world)
 {
     cout << "Funcao virtual chamada...." << endl;
 }
@@ -176,3 +190,16 @@ string Object::getTipo()
 void Object::setPtControle(float x, float y, float z) {}
 
 void Object::updatePtsCurv() {}
+
+
+int Object::getSizeControlPoints()
+{
+    return 0;
+}
+
+vector <float > Object::getControlPointSelected()
+{
+    return vector <float > (3, 0);
+}
+
+void Object::setPtControleModifier(float x, float y, float z){}
