@@ -248,16 +248,17 @@ int BSplines::incNo(double inc)
 		if(j + 1 > ordCurva){
 
 			nos = noscopia;
-
+			normaNos();
 			return 0;
 
 		} else {
 
+			normaNos();
 			return 1;
 		}
 
 	} else {
-
+		normaNos();
 		return 0;
 	}
 }
@@ -333,12 +334,30 @@ void BSplines::setPtControle(float x, float y, float z)
 {
 	if(ptcSelec >= 0){
 
-		ptControle[ptcSelec][0] = (x-translation[0]);
-		ptControle[ptcSelec][1] = (y-translation[1]);
-		ptControle[ptcSelec][2] = (z-translation[2]);
-		/*ptControle[ptcSelec][0] = (x-translation[0]);
-		ptControle[ptcSelec][1] = (y-translation[1]);
-		ptControle[ptcSelec][2] = (z-translation[2]);*/
+		int count = 0;
+	    vector <float > r = getRotation();
+	    GLfloat matrix[16];
+	    glm::quat quat (glm::vec3(r[0]*PI/BASE, r[1]*PI/BASE, r[2]*PI/BASE));
+	    glm::quat quaternion = quat ;
+	    glm::mat4 mat  = glm::toMat4(quaternion);
+	    for (int k = 0; k < 4; ++k){
+	        for (int j = 0; j < 4; ++j){
+	            matrix[count] = mat[k][j];
+	            count++;
+	        }
+	    }
+
+	    glm::mat4 INVERSE_ROTATE = glm::inverse(mat);
+	    glm::vec4 reverse_point = INVERSE_ROTATE * glm::vec4(
+	    	(x-translation[0])/scale[0],
+			(y-translation[1])/scale[1],
+			(z-translation[2])/scale[2],
+			1.0f
+		);		    	
+
+		ptControle[ptcSelec][0] = reverse_point[0];
+		ptControle[ptcSelec][1] = reverse_point[1];
+		ptControle[ptcSelec][2] = reverse_point[2];
 	}
 }
 
@@ -561,7 +580,7 @@ void BSplines::rmvNode(int tipo)
 
 // Normaliza a lista de nós
 void BSplines::normaNos(){
-/*
+
 	int i = 0;
 	int n = nos.size();
 	double dif = 0 - nos[0];
@@ -570,7 +589,7 @@ void BSplines::normaNos(){
 	for(i = 0; i < n; i++){
 
 		nos[i] = (nos[i]+dif) * coef;
-	}*/
+	}
 }
 
 // Inicializa os Nos
@@ -648,9 +667,9 @@ void BSplines::draw(int index_load,  bool is_selecting)
     glPushMatrix();
     // Aplicar Transformações Geométricas
     glColor3f(c[0],c[1],c[2]);
-    glScalef(s[0], s[1], s[2]);
     glTranslatef(t[0],t[1],t[2]);
-    glMultMatrixf(m);
+    glScalef(s[0], s[1], s[2]);    
+  	glMultMatrixf(m);
 
     if( !render_mode && this->is_selected){
 

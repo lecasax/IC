@@ -138,11 +138,6 @@ void  SurfaceBezier::surface3dBezierRenderNUBRS()
     }
     surfaceBezier = surface;
 }
-void SurfaceBezier::translateObject( vector <float > newTranslation)
-
-{
-    this->translation = newTranslation;
-}
 
 void SurfaceBezier::setPtControle(float x, float y, float z)
 {

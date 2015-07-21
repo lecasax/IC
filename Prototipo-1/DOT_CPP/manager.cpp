@@ -53,6 +53,7 @@ int start_x, start_y, start_angle_x, start_angle_y, angle_x = 0, angle_y = 0;
 BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE)
 {
+    frame = parent;
     //Render::viewport3D(0,0, getWidth(), getHeight(), obsP);
     m_context = new wxGLContext(this);
     //No construtor na funcionou
@@ -67,16 +68,6 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     vector <float *> vertex;
     vector <float *> vertex2;
 
-    float  c[] = {0, 0, 1} ;
-    float  r[] = {0, 45, 0};
-    float  s[] = {.5, .5, .5};
-    float  t[] = {-80.0, 4.0, 0.0};
-    float  t2[] = {80.0, 4.0, 0.0};
-    vector<float> rotate (r, r + sizeof(r) / sizeof(float));
-    vector<float > color (c, c + sizeof(c) / sizeof(float) );
-    vector<float > scale (s, s + sizeof(s) / sizeof(float) );
-    vector<float > trans (t, t + sizeof(t) / sizeof(float) );
-    vector<float > trans2 (t2, t2 + sizeof(t2) / sizeof(float) );
 
 
     Object *grid = new Grid[1];
@@ -85,18 +76,20 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     Object *bezier = new BezierCurve(0,0,0);
     Object *bezier2 = new BezierCurve(0,0,0);
     Object *bspline = new BSplines(0,0,0);
+    bezier->scaleObject(1,1,1);
+    bspline->rotateObject(0,90,0);
     Object *surfaceBezier = new SurfaceBezier() ;
     Object *surfaceNurbs = new SurfaceNurbs() ;
-    surfaceNurbs->translateObject(trans);
-    surfaceBezier->translateObject(trans2);
+    surfaceNurbs->translateObject(-80.0, 4.0, 0.0);
+    surfaceBezier->translateObject(80.0, 4.0, 0.0);
     surfaceBezier->scaleObject(2.5, 2.5, 2.5);
     surfaceNurbs->scaleObject(2.5, 2.5, 2.5);
-    surfaceBezier->rotateObject(rotate);
+    surfaceBezier->rotateObject(0, 45, 0);
 
     world.push_back(grid);
     world.push_back(bezier);
     //world.push_back(bezier2);
-    //world.push_back(bspline);
+    world.push_back(bspline);
     world.push_back(surfaceBezier);
     world.push_back(surfaceNurbs);
 
@@ -106,7 +99,7 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     //world.push_back(bezier);
     //world.push_back(bezier2);
     //world.push_back(bspline);
-    //world.push_back(nurb);
+    world.push_back(nurb);
 
     //world.push_back(cube);
     //world.push_back(cube2);
@@ -174,7 +167,7 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
 
             if(name == "BSplines" || name == "Nurbs" || name == "BezierCurve" || "bezierSurface" || "nurbsSurface"){
                 if (last_object_selected && last_object_selected == last_click_object){
-                    world[last_object_selected]->translateObject(worldC);
+                    world[last_object_selected]->translateObject(worldC[0],worldC[1],worldC[2]);
                 }
             }
 
@@ -268,6 +261,8 @@ void BasicGLPane::rightClick(wxMouseEvent& event)
 
         }
     }
+    
+    
     cout << "Ultimo objeto selecionado: " << last_object_selected << endl;
     displayScene();
 
@@ -284,6 +279,8 @@ void BasicGLPane::keyPressed(wxKeyEvent& event)
     //WXK_TAB <-- tecla tab
     //cout <<"Chave A: " <<WXK_CONTROL_A << endl;
     char a = 65;
+
+
     wxChar uc = event.GetUnicodeKey();
     cout << uc << endl;
     if (uc != WXK_NONE){
@@ -356,7 +353,6 @@ void BasicGLPane::render( wxPaintEvent& evt )
 
 
 void BasicGLPane::displayScene()
-
 {
 
     if(!IsShown()) return;
@@ -369,8 +365,171 @@ void BasicGLPane::displayScene()
 
     //glScalef(100, 100, 100);
     Render::renderObjects(world, render_mode, false, ROTATION, SCALE);
+    
+    // Carregas Informações nos Componentes do Frame
+    loadInfo();
 
     glFlush();
     SwapBuffers();
 
+}
+
+// EVENTOS PARA EDIÇÃO DE UMA CURVA
+void BasicGLPane::addPtControle( wxMouseEvent& event )
+{ 
+    string name;
+
+    if(!render_mode){
+
+         name = world[last_object_selected]->getTipo();
+
+        if(name == "BSplines" || name == "Nurbs"){
+            world[last_object_selected]->addPtControle();
+        }
+
+        if(name == "BezierCurve"){
+            world[last_object_selected]->addSegment();
+        }
+    }
+
+    event.Skip();
+}
+
+void BasicGLPane::rmvPtControle( wxMouseEvent& event )
+{ 
+    string name;
+
+    if(!render_mode){
+
+         name = world[last_object_selected]->getTipo();
+
+        if(name == "BSplines" || name == "Nurbs"){
+            world[last_object_selected]->rmvPtControle();
+        }
+
+        if(name == "BezierCurve"){
+            world[last_object_selected]->removeSegment();
+        }
+    }
+
+    event.Skip();
+}
+
+void BasicGLPane::move( wxMouseEvent& event )
+{ 
+    event.Skip(); 
+}
+
+
+void BasicGLPane::loadInfo()
+{
+   string name;
+   int ordem;
+   float peso;
+   vector<double> nos;
+   wxString val;
+   int i;
+
+   // Limpa os Campos
+   m_textCtrl3->Clear();
+   m_textCtrl31->Clear();
+   m_textCtrl32->Clear();
+    m_checkList2->Clear();
+
+   name = world[last_object_selected]->getTipo();
+
+    if(!render_mode){
+       // Preenche os Campos
+        if(name == "BSplines" || name == "Nurbs"){
+
+            ordem = world[last_object_selected]->getOrdCurva();
+            nos = world[last_object_selected]->getNo();
+
+            val = wxString::Format(wxT("%d"), (int) ordem);                    
+            
+            m_textCtrl3->AppendText(val);
+
+            for(i = 0; i < (int) nos.size(); i++){
+
+                val = wxString::Format(wxT("%f"), (double) nos[i]);
+                m_checkList2->Append(val);
+            }
+       }
+
+       // Preenche os Campos
+        if(name == "BSplines" || name == "Nurbs" || name == "BezierCurve"){
+            
+            ordem = world[last_object_selected]->getQuant();
+            
+            val = wxString::Format(wxT("%d"), (int) ordem);                    
+            
+            m_textCtrl31->AppendText(val);
+       }
+
+       // Preenche os Campos
+        if(name == "Nurbs"){
+            
+            peso = world[last_object_selected]->getPesoSelec();
+            peso = world[last_object_selected]->getPesoSelec();
+
+            val = wxString::Format(wxT("%f"), (float) peso);                    
+            
+            if(peso != -1){
+                m_textCtrl32->AppendText(val);
+            }
+       }
+   }
+}
+
+void BasicGLPane::setNodeCurve(int idNode,double inc)
+{
+    string name;
+    if(!render_mode){
+
+         name = world[last_object_selected]->getTipo();
+
+        if(name == "BSplines" || name == "Nurbs"){
+            world[last_object_selected]->setNoSelec(idNode);
+            world[last_object_selected]->incNo(inc);
+        }
+    }    
+}
+
+void BasicGLPane::setOrdCurve(int ord)
+{
+    string name;
+    if(!render_mode){
+
+         name = world[last_object_selected]->getTipo();
+
+        if(name == "BSplines" || name == "Nurbs"){
+            world[last_object_selected]->setOrdCurva(ord);            
+        }
+    }   
+}
+
+void BasicGLPane::setQuantCurv(int quant)
+{
+    string name;
+    if(!render_mode){
+
+         name = world[last_object_selected]->getTipo();
+
+        if(name == "BSplines" || name == "Nurbs"){
+            world[last_object_selected]->setQuant(quant);            
+        }
+    }
+}
+
+void BasicGLPane::setPesoCurv(float val)
+{
+    string name;
+    if(!render_mode){
+
+         name = world[last_object_selected]->getTipo();
+
+        if(name == "Nurbs"){
+            world[last_object_selected]->setPeso(val);            
+        }
+    }
 }

@@ -13,6 +13,7 @@ public:
 
 	// Retorna a lista de Pesos
 	vector<float> getPesos();
+	float getPesoSelec();
 
 	// Altera o peso de um ponto de Controle selecionado
 	void setPeso(float valor);

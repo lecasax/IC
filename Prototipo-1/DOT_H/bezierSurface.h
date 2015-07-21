@@ -35,8 +35,7 @@ public:
     void drawControlPoint(int hit);
     void drawControlPolygon();
     void drawGlQuadStripVector(vector <double *> array , int n, int m, int type);
-    void setPtControle(float x, float y, float z);
-    void translateObject( vector <float > newTranslation);
+    void setPtControle(float x, float y, float z);    
 
 private:
 

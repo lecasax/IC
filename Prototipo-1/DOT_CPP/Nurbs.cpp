@@ -38,6 +38,7 @@ Nurbs::Nurbs(float x, float y, float z):BSplines()
 	pesos.push_back(1);
 	pesos.push_back(0.2);	*/
 	
+	//ptcSelec = 0;
 	iniNo();
 
 	// Tipo Curva Nurbs
@@ -55,6 +56,17 @@ Nurbs::~Nurbs(void)
 vector<float> Nurbs::getPesos()
 {
 	return pesos;
+}
+
+float Nurbs::getPesoSelec()
+{	
+	float val = -1;
+
+	if(ptcSelec >= 0){
+		val = pesos[ptcSelec];
+	}
+
+	return val;
 }
 
 // Altera o peso de um ponto de Controle selecionado
@@ -75,7 +87,7 @@ void Nurbs::updatePtsCurv()
 	float x = 0, y = 0, z = 0;
 	float x2 = 0, y2 = 0, z2 = 0;
 
-	float coefbs = 0;
+	double coefbs = 0;
 	vector<float> pts;
 			
 	if(inic == fim){

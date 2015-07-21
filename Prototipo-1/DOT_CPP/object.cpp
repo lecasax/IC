@@ -72,10 +72,12 @@ int Object::getPrimitive()
     return GL_PRIMITIVE;
 }
 
-void Object::setColor(  vector <float > color)
+void Object::setColor(float r, float g, float b)
 
 {
-    this->color = color;
+    this->color[0] = r;
+    this->color[1] = g;
+    this->color[2] = b;
 }
 void Object::setPrimitive(int GL_PRIMITIVE)
 {
@@ -95,19 +97,24 @@ vector <float > Object::getScale()
     return this->scale;
 }
 
-void Object::translateObject( vector <float > newTranslation)
+void Object::translateObject(float x, float y, float z)
 
 {
-    this->translation = newTranslation;
+    this->translation[0] = x;
+    this->translation[1] = y;
+    this->translation[2] = z;
 }
+
 vector <float > Object::getTranslation()
 {
     return this->translation;
 }
 
-void Object::rotateObject(vector <float > newRotation)
+void Object::rotateObject(float x, float y, float z)
 {
-    this->rotation = newRotation;
+    this->rotation[0] = x;
+    this->rotation[1] = y;
+    this->rotation[2] = z;
 }
 
 vector <float > Object::getRotation()
@@ -173,6 +180,116 @@ string Object::getTipo()
 }
 
 // Metodos da Curva
-void Object::setPtControle(float x, float y, float z) {}
+void Object::setPtControle(float x, float y, float z){}
 
-void Object::updatePtsCurv() {}
+void Object::updatePtsCurv(){}
+
+
+// Duplica um Ponto de Controle Extremo
+// Um dos Pontos de Controles Extremos
+// tem de estarem selecionados
+int Object::addPtControle()
+{
+    return -1;
+}
+
+// Adiciona um Ponto de Controle Extremo
+// Um dos Pontos de Controles Extremos
+// tem de estarem selecionados
+int Object::addPtControle(float x, float y, float z)
+{
+    return -1;
+}
+
+// Retorna as Imagens dos Nós na Curva
+// As imagens dos nós são os pontos iniciais
+// de cada segmento da curva B-Spline
+vector<float> Object::getImgNo()
+{   
+    vector<float> nulo;
+    return nulo;
+}
+
+float Object::getPesoSelec()
+{
+    return -1;
+}
+
+// Retorna o identificador do Nó selecionado
+int Object::getNoSelec()
+{
+    return -1;
+}
+
+// Retorna a ordem da Curva B-Spline
+int Object::getOrdCurva()
+{
+    return -1;
+}
+
+// Retorna o identificador do Ponto de Controle selecionado
+int Object::getPtcSelec()
+{
+    return -1;
+}
+
+// Retorna a quantidade de pontos gerados para a curva
+// B-Spline
+int Object::getQuant()
+{
+    return -1;
+}
+
+// Incrementa/Decrementa o valor de um nó selecionado
+int Object::incNo(double inc)
+{
+    return -1;
+}
+
+// Remove o Ponto de Controle Selecionado
+int Object::rmvPtControle()
+{
+    return -1;
+}
+
+// Define o valor da ordem da curva B-Spline
+void Object::setOrdCurva(int ord){}
+
+// Define a quantide de Pontos que terá a curva B-Spline
+void Object::setQuant(int valor){}
+
+// Nurbs
+// Retorna a lista de Pesos
+vector<float> Object::getPesos()
+{
+    vector<float> nulo;
+    return nulo;
+}
+
+// Nurbs
+// Altera o peso de um ponto de Controle selecionado
+void Object::setPeso(float valor){}
+
+// Adciona um Segmento extremo da curva, 
+// os Segmentos extremos da Curva
+// tem de estar selecionados
+int Object::addSegment()
+{
+    return -1;
+}
+
+// Remove um Segmento extremo da curva, 
+// os Segmentos extremos da Curva
+// tem de estar selecionados
+int Object::removeSegment()
+{
+    return -1;
+} 
+
+vector<double> Object::getNo()
+{
+    vector<double> nulo;
+    return nulo;
+}
+
+void Object::setNoSelec(int id){}

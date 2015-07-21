@@ -148,31 +148,54 @@ void BezierCurve::setQuant(int valor)
 // selecionado
 void BezierCurve::setPtControle(float x, float y,float z)
 {
+	
+
 	if(selectSegments != -1 ){
+
+		int count = 0;
+	    vector <float > r = getRotation();
+	    GLfloat matrix[16];
+	    glm::quat quat (glm::vec3(r[0]*PI/BASE, r[1]*PI/BASE, r[2]*PI/BASE));
+	    glm::quat quaternion = quat ;
+	    glm::mat4 mat  = glm::toMat4(quaternion);
+	    for (int k = 0; k < 4; ++k){
+	        for (int j = 0; j < 4; ++j){
+	            matrix[count] = mat[k][j];
+	            count++;
+	        }
+	    }
+
+	    glm::mat4 INVERSE_ROTATE = glm::inverse(mat);
+	    glm::vec4 reverse_point = INVERSE_ROTATE * glm::vec4(
+	    	(x-translation[0])/scale[0],
+			(y-translation[1])/scale[1],
+			(z-translation[2])/scale[2],
+			1.0f
+		);		    
 
 		if(segments[selectSegments].getPtSelect() == 0){
 			segments[selectSegments].setC(				
-				(x-translation[0]),
-				(y-translation[1]),
-				(z-translation[2])
+				reverse_point[0],
+				reverse_point[1],
+				reverse_point[2]
 			);
 		}
 
 		if(segments[selectSegments].getPtSelect() == 1){
 			segments[selectSegments].setP1(
-				(x-translation[0]),
-				(y-translation[1]),
-				(z-translation[2])
+				reverse_point[0],
+				reverse_point[1],
+				reverse_point[2]
 			);
 		}
 
 		if(segments[selectSegments].getPtSelect() == 2){
 			segments[selectSegments].setP2(
-				(x-translation[0]),
-				(y-translation[1]),
-				(z-translation[2])
+				reverse_point[0],
+				reverse_point[1],
+				reverse_point[2]
 			);
-		}				
+		}		
 	}
 }
 
@@ -306,8 +329,8 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
     glPushMatrix();
     // Aplicar Transformações Geométricas
     glColor3f(c[0],c[1],c[2]);
-    glScalef(s[0], s[1], s[2]);
     glTranslatef(t[0],t[1],t[2]);
+    glScalef(s[0], s[1], s[2]);    
     glMultMatrixf(m);
 
     if( !render_mode && this->is_selected){
