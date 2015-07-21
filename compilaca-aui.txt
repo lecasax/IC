@@ -1,0 +1,1 @@
+g++ teste_aui.cpp -o teste_aui `wx-config --libs core, base, aui --cxxflags --gl-libs`  -lglut -lGL -lGLU

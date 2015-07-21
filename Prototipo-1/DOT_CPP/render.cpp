@@ -2,11 +2,9 @@
 #include <iostream>
 using namespace std;
 
-#define N 40.0 // Number of vertices on the boundary of the disc.
-
 static int hits; // Number of entries in hit buffer.
 static unsigned int buffer[1024]; // Hit buffer.
-
+static float obsP[] =  { 0, 100, 200, 0, 0, 0, 0, 1, 0 };
 
 unsigned int  findClosestHit(int hits, unsigned int buffer[])
 {
@@ -28,11 +26,10 @@ unsigned int  findClosestHit(int hits, unsigned int buffer[])
         ptr += 3;
       }
     }
-
     return closestName;
 }
 
-unsigned int Render::render(vector <Object *> objects,  vector <float > proj,  int x, int y, bool render_mode, vector <float > r, float s)
+unsigned int Render::selectNearObject(vector <Object *> objects,  vector <float > proj,  int x, int y, bool render_mode, vector <float > r, float s)
 
 {
 
@@ -77,7 +74,7 @@ void Render::renderObjects(vector <Object *> objects, bool render_mode, bool is_
     //cout << "Tamanho dos vertices do cubo: " << objects[0]->getVertex().size() << " Size world: " << objects.size() << endl;
 
    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   gluLookAt(0, 100, 200, 0, 0, 0, 0, 1, 0);
+   gluLookAt(obsP[0], obsP[1], obsP[2], obsP[3], obsP[4], obsP[5], obsP[6], obsP[7], obsP[8]);
 
    //Rotacao de todo o cenario
     GLfloat matrix[16];
@@ -94,39 +91,29 @@ void Render::renderObjects(vector <Object *> objects, bool render_mode, bool is_
         }
         cout << endl;
     }
-    glMultMatrixf(matrix);
-    //glPushMatrix();
-    //glPushMatrix();
 
-    //Escala para dar Zoom.
+    //Rotacao no cenario
+    glMultMatrixf(matrix);
+
+    //Escala para dar um Zoom no cenario.
     glScalef(s, s, s);
 
-    //if (!is_selecting){
-        //glRotatef(r[0]/2, 1.0, .0, 0.0);
-        //glRotatef(r[1]/2, 0.0, 1.0, 0.0);
-    //}
-
     for (int i = 0; i <  (int) objects.size() ; ++i) {
-
-        vector <float > t = objects[i]->getTranslation();
-        glm::vec4  res = mat * glm::vec4(t[0],t[1],t[2], 1.0f);
-        t[0]=res[0];
-        t[1]=res[1];
-        t[2]=res[2];
-        objects[i]->setGlobalTranslation(t);
-        //glLoadName(i+1); // register object.
+        //if(!objects[i]->getTipo().compare("bezierSurface")){
+        objects[i]->setGlobalScale(s, s, s);
+        //}
         objects[i]->setRenderMode(render_mode);
-
-        objects[i]->draw(i, is_selecting);
+        objects[i]->draw(i, is_selecting, objects.size());
+        //cout << "Antes de morrer..."  << "   size: " << objects.size() <<  "    index: " <<i << "  Tipo: " <<objects[i]->getTipo() << endl;
         //cout << "Modo de renderizacao: " << objects[i]->getRenderMode() << endl;
     }
-    //glPopName();
+    glPopName();
     glPopMatrix();
 }
 
 
 /** Inits the OpenGL viewport for drawing in 3D. */
-void Render::viewport3D(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y, const float *obsP)
+void Render::viewport3D(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y)
 
 {
 
@@ -174,12 +161,11 @@ vector <float > Render::worldPoint(int x, int y)
     //Use the gluUnProject to get the world co-ordinates of
     //the point the user clicked and save in objx, objy, objz.
     gluUnProject( x, viewport[3]-y, z, modelview, projection, viewport, &objx, &objy, &objz );
-    float v[] = {(float)objx, (float)objy, (float)objz};
     vector<float > p;
     //p.insert(p.end(), v, v+3);
     p.push_back(objx);
     p.push_back(objy);
     p.push_back(objz);
-    cout << "\n\n\nPonto Mouse world " << "X: " << objx << "Y: " << objy << "Z: " << objz << endl;
+    //cout << "\n\n\nPonto Mouse world " << "X: " << objx << "Y: " << objy << "Z: " << objz << endl;
     return p;
 }

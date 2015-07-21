@@ -1,15 +1,10 @@
 #include "nurbsSurface.h"
-#include <stdio.h>
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
 #include <GL/glut.h>
 #include <GL/glu.h>
 #include <GL/gl.h>
-
-
-
-
 
 using namespace std;
 
@@ -18,7 +13,8 @@ SurfaceNurbs::SurfaceNurbs():Object()
 
 {
 
-    setTipo("nurbsSurface");
+    setTipo("Nurbs Surface");
+    modifier = Modifier(translation[0], translation[1], translation[2]);
 
     this->RESOLUTIONI = 6; //resolucao na direcao I
     this->RESOLUTIONJ = 6; // resolucao na direcao J
@@ -222,16 +218,66 @@ void SurfaceNurbs::preencheMatrizPesos(){
     }
 }
 
+void SurfaceNurbs::setGlobalScale( float x, float y, float z)
+{
+
+    this->globalScale[0] = x;
+    this->globalScale[1] = y;
+    this->globalScale[2] = z;
+}
+
+vector <float > SurfaceNurbs::getControlPointSelected()
+{
+    int i = ( (hit_index_internal-1) / (NI + 1) );
+    int j = ( (hit_index_internal-1) % (NJ + 1) );
+    vector <float > selectedPoint(3, 0);
+    selectedPoint[0] = controlPoints[i][j][0];
+    selectedPoint[1] = controlPoints[i][j][1];
+    selectedPoint[2] = controlPoints[i][j][2];
+    return  selectedPoint;
+}
+int SurfaceNurbs::getSizeControlPoints()
+
+{
+    return (NI+1) * (NJ+1);
+}
+
+void SurfaceNurbs::setPtControleModifier(float x, float y, float z)
+{
+    int i = ( (hit_index_internal-1) / (NI + 1) );
+    int j = ( (hit_index_internal-1) % (NJ + 1) );
+    controlPoints[i][j][0] = x;
+    controlPoints[i][j][1] = y;
+    controlPoints[i][j][2] = z;
+    surface3dBsplineRenderNURBS();
+}
 void SurfaceNurbs::setPtControle(float x, float y, float z)
 {
 
     int i = ( (hit_index_internal-1) / (NI + 1) );
     int j = ( (hit_index_internal-1) % (NJ + 1) );
+    vector <float > r = getRotation();
+    glm::quat quat (glm::vec3(r[0]*PI/BASE, r[1]*PI/BASE, r[2]*PI/BASE));
+    glm::quat quaternion = quat ;
+    glm::mat4 mat  = glm::toMat4(quaternion);
+
     controlPoints[i][j][0] = (x-translation[0])/scale[0];
     controlPoints[i][j][1] = (y-translation[1])/scale[1];
     controlPoints[i][j][2] = (z-translation[2])/scale[2];
+
+    glm::mat4 INVERSE_ROTATE = glm::inverse(mat);
+    glm::vec4 reverse_point = INVERSE_ROTATE * glm::vec4(controlPoints[i][j][0],
+                                                         controlPoints[i][j][1],
+                                                         controlPoints[i][j][2],
+                                                         1.0f
+                                                         );
+    controlPoints[i][j][0] = reverse_point[0];
+    controlPoints[i][j][1] = reverse_point[1];
+    controlPoints[i][j][2] = reverse_point[2];
     surface3dBsplineRenderNURBS();
 }
+
+
 
 void SurfaceNurbs::drawGlQuadStripVector(vector <double *> array , int n, int m, int type)
 
@@ -315,7 +361,7 @@ void SurfaceNurbs::drawControlPolygon()
 }
 
 
-void SurfaceNurbs::draw(int index_load,  bool is_selecting)
+void SurfaceNurbs::draw(int index_load,  bool is_selecting, int size_world)
 
 {
     GLfloat m[16];
@@ -335,15 +381,41 @@ void SurfaceNurbs::draw(int index_load,  bool is_selecting)
             count++;
         }
     }
+
+    //modificador para o objeto inteiro
+    if(render_mode && is_selected){
+        glPushMatrix();
+        glTranslatef(translation[0], translation[1]-20, translation[2]);
+        glScalef(1/globalScale[0], 1/globalScale[1], 1/globalScale[2]);
+        modifier.draw( size_world-1 , true);
+        glPopMatrix();
+    }
+
+    //modificador para o ponto de controle
+    else if (!render_mode && is_selected && hit_index_internal >= 1){
+        int i = ( (hit_index_internal-1) / (NI + 1) );
+        int j = ( (hit_index_internal-1) % (NJ + 1) );
+        glPushMatrix();
+        glTranslatef(t[0],t[1],t[2]);
+        glScalef(s[0], s[1], s[2]);
+        glMultMatrixf(m);
+        glTranslatef(controlPoints[i][j][0], controlPoints[i][j][1], controlPoints[i][j][2]);
+        glScalef(0.8, 0.8, 0.8);
+        glScalef(1/s[0], 1/s[1], 1/s[2]);
+        glScalef(1/globalScale[0], 1/globalScale[1], 1/globalScale[2]);
+        modifier.draw( (NI+1)*(NJ+1), true);
+        glPopMatrix();
+    }
+
     glPushMatrix();
     glTranslatef(t[0],t[1],t[2]);
     glScalef(s[0], s[1], s[2]);
+    glMultMatrixf(m);
     //drawControlPoint(getControlPoints());
     //glColor3f(0, 0, 0);
 
     //modo objeto
     if(render_mode){
-        glLoadName(index_load);
 
         if (is_selected){
             glColor4f(GREEN);
@@ -351,6 +423,7 @@ void SurfaceNurbs::draw(int index_load,  bool is_selecting)
             glColor4f(GRAY1);
         }
 
+        glLoadName(index_load);
         drawGlQuadStripVector( surfaceNurbs, RESOLUTIONI+1, RESOLUTIONJ+1, 1);
 
     //modo Edicao

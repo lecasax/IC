@@ -9,6 +9,7 @@
 #ifndef NURBS_SURFACE_H
 #define NURBS_SURFACE_H
 #include "object.h"
+#include "modifier.h"
 #include <vector>
 
 using namespace std;
@@ -32,13 +33,17 @@ public:
     double fatorial(int number);
     void movePointControlSurface(double *point, int position);
     void drawGlQuadStripVector(vector <double *> array , int n, int m, int type);
-    void draw(int index_load,  bool is_selecting);
+    void draw(int index_load,  bool is_selecting, int size_world);
     void drawControlPoint(int hit);
     void drawControlPolygon();
     void surface3dBsplineRenderNURBS();
     vector <double *> createControlPointsSpehere();
     vector <double *> getControlPoints();
     void setPtControle(float x, float y, float z);
+    void setGlobalScale( float x, float y, float z);
+    void setPtControleModifier(float x, float y, float z);
+    int getSizeControlPoints();
+    vector <float > getControlPointSelected();
 
 private:
 
@@ -61,7 +66,9 @@ private:
     double *uknots;
     double *vknots;
 
+    Modifier modifier;
+
 
 };
 
-#endif  /* BEZIER_H */
+#endif  /* NURBS_H */

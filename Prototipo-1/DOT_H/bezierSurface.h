@@ -8,6 +8,7 @@
 
 #ifndef BEZIER_SURFACE_H
 #define BEZIER_SURFACE_H
+#include "modifier.h"
 #include "object.h"
 #include <vector>
 
@@ -31,12 +32,18 @@ public:
     void movePointControlSurface(double *point, int position);
     void surface3dBezierRenderNUBRS();
     vector <double *> getControlPoints();
-    void draw(int index_load,  bool is_selecting);
+    void draw(int index_load,  bool is_selecting, int size_world);
     void drawControlPoint(int hit);
     void drawControlPolygon();
     void drawGlQuadStripVector(vector <double *> array , int n, int m, int type);
     void setPtControle(float x, float y, float z);
     void translateObject( vector <float > newTranslation);
+    void rotateObject(vector <float > newRotation);
+    void setGlobalScale( float x, float y, float z);
+    int  getSizeControlPoints();
+    vector <float > getControlPointSelected();
+    void setPtControleModifier(float x, float y, float z);
+
 
 private:
 
@@ -50,6 +57,8 @@ private:
 
     int  RESOLUTIONI; //resolucao na direcao I
     int  RESOLUTIONJ; // resolucao na direcao J
+
+    Modifier modifier;
 
 };
 

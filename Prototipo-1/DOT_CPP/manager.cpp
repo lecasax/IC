@@ -1,4 +1,3 @@
-#include <GL/glut.h>
 #include "BezierCurve.h"
 #include "bezierSurface.h"
 #include "nurbsSurface.h"
@@ -7,7 +6,7 @@
 #include "object.h"
 #include "grid.h"
 #include "cube.h"
-#include <wx/event.h>
+#include "modifier.h"
 
 /*table of the events*/
 /* tabela de eventos referente a canvas*/
@@ -32,32 +31,21 @@ EVT_PAINT(BasicGLPane::render)
 
 END_EVENT_TABLE()
 
-//To Opengl
-static float obsP[] =  { -50, 100, 250, 0, 0, 0, 0, 1, 0 };
-
-//To objects
-vector <Object *> world;
-//vector<int > obj_selected;
-vector <float > PROJ(4, 0);
-
-unsigned int last_click_object = 0;
-
-int last_object_selected = 0;
-bool render_mode = true;
-vector <float > ROTATION(3, 0);
-vector <float > LAST_MOUSE_POSITION_DRAGG(3, 0);
-float SCALE = 1.0;
-
-/*Variaveis de rotacao do cenario*/
-int start_x, start_y, start_angle_x, start_angle_y, angle_x = 0, angle_y = 0;
-
-BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
+BasicGLPane::BasicGLPane(wxWindow* parent, int* args) :
     wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE)
 {
-    //Render::viewport3D(0,0, getWidth(), getHeight(), obsP);
+
+    RENDER_MODE = true;
+    MODIFIER_TYPE = 1;
+    SCALE = 1.0;
+    ROTATION  = vector<float > (3, 0);
+    CURSOR_POSITION = vector <float> (3, 0);
+    LAST_MOUSE_POSITION_DRAGG = vector <float > (3, 0);
+    LAST_OBJECT_SELECTED = 0;
+    LAST_CLICK_OBJECT = 0;
+    ANGLE_X = 0;
+    ANGLE_Y = 0;
     m_context = new wxGLContext(this);
-    //No construtor na funcionou
-    //Render::viewport3D(0,0, getWidth(), getHeight(), obsP);
 
      // To avoid flashing on MSW
 
@@ -65,53 +53,9 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
     char* argv[1] = { wxString((wxTheApp->argv)[0]).char_str() };
     glutInit(&argc, argv);
 
-    vector <float *> vertex;
-    vector <float *> vertex2;
-
-    float  c[] = {0, 0, 1} ;
-    float  r[] = {0, 45, 0};
-    float  s[] = {.5, .5, .5};
-    float  t[] = {-80.0, 4.0, 0.0};
-    float  t2[] = {80.0, 4.0, 0.0};
-    vector<float> rotate (r, r + sizeof(r) / sizeof(float));
-    vector<float > color (c, c + sizeof(c) / sizeof(float) );
-    vector<float > scale (s, s + sizeof(s) / sizeof(float) );
-    vector<float > trans (t, t + sizeof(t) / sizeof(float) );
-    vector<float > trans2 (t2, t2 + sizeof(t2) / sizeof(float) );
-
 
     Object *grid = new Grid[1];
-    //grid->setColor(color);
-
-    Object *bezier = new BezierCurve(0,0,0);
-    Object *bezier2 = new BezierCurve(0,0,0);
-    Object *bspline = new BSplines(0,0,0);
-    Object *surfaceBezier = new SurfaceBezier() ;
-    Object *surfaceNurbs = new SurfaceNurbs() ;
-    surfaceNurbs->translateObject(trans);
-    surfaceBezier->translateObject(trans2);
-    surfaceBezier->scaleObject(2.5, 2.5, 2.5);
-    surfaceNurbs->scaleObject(2.5, 2.5, 2.5);
-    surfaceBezier->rotateObject(rotate);
-
-    world.push_back(grid);
-    world.push_back(bezier);
-    //world.push_back(bezier2);
-    //world.push_back(bspline);
-    world.push_back(surfaceBezier);
-    world.push_back(surfaceNurbs);
-
-    Object *nurb = new Nurbs(0,0,0);
-
-    //world.push_back(grid);
-    //world.push_back(bezier);
-    //world.push_back(bezier2);
-    //world.push_back(bspline);
-    //world.push_back(nurb);
-
-    //world.push_back(cube);
-    //world.push_back(cube2);
-    //world.push_back(cube3);
+    WORLD.push_back(grid);
 
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 }
@@ -136,11 +80,11 @@ void BasicGLPane::mouseMiddleDown(wxMouseEvent& event)
 
     cout << "Botao do meio para baixo" << endl;
     //quando o botao do mouse abaixa seta as variaveis para a logica da rotacao//
-    start_angle_x = angle_x;
-    start_angle_y = angle_y;
+    START_ANGLE_X = ANGLE_X;
+    START_ANGLE_Y = ANGLE_Y;
 
-    start_x = event.GetX();
-    start_y = event.GetY();
+    START_X = event.GetX();
+    START_Y = event.GetY();
     //------------------------------------------------------------------------//
 
 
@@ -172,47 +116,131 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
         x = event.GetX();
         y = event.GetY();
         worldC = Render::worldPoint(x,y);
-        name = world[last_object_selected]->getTipo();
-        cout << "last_click_object: " << last_click_object << "---" << "last_object_selected: " << last_object_selected << endl;
+        name = WORLD[LAST_OBJECT_SELECTED]->getTipo();
+        cout << "LAST_CLICK_OBJECT: " << LAST_CLICK_OBJECT << "---" << "LAST_OBJECT_SELECTED: " << LAST_OBJECT_SELECTED << endl;
 
-        if(render_mode){
+        /*Modo objeto */
+        if(RENDER_MODE){
 
-            if(name == "BSplines" || name == "Nurbs" || name == "BezierCurve" || "bezierSurface" || "nurbsSurface"){
-                if (last_object_selected && last_object_selected == last_click_object){
+            //if(name == "BSplines" || name == "Nurbs" || name == "BezierCurve" || "bezierSurface" || "nurbsSurface"){
+                if (LAST_OBJECT_SELECTED && LAST_OBJECT_SELECTED == (int)LAST_CLICK_OBJECT){
 
-                    vector <float > object_position =  world[last_object_selected]->getTranslation();
+                    vector <float > object_position =  WORLD[LAST_OBJECT_SELECTED]->getTranslation();
                     worldC2[0] = object_position[0] + worldC[0] - LAST_MOUSE_POSITION_DRAGG[0];
                     worldC2[1] = object_position[1] + worldC[1] - LAST_MOUSE_POSITION_DRAGG[1];
                     worldC2[2] = object_position[2] + worldC[2] - LAST_MOUSE_POSITION_DRAGG[2];
                     LAST_MOUSE_POSITION_DRAGG = worldC;
-                    world[last_object_selected]->translateObject(worldC2);
+                    WORLD[LAST_OBJECT_SELECTED]->translateObject(worldC2);
                 }
-            }
 
+                /* Se o Modificador de translacao estiver setado para a transalacao. */
+                else if (LAST_CLICK_OBJECT >= WORLD.size() && MODIFIER_TYPE == 1){
+                    vector <float > object_position =  WORLD[LAST_OBJECT_SELECTED]->getTranslation();
+                    worldC2 = object_position;
+                    switch(1 + LAST_CLICK_OBJECT - WORLD.size()){
+                        case 1:
+                            worldC2[0] = (object_position[0] + worldC[0] - LAST_MOUSE_POSITION_DRAGG[0]);
+                        break;
+
+                        case 2:
+                            worldC2[1] = object_position[1] + worldC[1] - LAST_MOUSE_POSITION_DRAGG[1];
+                        break;
+
+                        case 3:
+                            worldC2[2] = object_position[2] + worldC[2] - LAST_MOUSE_POSITION_DRAGG[2];
+                        break;
+
+                    }
+                    LAST_MOUSE_POSITION_DRAGG = worldC;
+                    WORLD[LAST_OBJECT_SELECTED]->translateObject(worldC2);
+                }
+                else if (LAST_CLICK_OBJECT >= WORLD.size() && MODIFIER_TYPE == 2){
+                    vector <float > rotation =  WORLD[LAST_OBJECT_SELECTED]->getRotation();
+                    worldC2 = rotation;
+                    switch(1 + LAST_CLICK_OBJECT - WORLD.size()){
+                        case 1:
+                            worldC2[1] = rotation[1] + (worldC[0] - LAST_MOUSE_POSITION_DRAGG[0])*10;
+                        break;
+
+                        case 2:
+                            worldC2[0] = rotation[0] + (worldC[1] - LAST_MOUSE_POSITION_DRAGG[1])*10;
+                        break;
+
+                        case 3:
+                            worldC2[2] = rotation[2] + (worldC[2] - LAST_MOUSE_POSITION_DRAGG[2])*10;
+                        break;
+
+                    }
+                    LAST_MOUSE_POSITION_DRAGG = worldC;
+                    WORLD[LAST_OBJECT_SELECTED]->rotateObject(worldC2);
+                }
+
+                /* Se o Modificador de Escala estiver setado deve proceder da seguinte forma abaixo... */
+                if (LAST_CLICK_OBJECT >= WORLD.size() && MODIFIER_TYPE == 3){
+                    vector <float > object_scale =  WORLD[LAST_OBJECT_SELECTED]->getScale();
+                    worldC2 = object_scale;
+                    switch(1 + LAST_CLICK_OBJECT - WORLD.size()){
+
+                        case 1:
+                            worldC2[0] = object_scale[0] + (worldC[0] - LAST_MOUSE_POSITION_DRAGG[0])/5;
+                        break;
+
+                        case 2:
+                            worldC2[1] = object_scale[1] + (worldC[1] - LAST_MOUSE_POSITION_DRAGG[1])/5;
+                        break;
+
+                        case 3:
+                            worldC2[2] = object_scale[2] + (worldC[2] - LAST_MOUSE_POSITION_DRAGG[2])/5;
+                        break;
+
+                    }
+                    LAST_MOUSE_POSITION_DRAGG = worldC;
+                    WORLD[LAST_OBJECT_SELECTED]->scaleObject(worldC2[0], worldC2[1], worldC2[2]);
+                }
+            //}
+
+        /*Modo edicao...*/
         } else {
 
-            if(name == "BSplines" || name == "Nurbs" || name == "BezierCurve"|| "bezierSurface" || "nurbsSurface"){
-                if (last_object_selected &&  last_click_object == world[last_object_selected]->getHitIndexInternal()){
-                    world[last_object_selected]->setPtControle(worldC[0],worldC[1],worldC[2]);
+            if (LAST_OBJECT_SELECTED &&  (int)LAST_CLICK_OBJECT == WORLD[LAST_OBJECT_SELECTED]->getHitIndexInternal()){
+                WORLD[LAST_OBJECT_SELECTED]->setPtControle(worldC[0],worldC[1],worldC[2]);
+            }
+            else if ((int)LAST_CLICK_OBJECT > WORLD[LAST_OBJECT_SELECTED]->getSizeControlPoints()){
+                vector <float > selectedPoint =  WORLD[LAST_OBJECT_SELECTED]->getControlPointSelected();
+                worldC2 = selectedPoint;
+                cout << "selectedPoint: "    <<"X: " <<selectedPoint[0] << "   Y: " << selectedPoint[1] <<"  Z: " <<selectedPoint[2] << endl;
+                switch(LAST_CLICK_OBJECT - WORLD[LAST_OBJECT_SELECTED]->getSizeControlPoints()){
+
+                    case 1:
+                        worldC2[0] = (selectedPoint[0] + worldC[0] - LAST_MOUSE_POSITION_DRAGG[0]);
+                    break;
+
+                    case 2:
+                        worldC2[1] = (selectedPoint[1] + worldC[1] - LAST_MOUSE_POSITION_DRAGG[1]);
+
+                    break;
+
+                    case 3:
+                        worldC2[2] = (selectedPoint[2] + worldC[2] - LAST_MOUSE_POSITION_DRAGG[2]);
+                    break;
                 }
+                LAST_MOUSE_POSITION_DRAGG = worldC;
+                WORLD[LAST_OBJECT_SELECTED]->setPtControleModifier(worldC2[0], worldC2[1], worldC2[2]);
             }
         }
 
         displayScene();
+        GetParent()->GetEventHandler()->ProcessEvent(event);
     }
 
-
-    //displayScene();
     if(event.Dragging() && event.MiddleIsDown()){
-
-        //cout << "R_X: " << rotation_x << ", " << "R_Y: " << rotation_y << endl;
-        angle_x = start_angle_x + (event.GetX() - start_x);
-        angle_y = start_angle_y + (event.GetY() - start_y);
-        ROTATION[0] = angle_y;
-        ROTATION[1] = angle_x;
-        //cout << "R_X: " << angle_x << ", " << "R_Y: " << angle_y << endl;
+        //Rotaca geral do cenario
+        ANGLE_X = START_ANGLE_X + (event.GetX() - START_X);
+        ANGLE_Y = START_ANGLE_Y + (event.GetY() - START_Y);
+        ROTATION[0] = ANGLE_Y;
+        ROTATION[1] = ANGLE_X;
         displayScene();
-
+        GetParent()->GetEventHandler()->ProcessEvent(event);
     }
 
 }
@@ -225,21 +253,22 @@ void BasicGLPane::mouseDown(wxMouseEvent& event)
 
     //pegando o objeto que atingido pelo ultimo clique do botao esquerdo...
     cout << "Mouse down event..." << endl;
-    last_click_object = Render::render(world,  proj,  event.GetX(), event.GetY(), render_mode, ROTATION, SCALE);
+    LAST_CLICK_OBJECT = Render::selectNearObject(WORLD,  proj,  event.GetX(), event.GetY(), RENDER_MODE, ROTATION, SCALE);
 
-    //PEGA A ULTIMA POSICAO CLICADA COM O BOTAO ESQUERDO PAARA USA NO DRAGG---//
+    //PEGA A ULTIMA POSICAO CLICADA COM O BOTAO ESQUERDO PARA USA NO DRAGG---//
     LAST_MOUSE_POSITION_DRAGG = Render::worldPoint(event.GetX(),event.GetY());
+    CURSOR_POSITION = LAST_MOUSE_POSITION_DRAGG;
+    GetParent()->GetEventHandler()->ProcessEvent(event);
 }
 
 
 void BasicGLPane::mouseWheelMoved(wxMouseEvent& event)
 {
-
+    //Escala geral do cenario
     event.GetWheelRotation()  > 0 ? SCALE+=0.0625 : SCALE-=0.0625;
     if(SCALE == 0){
         SCALE = 0.0625;
     }
-    cout << "SCALE---" << SCALE << endl;
     displayScene();
 }
 
@@ -253,35 +282,33 @@ void BasicGLPane::mouseReleased(wxMouseEvent& event)
 void BasicGLPane::rightClick(wxMouseEvent& event)
 {
 
-    //simulando a criacao de objetos
-    //vector <float > pointWorld = Render::worldPoint(event.GetX(), event.GetY());
-    //cout << "X: " << pointWorld[0] << "Y: " << pointWorld[1] << "Z: " << pointWorld[2] << endl;
-    //world[1].translateObject(pointWorld);
     vector <float > proj;
     proj.push_back(45.0); proj.push_back((float)getWidth()/(float)getHeight());
     proj.push_back(0.1); proj.push_back(400);
 
-    unsigned int obj_selected = Render::render(world,  proj,  event.GetX(), event.GetY(), render_mode, ROTATION, SCALE);
-    //int obj_sel = getMinDepth(obj_selected, world) ;
-    cout << "Objeto selecionado: " << obj_selected << endl;
-    //modificando o estado do objeto selecionado
-    if(!render_mode && obj_selected){
-        cout << "Modo edicao selecionando um ponto....." << endl;
-        world[last_object_selected]->setHitIndexInternal((int)obj_selected);
-        last_click_object = (int)obj_selected;
+    unsigned int obj_selected = Render::selectNearObject(WORLD,  proj,  event.GetX(), event.GetY(), RENDER_MODE, ROTATION, SCALE);
+    cout << "Ponto retornando pela selecao: " << obj_selected << endl;
 
+    //Modo ediciao
+    if(!RENDER_MODE && obj_selected){
+        if ( (int)obj_selected <= WORLD[LAST_OBJECT_SELECTED]->getSizeControlPoints() ){
+            cout << "Modo edicao selecionando um ponto....." << ", " << WORLD[LAST_OBJECT_SELECTED]->getSizeControlPoints()<<endl;
+            WORLD[LAST_OBJECT_SELECTED]->setHitIndexInternal((int)obj_selected);
+            LAST_CLICK_OBJECT = (int)obj_selected;
+        }
+    //Modo objeto
     } else {
 
-        if(obj_selected){
-            cout << "Modo objeto selecionando um objeto...." << endl;
-            world[last_object_selected]->setSelected(false);
-            last_object_selected = (int)obj_selected;
-            world[(int)obj_selected]->setSelected(true);
-
+        if(obj_selected && obj_selected < WORLD.size()){
+            WORLD[LAST_OBJECT_SELECTED]->setSelected(false);
+            LAST_OBJECT_SELECTED = (int)obj_selected;
+            WORLD[(int)obj_selected]->setSelected(true);
+            //cout << "Antes de morrer...." << endl;
         }
     }
-    cout << "Ultimo objeto selecionado: " << last_object_selected << endl;
+    cout << "Ultimo objeto selecionado: " << LAST_OBJECT_SELECTED << endl;
     displayScene();
+    GetParent()->GetEventHandler()->ProcessEvent(event);
 
 }
 void BasicGLPane::mouseLeftWindow(wxMouseEvent& event)
@@ -302,10 +329,10 @@ void BasicGLPane::keyPressed(wxKeyEvent& event)
         if ( uc == WXK_TAB){
             //modo edicao e objeto....
             cout << "Evento de tab..." <<  endl;
-            if(world.size() > 1 && last_object_selected){
+            if(WORLD.size() > 1 && LAST_OBJECT_SELECTED){
                 cout << "Mudando o modo de renderezicao..." << endl;
-                render_mode = !render_mode;
-                //world[last_object_selected]->setRenderMode(render_mode);
+                RENDER_MODE = !RENDER_MODE;
+                //world[LAST_OBJECT_SELECTED]->setRenderMode(RENDER_MODE);
             }
         }
 
@@ -317,6 +344,7 @@ void BasicGLPane::keyPressed(wxKeyEvent& event)
             cout << "Evento de A..." <<  endl;
         }
     }
+    GetParent()->GetEventHandler()->ProcessEvent(event);
     displayScene();
 }
 void BasicGLPane::keyReleased(wxKeyEvent& event)
@@ -366,7 +394,6 @@ void BasicGLPane::render( wxPaintEvent& evt )
 
 }
 
-
 void BasicGLPane::displayScene()
 
 {
@@ -377,12 +404,51 @@ void BasicGLPane::displayScene()
     wxPaintDC(this); // only to be used in paint events. use wxClientDC to paint outside the paint event
 
     //toda as vezes tem que definir a projecao......
-    Render::viewport3D(0,0, getWidth(), getHeight(), obsP);
+    Render::viewport3D(0,0, getWidth(), getHeight());
 
     //glScalef(100, 100, 100);
-    Render::renderObjects(world, render_mode, false, ROTATION, SCALE);
+    Render::renderObjects(WORLD, RENDER_MODE, false, ROTATION, SCALE);
 
     glFlush();
     SwapBuffers();
 
+}
+
+
+//////////////////Metdos para conversar com objetos externos////////////////////
+std::string BasicGLPane::createBezierSurface ()
+{
+    vector <float > cursor = getCursorPosition();
+    Object *surfaceBezier = new SurfaceBezier() ;
+    surfaceBezier->translateObject(cursor);
+    WORLD.push_back(surfaceBezier);
+    displayScene();
+    return surfaceBezier->getTipo();
+}
+
+std::string BasicGLPane::createSplineSurface ()
+{
+    vector <float > cursor = getCursorPosition();
+    Object *surfaceNurbs = new SurfaceNurbs() ;
+    surfaceNurbs->translateObject(cursor);
+    WORLD.push_back(surfaceNurbs);
+    displayScene();
+    return surfaceNurbs->getTipo();
+}
+
+std::string  BasicGLPane::createNurbsSurface ()
+{
+    vector <float > cursor = getCursorPosition();
+    Object *surfaceNurbs = new SurfaceNurbs() ;
+    surfaceNurbs->translateObject(cursor);
+    WORLD.push_back(surfaceNurbs);
+    displayScene();
+    return surfaceNurbs->getTipo();
+
+}
+
+
+vector <float > BasicGLPane::getCursorPosition()
+{
+    return CURSOR_POSITION;
 }
