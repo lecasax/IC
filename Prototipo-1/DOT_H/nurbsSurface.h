@@ -20,12 +20,17 @@ class SurfaceNurbs: public Object
 
 public:
 
+    SurfaceNurbs(int ni, int nj, int resolutioni, int resolutionj, int degree, int type,
+                             vector<vector<vector <double > > > cP);
+    SurfaceNurbs(SurfaceNurbs *surface);
+    SurfaceNurbs(int ni, int nj, int resolutioni, int resolutionj, int degree, int type);
     SurfaceNurbs();
     ~SurfaceNurbs();
     int verify_two_vectors_oriented(double *v, double *v2);
     double Bspline(int i, int m, double *knots, double u);
     double combination(int n, int d);
     void preencheMatrizPesos();
+    void preencheMatrizPesosRandom();
     void movePointControlSurfaceBspline(double *p, int index);
     void splineKnotsDouble(double *u,int n,int t);
     void createControlPoints(void);
@@ -44,8 +49,12 @@ public:
     void setPtControleModifier(float x, float y, float z);
     int getSizeControlPoints();
     vector <float > getControlPointSelected();
+    void setModifier(int tp);
+
 
 private:
+
+    Modifier modifier;
 
     vector <double *> surfaceNurbs;
 
@@ -66,7 +75,6 @@ private:
     double *uknots;
     double *vknots;
 
-    Modifier modifier;
 
 
 };

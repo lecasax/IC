@@ -1,6 +1,40 @@
 #include "Nurbs.h"
 #include <iostream>
 
+
+Nurbs::Nurbs(Nurbs * nurb):BSplines()
+{
+
+	this->translation = nurb->translation;
+    this->rotation = nurb->rotation;
+    this->scale = nurb->scale;
+
+	// Quantidade de Pontos da Curva
+	this->quant = nurb->getQuant();
+
+	// Ordem da Curva B-Spline
+	this->ordCurva = nurb->getOrdCurva();
+
+	// Lista de Nos usados para geração da curva B-Spline
+	this->nos = nurb->getNo();
+
+	// Lista de Pontos da Curva B-Spline
+	// A Cada 3 elementos da lista tem-se um ponto representando
+	// px,py,pz
+	this->ptsCurv = nurb->getPtsCurva();
+
+	// Lista Bidimensional Representando os Pontos de Controle
+	this->ptControle = nurb->getPtControle();
+
+	// Lista de Pesos
+	this->pesos = nurb->getPesos();
+
+	this->updatePtsCurv();
+
+	this->setTipo("Nurbs");
+}
+
+
 // Construtor
 Nurbs::Nurbs(float x, float y, float z):BSplines()
 {
@@ -37,7 +71,7 @@ Nurbs::Nurbs(float x, float y, float z):BSplines()
 	pesos.push_back(1);
 	pesos.push_back(1);
 	pesos.push_back(0.2);	*/
-	
+
 	iniNo();
 
 	// Tipo Curva Nurbs
@@ -77,7 +111,7 @@ void Nurbs::updatePtsCurv()
 
 	float coefbs = 0;
 	vector<float> pts;
-			
+
 	if(inic == fim){
 
 		inic = nos[ordCurva-1];
@@ -89,26 +123,26 @@ void Nurbs::updatePtsCurv()
 
 		x = y = z = 0;
 		x2 = y2 = z2 = 0;
-		
+
 		for(i = 0; i < (int) ptControle.size(); i++){
 
-			coefbs = bspline(i,ordCurva,t);			
+			coefbs = bspline(i,ordCurva,t);
 
-			x = x + (coefbs * ptControle[i][0] * pesos[i]);			
+			x = x + (coefbs * ptControle[i][0] * pesos[i]);
 			x2 = x2 + (coefbs * pesos[i]);
 
 			y = y + (coefbs * ptControle[i][1] * pesos[i]);
-			y2 = y2 + (coefbs * pesos[i]);	
+			y2 = y2 + (coefbs * pesos[i]);
 
 			z = z + (coefbs * ptControle[i][2] * pesos[i]);
-			z2 = z2 + (coefbs * pesos[i]);			
+			z2 = z2 + (coefbs * pesos[i]);
 		}
-		
+
 		pts.push_back(x/x2);
 		pts.push_back(y/y2);
 		pts.push_back(z/z2);
 	}
-	
+
 	cout << "nos" <<endl;
 	for(i = 0; i < (int) nos.size(); i++){
 		cout << nos[i] << endl;
@@ -116,7 +150,7 @@ void Nurbs::updatePtsCurv()
 	cout << endl;
 
 
-	ptsCurv = pts;	
+	ptsCurv = pts;
 }
 
 // Duplica um Ponto de Controle Extremo
@@ -134,7 +168,7 @@ int Nurbs::addPtControle()
 
 		pesos.insert(pesos.begin(),1);
 
-		insertNode(0);		
+		insertNode(0);
 
 	} else if(ptcSelec == (int) ptControle.size() -1) {
 
@@ -196,11 +230,11 @@ int Nurbs::addPtControle(float x, float y, float z)
 
 // Remove o Ponto de Controle Selecionado
 int Nurbs::rmvPtControle()
-{	
+{
 	if(ptcSelec == 0) {
 
 		ptControle.erase(ptControle.begin());
-		
+
 		pesos.erase(pesos.begin()+ptcSelec);
 
 		rmvNode(0);
@@ -221,13 +255,13 @@ int Nurbs::rmvPtControle()
 
 		pesos.erase(pesos.begin()+ptcSelec);
 
-		rmvNode(2);	
+		rmvNode(2);
 
 	} else {
-		
+
 		return 0;
 	}
-	
+
 	return 1;
 }
 
@@ -238,12 +272,12 @@ void Nurbs::iniNo()
 
 	nos.assign(ptControle.size()+ordCurva,0);
 
-	for(i = 0; i < ordCurva; i++){	
+	for(i = 0; i < ordCurva; i++){
 		nos[i] = 0;
 		nos[((int)nos.size())-i-1] = (ordCurva * (ordCurva-1));
 	}
 
-	for(i = ordCurva; i < ((int) nos.size())-ordCurva; i++){		
+	for(i = ordCurva; i < ((int) nos.size())-ordCurva; i++){
 		nos[i] = nos[i-1] + i * ordCurva;
 	}
 

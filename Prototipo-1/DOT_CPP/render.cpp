@@ -4,7 +4,7 @@ using namespace std;
 
 static int hits; // Number of entries in hit buffer.
 static unsigned int buffer[1024]; // Hit buffer.
-static float obsP[] =  { 0, 100, 200, 0, 0, 0, 0, 1, 0 };
+static float obsP[] =  { 0, 0, 200, 0, 0, 0, 0, 1, 0 };
 
 unsigned int  findClosestHit(int hits, unsigned int buffer[])
 {

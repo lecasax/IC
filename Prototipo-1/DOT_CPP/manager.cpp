@@ -7,6 +7,8 @@
 #include "grid.h"
 #include "cube.h"
 #include "modifier.h"
+#include <algorithm>    // std::find
+#include <sstream>
 
 /*table of the events*/
 /* tabela de eventos referente a canvas*/
@@ -35,6 +37,8 @@ BasicGLPane::BasicGLPane(wxWindow* parent, int* args) :
     wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE)
 {
 
+    LAST_EVENT = 0;
+    POINTER_BACKUP = 0;
     RENDER_MODE = true;
     MODIFIER_TYPE = 1;
     SCALE = 1.0;
@@ -43,8 +47,9 @@ BasicGLPane::BasicGLPane(wxWindow* parent, int* args) :
     LAST_MOUSE_POSITION_DRAGG = vector <float > (3, 0);
     LAST_OBJECT_SELECTED = 0;
     LAST_CLICK_OBJECT = 0;
-    ANGLE_X = 0;
-    ANGLE_Y = 0;
+    ANGLE_X = 45;
+    ANGLE_Y = 45;
+    LIST_INDEX_OBJECT.push_back(0);
     m_context = new wxGLContext(this);
 
      // To avoid flashing on MSW
@@ -56,7 +61,9 @@ BasicGLPane::BasicGLPane(wxWindow* parent, int* args) :
 
     Object *grid = new Grid[1];
     WORLD.push_back(grid);
-
+    ROTATION[0] = 45;
+    ROTATION[1] = 45;
+    BACKUP.push_back(WORLD);
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 }
 
@@ -111,7 +118,6 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
     string name;
 
     if(event.Dragging() && event.LeftIsDown()){
-
         // Convertendo Coordenadas do mouse em coordenadas no Mundo
         x = event.GetX();
         y = event.GetY();
@@ -131,6 +137,7 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
                     worldC2[2] = object_position[2] + worldC[2] - LAST_MOUSE_POSITION_DRAGG[2];
                     LAST_MOUSE_POSITION_DRAGG = worldC;
                     WORLD[LAST_OBJECT_SELECTED]->translateObject(worldC2);
+                    LAST_EVENT = 1;
                 }
 
                 /* Se o Modificador de translacao estiver setado para a transalacao. */
@@ -153,6 +160,7 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
                     }
                     LAST_MOUSE_POSITION_DRAGG = worldC;
                     WORLD[LAST_OBJECT_SELECTED]->translateObject(worldC2);
+                    LAST_EVENT = 1;
                 }
                 else if (LAST_CLICK_OBJECT >= WORLD.size() && MODIFIER_TYPE == 2){
                     vector <float > rotation =  WORLD[LAST_OBJECT_SELECTED]->getRotation();
@@ -173,6 +181,7 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
                     }
                     LAST_MOUSE_POSITION_DRAGG = worldC;
                     WORLD[LAST_OBJECT_SELECTED]->rotateObject(worldC2);
+                    LAST_EVENT = 1;
                 }
 
                 /* Se o Modificador de Escala estiver setado deve proceder da seguinte forma abaixo... */
@@ -196,6 +205,7 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
                     }
                     LAST_MOUSE_POSITION_DRAGG = worldC;
                     WORLD[LAST_OBJECT_SELECTED]->scaleObject(worldC2[0], worldC2[1], worldC2[2]);
+                    LAST_EVENT = 1;
                 }
             //}
 
@@ -204,6 +214,7 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
 
             if (LAST_OBJECT_SELECTED &&  (int)LAST_CLICK_OBJECT == WORLD[LAST_OBJECT_SELECTED]->getHitIndexInternal()){
                 WORLD[LAST_OBJECT_SELECTED]->setPtControle(worldC[0],worldC[1],worldC[2]);
+                LAST_EVENT = 1;
             }
             else if ((int)LAST_CLICK_OBJECT > WORLD[LAST_OBJECT_SELECTED]->getSizeControlPoints()){
                 vector <float > selectedPoint =  WORLD[LAST_OBJECT_SELECTED]->getControlPointSelected();
@@ -226,6 +237,7 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
                 }
                 LAST_MOUSE_POSITION_DRAGG = worldC;
                 WORLD[LAST_OBJECT_SELECTED]->setPtControleModifier(worldC2[0], worldC2[1], worldC2[2]);
+                LAST_EVENT = 1;
             }
         }
 
@@ -239,6 +251,7 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
         ANGLE_Y = START_ANGLE_Y + (event.GetY() - START_Y);
         ROTATION[0] = ANGLE_Y;
         ROTATION[1] = ANGLE_X;
+
         displayScene();
         GetParent()->GetEventHandler()->ProcessEvent(event);
     }
@@ -247,6 +260,7 @@ void BasicGLPane::mouseMoved(wxMouseEvent& event )
 
 void BasicGLPane::mouseDown(wxMouseEvent& event)
 {
+    cout << "X: " << event.GetX() << endl;
     vector <float > proj;
     proj.push_back(45.0); proj.push_back((float)getWidth()/(float)getHeight());
     proj.push_back(0.1); proj.push_back(400);
@@ -275,7 +289,17 @@ void BasicGLPane::mouseWheelMoved(wxMouseEvent& event)
 
 void BasicGLPane::mouseReleased(wxMouseEvent& event)
 {
+
     cout << "mouseReleased" << endl;
+    switch(LAST_EVENT){
+
+        case 1:
+            cout << "Adicionando novo estado....." << endl;
+            addNewState();
+        break;
+    }
+
+    LAST_EVENT = 0;
 }
 
 
@@ -291,6 +315,7 @@ void BasicGLPane::rightClick(wxMouseEvent& event)
 
     //Modo ediciao
     if(!RENDER_MODE && obj_selected){
+        cout << "Dentro da condicao testada..." << endl;
         if ( (int)obj_selected <= WORLD[LAST_OBJECT_SELECTED]->getSizeControlPoints() ){
             cout << "Modo edicao selecionando um ponto....." << ", " << WORLD[LAST_OBJECT_SELECTED]->getSizeControlPoints()<<endl;
             WORLD[LAST_OBJECT_SELECTED]->setHitIndexInternal((int)obj_selected);
@@ -416,33 +441,39 @@ void BasicGLPane::displayScene()
 
 
 //////////////////Metdos para conversar com objetos externos////////////////////
-std::string BasicGLPane::createBezierSurface ()
+std::string BasicGLPane::createBezierSurface (int symbolicIndex, int u, int v, int ru, int rv)
 {
     vector <float > cursor = getCursorPosition();
-    Object *surfaceBezier = new SurfaceBezier() ;
+    Object *surfaceBezier = new SurfaceBezier(u, v, ru, rv) ;
     surfaceBezier->translateObject(cursor);
+    LIST_INDEX_OBJECT.push_back(symbolicIndex);
     WORLD.push_back(surfaceBezier);
     displayScene();
+    addNewState();
     return surfaceBezier->getTipo();
 }
 
-std::string BasicGLPane::createSplineSurface ()
+std::string BasicGLPane::createSplineSurface (int symbolicIndex, int u, int v, int ru, int rv, int degree)
 {
     vector <float > cursor = getCursorPosition();
-    Object *surfaceNurbs = new SurfaceNurbs() ;
+    Object *surfaceNurbs = new SurfaceNurbs(u, v, ru, rv, degree,  1) ;
     surfaceNurbs->translateObject(cursor);
+    LIST_INDEX_OBJECT.push_back(symbolicIndex);
     WORLD.push_back(surfaceNurbs);
     displayScene();
+    addNewState();
     return surfaceNurbs->getTipo();
 }
 
-std::string  BasicGLPane::createNurbsSurface ()
+std::string  BasicGLPane::createNurbsSurface (int symbolicIndex, int u, int v, int ru, int rv, int degree)
 {
     vector <float > cursor = getCursorPosition();
-    Object *surfaceNurbs = new SurfaceNurbs() ;
+    Object *surfaceNurbs = new SurfaceNurbs(u, v, ru, rv, degree,  2) ;
     surfaceNurbs->translateObject(cursor);
+    LIST_INDEX_OBJECT.push_back(symbolicIndex);
     WORLD.push_back(surfaceNurbs);
     displayScene();
+    addNewState();
     return surfaceNurbs->getTipo();
 
 }
@@ -451,4 +482,372 @@ std::string  BasicGLPane::createNurbsSurface ()
 vector <float > BasicGLPane::getCursorPosition()
 {
     return CURSOR_POSITION;
+}
+
+void  BasicGLPane::setCursorPosition(int x, int y, int z)
+{
+    CURSOR_POSITION[0] = x;
+    CURSOR_POSITION[1] = y;
+    CURSOR_POSITION[2] = z;
+}
+void BasicGLPane::selectObject(int symbolicIndex)
+{
+    std::vector<int>::iterator it = find (LIST_INDEX_OBJECT.begin(), LIST_INDEX_OBJECT.end(), symbolicIndex);
+    size_t offset = it - LIST_INDEX_OBJECT.begin();
+
+    if (offset < WORLD.size()) {
+        WORLD[LAST_OBJECT_SELECTED]->setSelected(false);
+        WORLD[offset]->setSelected(true);
+        LAST_OBJECT_SELECTED = offset;
+    }
+    //cout << "Tipossss: " <<  WORLD[idexObject]->getTipo() <<"Idex: " << idexObject <<endl;
+    displayScene();
+}
+void BasicGLPane::deleteObject(int symbolicIndex)
+{
+
+    std::vector<int>::iterator it = find (LIST_INDEX_OBJECT.begin(), LIST_INDEX_OBJECT.end(), symbolicIndex);
+    size_t offset = it - LIST_INDEX_OBJECT.begin();
+
+    WORLD.erase(WORLD.begin() + offset);
+    LIST_INDEX_OBJECT.erase(it);
+    LAST_OBJECT_SELECTED = 0;
+    if (WORLD.size() == 1){
+        RENDER_MODE = true;
+    }
+    displayScene();
+
+}
+
+//Isso na e legal....
+vector <float > BasicGLPane::getPositionLastObjectSelected()
+{
+    return WORLD[LAST_OBJECT_SELECTED]->getTranslation();
+}
+
+vector <float > BasicGLPane::getRotationLastObjectSelected()
+{
+    return WORLD[LAST_OBJECT_SELECTED]->getRotation();
+}
+
+vector <float > BasicGLPane::getScaleLastObjectSelected()
+{
+    return WORLD[LAST_OBJECT_SELECTED]->getScale();
+}
+
+std::string BasicGLPane::getTipoLastObjectSelected()
+{
+    return WORLD[LAST_OBJECT_SELECTED]->getTipo();
+}
+
+void BasicGLPane::newScene()
+{
+    WORLD.erase(WORLD.begin()+1, WORLD.begin() + WORLD.size());
+    LIST_INDEX_OBJECT.erase(LIST_INDEX_OBJECT.begin()+1, LIST_INDEX_OBJECT.begin()+
+                            LIST_INDEX_OBJECT.size());
+    BACKUP.clear();
+    BACKUP.push_back(WORLD);
+    POINTER_BACKUP = 0;
+    setCursorPosition(0, 0, 0);
+    RENDER_MODE = true;
+    ROTATION[0] = 45;
+    ROTATION[1] = 45;
+    ANGLE_X = 45;
+    ANGLE_Y = 45;
+    displayScene();
+}
+
+std::string BasicGLPane::duplicateObject(int oldIndex, int newIndex)
+{
+    std::string strResult = "";
+    std::vector<int>::iterator it = find (LIST_INDEX_OBJECT.begin(), LIST_INDEX_OBJECT.end(), oldIndex);
+    size_t offset = it - LIST_INDEX_OBJECT.begin();
+
+    if (offset < WORLD.size()) {
+        strResult = WORLD[offset]->getTipo();
+        LIST_INDEX_OBJECT.push_back(newIndex);
+        Object* object;
+        if (strResult.compare("BezierSurface") == 0){
+            object = new SurfaceBezier( (SurfaceBezier * ) WORLD[offset] );
+        }else if (strResult.compare("BSplineSurface") == 0){
+            object = new SurfaceNurbs( (SurfaceNurbs * ) WORLD[offset] );
+        }else if (strResult.compare("NurbsSurface") == 0){
+            object = new SurfaceNurbs( (SurfaceNurbs * ) WORLD[offset] );
+        }else if (strResult.compare("BezierCurve") == 0){
+             object = new BezierCurve( (BezierCurve * ) WORLD[offset] );
+        }else if (strResult.compare("BSplines") == 0){
+             object = new BSplines( (BSplines * ) WORLD[offset] );
+        }else if (strResult.compare("Nurbs") == 0){
+             object = new Nurbs( (Nurbs * ) WORLD[offset] );
+        }
+        WORLD.push_back(object);
+        WORLD[WORLD.size()-1]->translateObject(getCursorPosition());
+    }
+    displayScene();
+    return strResult;
+}
+
+std::string BasicGLPane::InterpolateNurbs( int indexCurve1, int indexCurve2, int symbolicIndex)
+{
+    std::vector<int>::iterator it = find (LIST_INDEX_OBJECT.begin(), LIST_INDEX_OBJECT.end(), indexCurve1);
+    size_t offset = it - LIST_INDEX_OBJECT.begin();
+
+    std::vector<int>::iterator it1 = find (LIST_INDEX_OBJECT.begin(), LIST_INDEX_OBJECT.end(), indexCurve2);
+    size_t offset1 = it1 - LIST_INDEX_OBJECT.begin();
+
+    Nurbs *nurb=  (Nurbs * ) WORLD[offset];
+    Nurbs *nurb1=  (Nurbs * ) WORLD[offset1];
+
+    vector< vector< float> > ptControle  =  nurb->getPtControle();
+    vector< vector <float > > ptControle1  =  nurb1->getPtControle();
+    vector <float > t = nurb->getTranslation();
+    vector <float > t1 = nurb1->getTranslation();
+    vector <float > pontos = nurb->getPtsCurva();
+    vector <float > pontos1 = nurb1->getPtsCurva();
+
+    vector<vector<vector <double > > > cP(2,vector<vector<double> >((int)pontos.size()/3,vector <double>(3,0)));
+    int c = 0;
+    for (int i = 0; i < 1; ++i){
+
+        for (int j = 0; j < (int)pontos.size()/3; j++){
+            cP[i][j][0] = pontos[c]     + t[0];
+            cP[i][j][1] = pontos[c + 1] + t[1];
+            cP[i][j][2] = pontos[c + 2] + t[2];
+
+            cP[i+1][j][0] = pontos1[c]      +  t1[0];
+            cP[i+1][j][1] = pontos1[c + 1]  +  t1[1];
+            cP[i+1][j][2] = pontos1[c + 2 ] +  t1[2];
+
+            c+=3;
+        }
+    }
+    vector <float > cursor = getCursorPosition();
+    Object *surfaceNurbs = new SurfaceNurbs(1, ((int)pontos.size()/3)-1, 20, 20, 3,  1, cP) ;
+    surfaceNurbs->translateObject(cursor);
+    LIST_INDEX_OBJECT.push_back(symbolicIndex);
+    WORLD.push_back(surfaceNurbs);
+    displayScene();
+    return std::string(surfaceNurbs->getTipo());
+}
+
+void BasicGLPane::setGlobalRotation( float x, float y, float z)
+{
+    ROTATION[0] = x;
+    ROTATION[1] = y;
+    ROTATION[2] = z;
+
+    ANGLE_X = y;
+    ANGLE_Y = x;
+    displayScene();
+}
+vector < Object *> BasicGLPane::createTempPointer(vector < Object *> WORLD)
+{
+     vector <Object *> WORLD_TEMP (WORLD.size());
+    //vector <Object *> WORLD;
+    for (int i = 0; i < (int)WORLD.size(); ++i){
+        std::string strResult = WORLD[i]->getTipo();
+        Object* object;
+        if (strResult.compare("BezierSurface") == 0){
+            object = new SurfaceBezier( (SurfaceBezier * ) WORLD[i] );
+        }else if (strResult.compare("BSplineSurface") == 0){
+            object = new SurfaceNurbs( (SurfaceNurbs * ) WORLD[i] );
+        }else if (strResult.compare("NurbsSurface") == 0){
+            object = new SurfaceNurbs( (SurfaceNurbs * ) WORLD[i] );
+        }else if (strResult.compare("BezierCurve") == 0){
+             object = new BezierCurve( (BezierCurve * ) WORLD[i] );
+        }else if (strResult.compare("BSplines") == 0){
+             object = new BSplines( (BSplines * ) WORLD[i] );
+        }else if (strResult.compare("Nurbs") == 0){
+             object = new Nurbs( (Nurbs * ) WORLD[i] );
+        }else if (strResult.compare("Grid") == 0){
+             object = new  Grid[1];
+        }
+        WORLD_TEMP[i] = object;
+    }
+    cout << "Tam dentro do create: " << WORLD_TEMP.size() << endl;
+    return WORLD_TEMP;
+}
+
+vector <std::string > BasicGLPane::ctrZ()
+{
+    vector <std::string > listObjectsName;
+    if (POINTER_BACKUP ){
+
+        cout << "Aqui no BACKUP: " << POINTER_BACKUP <<" SIZE: " << BACKUP.size() <<"size_world: "<< WORLD.size()<<endl;
+        POINTER_BACKUP -= 1;
+        WORLD = createTempPointer(BACKUP[POINTER_BACKUP]);
+
+    }
+    for (int i = 1; i < (int)WORLD.size(); ++i){
+        std::ostringstream ss;
+        ss << LIST_INDEX_OBJECT[i];
+        listObjectsName.push_back( WORLD[i]->getTipo() + std::string(" ") + ss.str() );
+    }
+    cout << "POINTER_BACKUP: " << POINTER_BACKUP << endl;
+    displayScene();
+    return listObjectsName;
+}
+
+vector <std::string > BasicGLPane::ctrY()
+{
+    //POINTER_BACKUP += 1;
+    vector <std::string > listObjectsName;
+    if (POINTER_BACKUP < (int) (BACKUP.size() - 1) ){
+        POINTER_BACKUP += 1;
+        WORLD = createTempPointer(BACKUP[POINTER_BACKUP]);
+
+    }
+
+    for (int i = 1; i < (int)WORLD.size(); ++i){
+        std::ostringstream ss;
+        ss << LIST_INDEX_OBJECT[i];
+        listObjectsName.push_back( WORLD[i]->getTipo() + std::string(" ") + ss.str());
+    }
+    cout << "POINTER_BACKUP ctrY: " << POINTER_BACKUP << endl;
+    displayScene();
+    return listObjectsName;
+}
+
+void BasicGLPane::addNewState()
+{
+    vector <Object *> WORLD_TEMP = createTempPointer(WORLD);
+    //cout << "Topos: "<<WORLD[0]->getTipo() << ", " << WORLD_TEMP[0]->getTipo() << endl;
+    BACKUP.push_back(WORLD_TEMP);
+
+    POINTER_BACKUP = BACKUP.size()-1;
+}
+
+// Cria uma Curva
+std::string BasicGLPane::createCurve(int tp, long symbolicIndex)
+{
+    vector <float > cursor = getCursorPosition();
+    Object *curve;
+
+    if(tp == 0){
+        curve = new BezierCurve(0,0,0);
+    }
+    if(tp == 1){
+        curve = new BSplines(0,0,0);
+    }
+    if(tp == 2){
+        curve = new Nurbs(0,0,0);
+    }
+
+    curve->translateObject(cursor);
+    WORLD.push_back(curve);
+    LIST_INDEX_OBJECT.push_back(symbolicIndex);
+    displayScene();
+    addNewState();
+    return curve->getTipo();
+}
+
+void BasicGLPane::setNodeCurve(int idNode,double inc)
+{
+    string name;
+    if(!RENDER_MODE){
+
+         name = WORLD[LAST_OBJECT_SELECTED]->getTipo();
+
+        if(name == "BSplines" || name == "Nurbs"){
+            WORLD[LAST_OBJECT_SELECTED]->setNoSelec(idNode);
+            WORLD[LAST_OBJECT_SELECTED]->incNo(inc);
+        }
+    }
+}
+
+void BasicGLPane::setOrdCurve(int ord)
+{
+    string name;
+    if(!RENDER_MODE){
+
+         name = WORLD[LAST_OBJECT_SELECTED]->getTipo();
+
+        if(name == "BSplines" || name == "Nurbs"){
+            WORLD[LAST_OBJECT_SELECTED]->setOrdCurva(ord);
+        }
+    }
+}
+
+void BasicGLPane::setQuantCurv(int quant)
+{
+    string name;
+    if(!RENDER_MODE){
+
+         name = WORLD[LAST_OBJECT_SELECTED]->getTipo();
+
+        if(name == "BSplines" || name == "Nurbs"){
+            WORLD[LAST_OBJECT_SELECTED]->setQuant(quant);
+        }
+    }
+}
+
+void BasicGLPane::setPesoCurv(float val)
+{
+    string name;
+    if(!RENDER_MODE){
+
+         name = WORLD[LAST_OBJECT_SELECTED]->getTipo();
+
+        if(name == "Nurbs"){
+            WORLD[LAST_OBJECT_SELECTED]->setPeso(val);
+        }
+    }
+}
+
+// EVENTOS PARA EDIÇÃO DE UMA CURVA
+void BasicGLPane::addPtC()
+{
+    string name;
+
+    if(!RENDER_MODE){
+
+         name = WORLD[LAST_OBJECT_SELECTED]->getTipo();
+
+        if(name == "BSplines" || name == "Nurbs"){
+            WORLD[LAST_OBJECT_SELECTED]->addPtControle();
+        }
+
+        if(name == "BezierCurve"){
+            WORLD[LAST_OBJECT_SELECTED]->addSegment();
+        }
+    }
+}
+
+void BasicGLPane::rmvPtC()
+{
+    string name;
+
+    if(!RENDER_MODE){
+
+         name = WORLD[LAST_OBJECT_SELECTED]->getTipo();
+
+        if(name == "BSplines" || name == "Nurbs"){
+            WORLD[LAST_OBJECT_SELECTED]->rmvPtControle();
+        }
+
+        if(name == "BezierCurve"){
+            WORLD[LAST_OBJECT_SELECTED]->removeSegment();
+        }
+    }
+}
+
+Object * BasicGLPane::getObject()
+{
+    return WORLD[LAST_OBJECT_SELECTED];
+}
+
+void BasicGLPane::setMod(int tp)
+{
+    int i;
+
+    MODIFIER_TYPE = tp;
+
+    for(i = 0; i < (int) WORLD.size(); i++){
+        WORLD[i]->setModifier(tp);
+    }
+}
+
+void BasicGLPane::update()
+{
+    displayScene();
 }

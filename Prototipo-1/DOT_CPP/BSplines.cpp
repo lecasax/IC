@@ -4,6 +4,36 @@
 /* Public */
 
 // Construtores
+
+BSplines::BSplines(BSplines * bspline):Object()
+{
+
+	this->translation = bspline->translation;
+    this->rotation = bspline->rotation;
+    this->scale = bspline->scale;
+
+	// Quantidade de Pontos da Curva
+	this->quant = bspline->getQuant();
+
+	// Ordem da Curva B-Spline
+	this->ordCurva = bspline->getOrdCurva();
+
+	// Lista de Nos usados para geração da curva B-Spline
+	this->nos = bspline->getNo();
+
+	// Lista de Pontos da Curva B-Spline
+	// A Cada 3 elementos da lista tem-se um ponto representando
+	// px,py,pz
+	this->ptsCurv = bspline->getPtsCurva();
+
+	// Lista Bidimensional Representando os Pontos de Controle
+	this->ptControle = bspline->getPtControle();
+
+	this->updatePtsCurv();
+
+	this->setTipo("BSplines");
+}
+
 BSplines::BSplines(float x, float y, float z):Object()
 {
 	vector<float> p1,p2,p3,p4;
@@ -248,16 +278,17 @@ int BSplines::incNo(double inc)
 		if(j + 1 > ordCurva){
 
 			nos = noscopia;
-
+			normaNos();
 			return 0;
 
 		} else {
 
+			normaNos();
 			return 1;
 		}
 
 	} else {
-
+		normaNos();
 		return 0;
 	}
 }
@@ -333,12 +364,30 @@ void BSplines::setPtControle(float x, float y, float z)
 {
 	if(ptcSelec >= 0){
 
-		ptControle[ptcSelec][0] = (x-translation[0]);
-		ptControle[ptcSelec][1] = (y-translation[1]);
-		ptControle[ptcSelec][2] = (z-translation[2]);
-		/*ptControle[ptcSelec][0] = (x-translation[0]);
-		ptControle[ptcSelec][1] = (y-translation[1]);
-		ptControle[ptcSelec][2] = (z-translation[2]);*/
+		//int count = 0;
+	    vector <float > r = getRotation();
+	    //GLfloat matrix[16];
+	    glm::quat quat (glm::vec3(r[0]*PI/BASE, r[1]*PI/BASE, r[2]*PI/BASE));
+	    glm::quat quaternion = quat ;
+	    glm::mat4 mat  = glm::toMat4(quaternion);
+	    /*for (int k = 0; k < 4; ++k){
+	        for (int j = 0; j < 4; ++j){
+	            matrix[count] = mat[k][j];
+	            count++;
+	        }
+	    }*/
+
+	    glm::mat4 INVERSE_ROTATE = glm::inverse(mat);
+	    glm::vec4 reverse_point = INVERSE_ROTATE * glm::vec4(
+	    	(x-translation[0])/scale[0],
+			(y-translation[1])/scale[1],
+			(z-translation[2])/scale[2],
+			1.0f
+		);
+
+		ptControle[ptcSelec][0] = reverse_point[0];
+		ptControle[ptcSelec][1] = reverse_point[1];
+		ptControle[ptcSelec][2] = reverse_point[2];
 	}
 }
 
@@ -561,7 +610,7 @@ void BSplines::rmvNode(int tipo)
 
 // Normaliza a lista de nós
 void BSplines::normaNos(){
-/*
+
 	int i = 0;
 	int n = nos.size();
 	double dif = 0 - nos[0];
@@ -570,7 +619,7 @@ void BSplines::normaNos(){
 	for(i = 0; i < n; i++){
 
 		nos[i] = (nos[i]+dif) * coef;
-	}*/
+	}
 }
 
 // Inicializa os Nos
@@ -620,7 +669,8 @@ double BSplines::bspline(int i, int k, double u)
    }
 }
 
-void BSplines::draw(int index_load,  bool is_selecting)
+
+void BSplines::draw(int index_load,  bool is_selecting, int size_world)
 {
 	int i,k,j;
 	int sizePtc = (int) ptControle.size();
@@ -648,9 +698,9 @@ void BSplines::draw(int index_load,  bool is_selecting)
     glPushMatrix();
     // Aplicar Transformações Geométricas
     glColor3f(c[0],c[1],c[2]);
-    glScalef(s[0], s[1], s[2]);
     glTranslatef(t[0],t[1],t[2]);
-    glMultMatrixf(m);
+    glScalef(s[0], s[1], s[2]);
+  	glMultMatrixf(m);
 
     if( !render_mode && this->is_selected){
 
@@ -760,4 +810,66 @@ void BSplines::draw(int index_load,  bool is_selecting)
     }
 
     glPopMatrix();
+
+
+    //modificador
+    if(render_mode && is_selected){
+
+        glPushMatrix();
+        glTranslatef(translation[0], translation[1]-20, translation[2]);
+        glScalef(1/globalScale[0], 1/globalScale[1], 1/globalScale[2]);
+        modifier.draw( size_world-1, true);
+        glPopMatrix();
+
+    } else if (!render_mode && is_selected && hit_index_internal >= 1){
+
+
+        //index_internal++;
+        glPushMatrix();
+        glTranslatef(t[0],t[1],t[2]);
+        glScalef(s[0], s[1], s[2]);
+        glMultMatrixf(m);
+        glTranslatef(ptControle[ptcSelec][0], ptControle[ptcSelec][1], ptControle[ptcSelec][2]);
+        glScalef(0.8, 0.8, 0.8);
+        glScalef(1/s[0], 1/s[1], 1/s[2]);
+        glScalef(1/globalScale[0], 1/globalScale[1], 1/globalScale[2]);
+        modifier.draw(index_internal, true);
+        glPopMatrix();
+    }
+
+}
+
+int BSplines::getSizeControlPoints()
+{
+	return (int) ptControle.size();
+}
+
+
+vector <float > BSplines::getControlPointSelected()
+{
+
+	if( ptcSelec >= 0 ){
+
+		return ptControle[ptcSelec];
+
+    } else {
+    	return ptControle[0];
+    }
+}
+
+void BSplines::setPtControleModifier(float x, float y, float z)
+{
+	if( ptcSelec >= 0 ){
+
+		ptControle[ptcSelec][0] = x;
+		ptControle[ptcSelec][1] = y;
+		ptControle[ptcSelec][2] = z;
+
+		updatePtsCurv();
+    }
+}
+
+void BSplines::setModifier(int tp)
+{
+    modifier.setModifierType(tp);
 }

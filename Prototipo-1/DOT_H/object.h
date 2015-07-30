@@ -80,22 +80,90 @@ public:
 
 	void setHitIndexInternal(int val);
 	int  getHitIndexInternal();
-	/*****************************************************/
-	// Metodos das Curvas
-	// Altera a posição do ponto de um segmento que está
-	// selecionado
-	virtual void setPtControle(float x, float y, float z);
-
-		// Atualiza os pontos da Curva
-	virtual void updatePtsCurv();
-
-	virtual void translateObject( vector <float > newTranslation);
 
 	virtual int getSizeControlPoints();
 
 	virtual vector <float > getControlPointSelected();
 
 	virtual void setPtControleModifier(float x, float y, float z);
+
+	virtual void translateObject( vector <float > newTranslation);	
+
+	/*****************************************************/
+	// Metodos das Curvas
+	// Altera a posição do ponto de um segmento que está
+	// selecionado
+	virtual void setPtControle(float x, float y, float z);
+
+	// Atualiza os pontos da Curva
+	virtual void updatePtsCurv();
+
+	// Duplica um Ponto de Controle Extremo
+	// Um dos Pontos de Controles Extremos
+	// tem de estarem selecionados
+	virtual int addPtControle();
+
+	// Adiciona um Ponto de Controle Extremo
+	// Um dos Pontos de Controles Extremos
+	// tem de estarem selecionados
+	virtual int addPtControle(float x, float y, float z);
+
+	// Retorna as Imagens dos Nós na Curva
+	// As imagens dos nós são os pontos iniciais
+	// de cada segmento da curva B-Spline
+	virtual vector<float> getImgNo();
+
+	// Retorna o identificador do Nó selecionado
+	virtual int getNoSelec();
+
+	// Retorna a ordem da Curva B-Spline
+	virtual int getOrdCurva();
+
+	// Retorna o identificador do Ponto de Controle selecionado
+	virtual int getPtcSelec();
+
+	// Retorna a quantidade de pontos gerados para a curva
+	// B-Spline
+	virtual int getQuant();
+
+	// Incrementa/Decrementa o valor de um nó selecionado
+	virtual int incNo(double inc);
+
+	// Remove o Ponto de Controle Selecionado
+	virtual int rmvPtControle();
+
+	// Define o valor da ordem da curva B-Spline
+	virtual void setOrdCurva(int ord);
+
+	// Define a quantide de Pontos que terá a curva B-Spline
+	virtual void setQuant(int valor);
+
+	// Nurbs
+	// Retorna a lista de Pesos
+	virtual vector<float> getPesos();
+	virtual float getPesoSelec();
+
+	// Retorna os Nós
+	virtual vector<double> getNo();
+
+	// Define o identificador do Nó Selecionado
+	virtual void setNoSelec(int id);
+
+	// Nurbs
+	// Altera o peso de um ponto de Controle selecionado
+	virtual void setPeso(float valor);
+
+	// Adciona um Segmento extremo da curva, 
+	// os Segmentos extremos da Curva
+	// tem de estar selecionados
+	virtual int addSegment();
+
+	// Remove um Segmento extremo da curva, 
+	// os Segmentos extremos da Curva
+	// tem de estar selecionados
+	virtual int removeSegment();
+
+	virtual void setModifier(int tp);	
 
 protected:
 
