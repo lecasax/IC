@@ -1,9 +1,35 @@
 #include "BezierCurve.h"
 #include <iostream>
 
+
+
+
 // Construtor
+
+BezierCurve::BezierCurve(BezierCurve *BezierCurve):Object()
+{
+	this->translation = BezierCurve->translation;
+    this->rotation = BezierCurve->rotation;
+    this->scale = BezierCurve->scale;
+	// Todos os Pontos da Curva de Bezier
+	// Pontos da Curva de Bezier Cubica
+	// A Cada 3 elementos tem-se um ponto representando
+	// px,py,pz
+	this->ptsCurv = BezierCurve->getPtsCurva();;
+
+	// Lista de Segmentos de Controle da Curva
+	this->segments = BezierCurve->getSegments();;
+
+	// Quantidade de Vertices que compem a curva
+	this->quant = BezierCurve->getQuant();;
+
+	this->updatePtsCurv();
+
+    this->setTipo("BezierCurve");
+}
+
 BezierCurve::BezierCurve(float x, float y,float z):Object()
-{	
+{
 	// Inicialização da Curva
 	Segment s1,s2;
 
@@ -40,14 +66,14 @@ BezierCurve::~BezierCurve(void)
 {
 }
 
-// Atualiza os pontos da Curva 
+// Atualiza os pontos da Curva
 void BezierCurve::updatePtsCurv()
 {
 	int i = 0;
 	float p1[3];
 	float p2[3];
 	float p3[3];
-	float p4[3];	
+	float p4[3];
 
 	vector< vector<float> > ptsControle;
 	vector<float> aux;
@@ -78,7 +104,7 @@ void BezierCurve::updatePtsCurv()
 		p4[0] = ptsControle[i][0];
 		p4[1] = ptsControle[i][1];
 		p4[2] = ptsControle[i][2];
-		
+
 		if(i+1 == (int) ptsControle.size()){
 			i++;
 		}
@@ -92,7 +118,7 @@ void BezierCurve::updatePtsCurv()
 		// Acrescenta a curva gerada com a lista geral das curvas
 		ptsCurv.reserve(ptsCurv.size()+aux.size());
 		ptsCurv.insert(ptsCurv.end(), aux.begin(), aux.end());
-		
+
 		// Limpa a lista auxiliar
 		aux.clear();
 	}
@@ -148,31 +174,54 @@ void BezierCurve::setQuant(int valor)
 // selecionado
 void BezierCurve::setPtControle(float x, float y,float z)
 {
+
+
 	if(selectSegments != -1 ){
 
+		//int count = 0;
+	    vector <float > r = getRotation();
+	    //GLfloat matrix[16];
+	    glm::quat quat (glm::vec3(r[0]*PI/BASE, r[1]*PI/BASE, r[2]*PI/BASE));
+	    glm::quat quaternion = quat ;
+	    glm::mat4 mat  = glm::toMat4(quaternion);
+	  /*  for (int k = 0; k < 4; ++k){
+	        for (int j = 0; j < 4; ++j){
+	            matrix[count] = mat[k][j];
+	            count++;
+	        }
+	    }*/
+
+	    glm::mat4 INVERSE_ROTATE = glm::inverse(mat);
+	    glm::vec4 reverse_point = INVERSE_ROTATE * glm::vec4(
+	    	(x-translation[0])/scale[0],
+			(y-translation[1])/scale[1],
+			(z-translation[2])/scale[2],
+			1.0f
+		);
+
 		if(segments[selectSegments].getPtSelect() == 0){
-			segments[selectSegments].setC(				
-				(x-translation[0]),
-				(y-translation[1]),
-				(z-translation[2])
+			segments[selectSegments].setC(
+				reverse_point[0],
+				reverse_point[1],
+				reverse_point[2]
 			);
 		}
 
 		if(segments[selectSegments].getPtSelect() == 1){
 			segments[selectSegments].setP1(
-				(x-translation[0]),
-				(y-translation[1]),
-				(z-translation[2])
+				reverse_point[0],
+				reverse_point[1],
+				reverse_point[2]
 			);
 		}
 
 		if(segments[selectSegments].getPtSelect() == 2){
 			segments[selectSegments].setP2(
-				(x-translation[0]),
-				(y-translation[1]),
-				(z-translation[2])
+				reverse_point[0],
+				reverse_point[1],
+				reverse_point[2]
 			);
-		}				
+		}
 	}
 }
 
@@ -201,25 +250,25 @@ vector< vector<float> > BezierCurve::usedControlPts()
 		pts = segments[i].getP2();
 		if(pts[3] == 1){
 			usedCPts.push_back(pts);
-		}		
+		}
 	}
 
 	return usedCPts;
 }
 
-// Adciona um Segmento extremo da curva, 
+// Adciona um Segmento extremo da curva,
 // os Segmentos extremos da Curva
 // tem de estar selecionados
 int BezierCurve::addSegment()
 {
 	if(selectSegments == 0){
-		
+
 		Segment newSegment = segments[selectSegments];
 
 		segments[selectSegments].setP1Status(1);
 
 		segments.insert(segments.begin(),newSegment);
-	
+
 	} else if(selectSegments == (int) segments.size()-1){
 
 		Segment newSegment = segments[selectSegments];
@@ -236,13 +285,13 @@ int BezierCurve::addSegment()
 	return 1;
 }
 
-// Remove um Segmento extremo da curva, 
+// Remove um Segmento extremo da curva,
 // os Segmentos extremos da Curva
 // tem de estar selecionados
 int BezierCurve::removeSegment()
 {
 	if(selectSegments != -1 && (int) segments.size() > 2){
-		
+
 		if(selectSegments == 0) {
 
 			segments[1].setP1Status(0);
@@ -267,7 +316,6 @@ int BezierCurve::removeSegment()
 	return 1;
 }
 
-
 void BezierCurve::ponteiro(float x,float y,float z, int size)
 {
 	glBegin(GL_POLYGON);
@@ -278,8 +326,9 @@ void BezierCurve::ponteiro(float x,float y,float z, int size)
 	glEnd();
 }
 
-void BezierCurve::draw(int index_load,  bool is_selecting)
+void BezierCurve::draw(int index_load,  bool is_selecting, int size_world)
 {
+	int idselec;
 	int i,k,j;
 	int sizeSeg = (int) segments.size();
 	int sizeCur = (int) ptsCurv.size();
@@ -292,7 +341,7 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
     vector <float > s = getScale();
 
     glm::quat quat (glm::vec3(r[0]*PI/BASE, r[1]*PI/BASE, r[2]*PI/BASE));
-    glm::quat quaternion = quat ; 
+    glm::quat quaternion = quat ;
     glm::mat4 mat  = glm::toMat4(quaternion);
 
     int count = 0;
@@ -300,14 +349,14 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
         for ( j = 0; j < 4; ++j){
             m[count] = mat[k][j];
             count++;
-        }   
+        }
     }
 
     glPushMatrix();
     // Aplicar Transformações Geométricas
     glColor3f(c[0],c[1],c[2]);
-    glScalef(s[0], s[1], s[2]);
     glTranslatef(t[0],t[1],t[2]);
+    glScalef(s[0], s[1], s[2]);
     glMultMatrixf(m);
 
     if( !render_mode && this->is_selected){
@@ -331,7 +380,7 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
 					glVertex3f(ptsCurv[j],ptsCurv[j+1],ptsCurv[j+2]);
 				}
 				glEnd();
-			glPopMatrix();    	
+			glPopMatrix();
 		}
 
     	for(i = 0; i < sizeSeg; i++){
@@ -342,6 +391,7 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
     		glLoadName(index_internal);
     		glColor4f(BLACK);
     		if(index_internal == hit_index_internal){
+    			cout << "que merda ta acontecendo aqui" << endl;
     			glColor4f(ORANGE);
     			this->setSelectSegments(i,1);
     		}
@@ -352,7 +402,7 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
     		glVertex3f(pt[0],pt[1],pt[2]);
     		glEnd();
     		glPopMatrix();
-    		
+
     		// Point C
     		index_internal++;
     		glLoadName(index_internal);
@@ -367,7 +417,7 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
     		glBegin(GL_POINTS);
     		glVertex3f(pt[0],pt[1],pt[2]);
     		glEnd();
-    		glPopMatrix();   		
+    		glPopMatrix();
 
     		// Pointe 2
     		index_internal++;
@@ -405,7 +455,7 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
 		// Modo Objeto
 		if(render_mode){
 
-	    	glLoadName(index_load);			
+	    	glLoadName(index_load);
 
 			if(this->is_selected){
 				glColor4f(GREEN);
@@ -421,7 +471,7 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
 				glEnd();
 			glPopMatrix();
 
-		} else if(!is_selecting){			
+		} else if(!is_selecting){
 
 			if(this->is_selected){
 				glColor4f(GREEN);
@@ -439,4 +489,92 @@ void BezierCurve::draw(int index_load,  bool is_selecting)
 		}
     }
     glPopMatrix();
+
+    //modificador
+    if(render_mode && is_selected){
+
+        glPushMatrix();
+        glTranslatef(translation[0], translation[1]-20, translation[2]);
+        glScalef(1/globalScale[0], 1/globalScale[1], 1/globalScale[2]);
+        modifier.draw( size_world-1, true);
+        glPopMatrix();
+
+    } else if (!render_mode && is_selected && hit_index_internal >= 1){
+
+        idselec = getSelectSegments();
+    	if( idselec >= 0 ){
+    		if(segments[idselec].getPtSelect() == 0){
+        		pt = segments[idselec].getC();
+        	}
+    		if(segments[idselec].getPtSelect() == 1){
+        		pt = segments[idselec].getP1();
+        	}
+    		if(segments[idselec].getPtSelect() == 2){
+        		pt = segments[idselec].getP2();
+        	}
+        }
+        //index_internal++;
+        glPushMatrix();
+        glTranslatef(t[0],t[1],t[2]);
+        glScalef(s[0], s[1], s[2]);
+        glMultMatrixf(m);
+        glTranslatef(pt[0], pt[1], pt[2]);
+        glScalef(0.8, 0.8, 0.8);
+        glScalef(1/s[0], 1/s[1], 1/s[2]);
+        glScalef(1/globalScale[0], 1/globalScale[1], 1/globalScale[2]);
+        modifier.draw(index_internal, true);
+        glPopMatrix();
+    }
+
+}
+
+int BezierCurve::getSizeControlPoints()
+{
+	return ((int) segments.size())*3;
+}
+
+vector <float > BezierCurve::getControlPointSelected()
+{
+
+	vector<float> pt;
+	int idselec =  getSelectSegments();
+
+	if( idselec >= 0 ){
+		if(segments[idselec].getPtSelect() == 0){
+    		pt = segments[idselec].getC();
+    	}
+		if(segments[idselec].getPtSelect() == 1){
+    		pt = segments[idselec].getP1();
+    	}
+		if(segments[idselec].getPtSelect() == 2){
+    		pt = segments[idselec].getP2();
+    	}
+    }
+
+    return pt;
+}
+
+void BezierCurve::setPtControleModifier(float x, float y, float z)
+{
+	vector<float> pt;
+	int idselec =  getSelectSegments();
+
+	if( idselec >= 0 ){
+		if(segments[idselec].getPtSelect() == 0){
+    		segments[idselec].setC(x,y,z);
+    	}
+		if(segments[idselec].getPtSelect() == 1){
+    		segments[idselec].setP1(x,y,z);
+    	}
+		if(segments[idselec].getPtSelect() == 2){
+    		segments[idselec].setP2(x,y,z);
+    	}
+    }
+
+    updatePtsCurv();
+}
+
+void BezierCurve::setModifier(int tp)
+{
+    modifier.setModifierType(tp);
 }

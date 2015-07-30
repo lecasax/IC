@@ -7,7 +7,8 @@ class Nurbs: public BSplines
 
 public:
 
-	// Construtores
+	// Construtores	
+	Nurbs(Nurbs * nurb);
 	Nurbs(float x, float y, float z);
 	~Nurbs(void);
 

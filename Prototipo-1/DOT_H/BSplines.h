@@ -1,6 +1,7 @@
 #include <GL/glut.h>
 #include <vector>
 #include "object.h"
+#include "modifier.h"
 
 
 using namespace std;
@@ -11,9 +12,11 @@ class BSplines: public Object
 public:
 
 	// Construtores
+	BSplines(BSplines * bspline);
 	BSplines(float x, float y, float z);
 	BSplines(void);
 	~BSplines(void);
+
 
 	// Duplica um Ponto de Controle Extremo
 	// Um dos Pontos de Controles Extremos
@@ -79,9 +82,19 @@ public:
 	virtual void updatePtsCurv();
 
 	// draw
-	void draw(int index_load,  bool is_selecting);	
+	void draw(int index_load,  bool is_selecting, int size_world);
+
+	int getSizeControlPoints();
+
+	void setModifier(int tp);
+
+	vector <float > getControlPointSelected();
+
+	void setPtControleModifier(float x, float y, float z);
 
 protected:
+
+	Modifier modifier;
 
 	// Quantidade de Pontos da Curva
 	int quant;

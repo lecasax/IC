@@ -1,6 +1,7 @@
 #include "object.h"
 #include <iostream>
 using namespace std;
+
 float *Object::point3f(float x, float y, float z)
 {
     float *p = new float[3];
@@ -15,6 +16,11 @@ float *Object::point4f(float x, float y, float z, float w)
     return p;
 }
 
+
+/*Object::Object( Object *newObject)
+{
+    this = newObject;
+}*/
 
 Object::Object()
 {
@@ -186,12 +192,6 @@ string Object::getTipo()
     return tipo;
 }
 
-// Metodos da Curva
-void Object::setPtControle(float x, float y, float z) {}
-
-void Object::updatePtsCurv() {}
-
-
 int Object::getSizeControlPoints()
 {
     return 0;
@@ -203,3 +203,125 @@ vector <float > Object::getControlPointSelected()
 }
 
 void Object::setPtControleModifier(float x, float y, float z){}
+
+
+
+// Metodos da Curva
+void Object::setPtControle(float x, float y, float z){}
+
+void Object::updatePtsCurv(){}
+
+
+// Duplica um Ponto de Controle Extremo
+// Um dos Pontos de Controles Extremos
+// tem de estarem selecionados
+int Object::addPtControle()
+{
+    return -1;
+}
+
+// Adiciona um Ponto de Controle Extremo
+// Um dos Pontos de Controles Extremos
+// tem de estarem selecionados
+int Object::addPtControle(float x, float y, float z)
+{
+    return -1;
+}
+
+// Retorna as Imagens dos Nós na Curva
+// As imagens dos nós são os pontos iniciais
+// de cada segmento da curva B-Spline
+vector<float> Object::getImgNo()
+{
+    vector<float> nulo;
+    return nulo;
+}
+
+float Object::getPesoSelec()
+{
+    return -1;
+}
+
+// Retorna o identificador do Nó selecionado
+int Object::getNoSelec()
+{
+    return -1;
+}
+
+// Retorna a ordem da Curva B-Spline
+int Object::getOrdCurva()
+{
+    return -1;
+}
+
+// Retorna o identificador do Ponto de Controle selecionado
+int Object::getPtcSelec()
+{
+    return -1;
+}
+
+// Retorna a quantidade de pontos gerados para a curva
+// B-Spline
+int Object::getQuant()
+{
+    return -1;
+}
+
+// Incrementa/Decrementa o valor de um nó selecionado
+int Object::incNo(double inc)
+{
+    return -1;
+}
+
+// Remove o Ponto de Controle Selecionado
+int Object::rmvPtControle()
+{
+    return -1;
+}
+
+// Define o valor da ordem da curva B-Spline
+void Object::setOrdCurva(int ord){}
+
+// Define a quantide de Pontos que terá a curva B-Spline
+void Object::setQuant(int valor){}
+
+// Nurbs
+// Retorna a lista de Pesos
+vector<float> Object::getPesos()
+{
+    vector<float> nulo;
+    return nulo;
+}
+
+// Nurbs
+// Altera o peso de um ponto de Controle selecionado
+void Object::setPeso(float valor){}
+
+// Adciona um Segmento extremo da curva,
+// os Segmentos extremos da Curva
+// tem de estar selecionados
+int Object::addSegment()
+{
+    return -1;
+}
+
+// Remove um Segmento extremo da curva,
+// os Segmentos extremos da Curva
+// tem de estar selecionados
+int Object::removeSegment()
+{
+    return -1;
+}
+
+vector<double> Object::getNo()
+{
+    vector<double> nulo;
+    return nulo;
+}
+
+void Object::setNoSelec(int id){}
+
+void Object::setModifier(int tp)
+{
+}
+

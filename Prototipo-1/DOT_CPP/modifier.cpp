@@ -227,7 +227,7 @@ vector <float > Modifier::getPosition()
 void Modifier::draw(int index_load, bool is_selecting)
 {
     //switch(this->modifierType)
-    switch(1)
+    switch(this->modifierType)
     {
         //desenha o cursor de Translacao
         case 1:

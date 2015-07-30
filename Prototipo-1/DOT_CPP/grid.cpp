@@ -8,7 +8,7 @@ Grid::Grid(vector <float *> obj):Object(obj)
 Grid::Grid():Object()
 
 {
-    setTipo("grid");
+    setTipo("Grid");
     vector <float *> vertex;
 
     for (int i = 0; i < 170 ; i+=10){

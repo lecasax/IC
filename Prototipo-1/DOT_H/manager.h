@@ -1,6 +1,7 @@
 #include <wx/wx.h>
 #include <wx/glcanvas.h>
 #include "render.h"
+#include <map>
 
 using namespace std;
 
@@ -24,36 +25,54 @@ public:
     void optionsActions(int id);
     void quadrado(float base, float altura);
     void render(wxPaintEvent& evt);
-
-    // events mouse
-    void mouseMoved(wxMouseEvent& event);
-    void mouseDown(wxMouseEvent& event);
-    void mouseWheelMoved(wxMouseEvent& event);
-    void mouseReleased(wxMouseEvent& event);
-    void rightClick(wxMouseEvent& event);
-    void mouseLeftWindow(wxMouseEvent& event);
-    void mouseMiddleDclick(wxMouseEvent &event);
-    void keyPressed(wxKeyEvent& event);
-    void keyReleased(wxKeyEvent& event);
-    void mouseMiddleDown(wxMouseEvent& event);
-    void mouseMiddleUp(wxMouseEvent& event);
-
-    //events menubar
-    void OnQuit(wxCommandEvent& event);
+    void setGlobalRotation( float x, float y, float z);
 
     //events display
     void displayScene();
 
     //metodos para conversar com objetos externos..
     vector<float > getCursorPosition();
-    std::string createBezierSurface();
-    std::string createSplineSurface ();
-    std::string createNurbsSurface();
-    //macro for table of the events
-    DECLARE_EVENT_TABLE()
+    void setCursorPosition(int x, int y, int z);
+
+    std::string createBezierSurface(int symbolicIndex, int u, int v, int ru, int rv);
+    std::string createSplineSurface (int symbolicIndex, int u, int v, int ru, int rv, int degree);
+    std::string createNurbsSurface(int symbolicIndex, int u, int v, int ru, int rv, int degree);
+    void selectObject(int idexObject);
+    void deleteObject(int idexObject);
+    int getIndexLastObjectSelected();
+
+
+    //Isso na e legal....
+    vector <float > getPositionLastObjectSelected();
+    vector <float > getRotationLastObjectSelected();
+    vector <float > getScaleLastObjectSelected();
+    std::string getTipoLastObjectSelected();
+    void newScene();
+
+
+    // Para Edição das Curvas
+    std::string createCurve(int tp, long symbolicIndex);
+    void setNodeCurve(int idNode,double inc);
+	void setOrdCurve(int ord);
+	void setQuantCurv(int quant);
+	void setPesoCurv(float val);
+	void addPtC();
+	void rmvPtC();
+    void setMod(int tp);
+    vector <std::string > ctrZ();
+    vector <std::string > ctrY();
+    void addNewState();
+    vector < Object *> createTempPointer(vector < Object *> WORLD);
+
+	Object * getObject();
+    std::string duplicateObject(int oldIndex, int newIndex);
+    void update();
+    std::string InterpolateNurbs( int indexCurve1, int indexCurve2, int symbolicIndex);
 
 protected:
 
+    int POINTER_BACKUP;
+    vector < vector < Object * > > BACKUP;
     vector <Object *> WORLD;
     vector <float > ROTATION;
     vector <float > CURSOR_POSITION;
@@ -69,6 +88,26 @@ protected:
     int START_ANGLE_Y;
     int ANGLE_X;
     int ANGLE_Y;
+    int LAST_EVENT;
+    std::vector<int > LIST_INDEX_OBJECT;
 
+     // events mouse e teclado
+    void mouseMoved(wxMouseEvent& event);
+    void mouseDown(wxMouseEvent& event);
+    void mouseWheelMoved(wxMouseEvent& event);
+    void mouseReleased(wxMouseEvent& event);
+    void rightClick(wxMouseEvent& event);
+    void mouseLeftWindow(wxMouseEvent& event);
+    void mouseMiddleDclick(wxMouseEvent &event);
+    void keyPressed(wxKeyEvent& event);
+    void keyReleased(wxKeyEvent& event);
+    void mouseMiddleDown(wxMouseEvent& event);
+    void mouseMiddleUp(wxMouseEvent& event);
+
+    //events menubar
+    void OnQuit(wxCommandEvent& event);
+
+    //macro for table of the events
+    DECLARE_EVENT_TABLE()
 };
 

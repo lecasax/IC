@@ -20,6 +20,7 @@ class SurfaceBezier: public Object
 
 public:
 
+    SurfaceBezier( SurfaceBezier *surface);
     SurfaceBezier(int ni, int nj, int resolutioni, int resolutionj );
     SurfaceBezier();
     ~SurfaceBezier();
@@ -43,9 +44,13 @@ public:
     int  getSizeControlPoints();
     vector <float > getControlPointSelected();
     void setPtControleModifier(float x, float y, float z);
+    void setModifier(int tp);
+
 
 
 private:
+
+    Modifier modifier;
 
     vector <double *> surfaceBezier;
 
@@ -58,7 +63,6 @@ private:
     int  RESOLUTIONI; //resolucao na direcao I
     int  RESOLUTIONJ; // resolucao na direcao J
 
-    Modifier modifier;
 
 };
 

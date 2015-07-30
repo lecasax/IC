@@ -5,13 +5,35 @@
 #include <GL/glut.h>
 #include <GL/glu.h>
 #include <GL/gl.h>
+
 using namespace std;
+SurfaceBezier::SurfaceBezier( SurfaceBezier *surface):Object()
+{
+    setTipo("BezierSurface");
+
+    this->translation = surface->translation;
+    this->rotation = surface->rotation;
+    this->scale = surface->scale;
+    modifier = Modifier(translation[0], translation[1], translation[2]);
+
+    this->NI = surface->NI;  //dimensao na direcao de u
+    this->NJ = surface->NJ; // dimensao na direcao de v
+
+    this->RESOLUTIONI = surface->RESOLUTIONI; //resolucao na direcao I
+    this->RESOLUTIONJ = surface->RESOLUTIONJ; // resolucao na direcao J
+
+    this->weight = surface->weight;
+    this->controlPoints = surface->controlPoints;
+    surface3dBezierRenderNUBRS();
+
+
+}
 
 SurfaceBezier::SurfaceBezier():Object()
 
 {
 
-    setTipo("Bezier Surface");
+    setTipo("BezierSurface");
 
     modifier = Modifier(translation[0], translation[1], translation[2]);
 
@@ -38,12 +60,12 @@ SurfaceBezier::SurfaceBezier(int ni, int nj, int resolutioni, int resolutionj):O
 
 {
 
-    setTipo("Bezier Surface");
+    setTipo("BezierSurface");
     this->NI = ni-1;  //dimensao na direcao de u
     this->NJ = nj-1; // dimensao na direcao de v
 
-    this->RESOLUTIONI = resolutioni; //resolucao na direcao I
-    this->RESOLUTIONJ = resolutionj; // resolucao na direcao J
+    this->RESOLUTIONI = resolutioni-1; //resolucao na direcao I
+    this->RESOLUTIONJ = resolutionj-1; // resolucao na direcao J
 
 
     vector<vector <double > > w(NI+1,vector <double >(NJ+1, 0));
@@ -159,7 +181,7 @@ void SurfaceBezier::setGlobalScale( float x, float y, float z)
 
 void SurfaceBezier::setPtControleModifier(float x, float y, float z)
 {
-    int i = ( (hit_index_internal-1) / (NI + 1) );
+    int i = ( (hit_index_internal-1) / (NJ + 1) );
     int j = ( (hit_index_internal-1) % (NJ + 1) );
     controlPoints[i][j][0] = x;
     controlPoints[i][j][1] = y;
@@ -168,7 +190,7 @@ void SurfaceBezier::setPtControleModifier(float x, float y, float z)
 }
 void SurfaceBezier::setPtControle(float x, float y, float z)
 {
-    int i = ( (hit_index_internal-1) / (NI + 1) );
+    int i = ( (hit_index_internal-1) / (NJ + 1) );
     int j = ( (hit_index_internal-1) % (NJ + 1) );
 
     vector <float > r = getRotation();
@@ -195,7 +217,7 @@ void SurfaceBezier::setPtControle(float x, float y, float z)
 
 vector <float > SurfaceBezier::getControlPointSelected()
 {
-    int i = ( (hit_index_internal-1) / (NI + 1) );
+    int i = ( (hit_index_internal-1) / (NJ + 1) );
     int j = ( (hit_index_internal-1) % (NJ + 1) );
     vector <float > selectedPoint(3, 0);
     selectedPoint[0] = controlPoints[i][j][0];
@@ -333,7 +355,7 @@ void SurfaceBezier::drawControlPoint(int hit)
             glLoadName(count_object);
 
             glPushMatrix();
-                if ( ( (hit-1) /(NI + 1) ) == i && ( (hit-1) % (NJ + 1) ) == j ){
+                if ( ( (hit-1) /(NJ + 1) ) == i && ( (hit-1) % (NJ + 1) ) == j ){
                      glColor4f(ORANGE);
                 } else {
                      glColor4f(BLACK);
@@ -403,7 +425,7 @@ void SurfaceBezier::draw(int index_load,  bool is_selecting, int size_world)
     }
 
     else if (!render_mode && is_selected && hit_index_internal >= 1){
-        int i = ( (hit_index_internal-1) / (NI + 1) );
+        int i = ( (hit_index_internal-1) / (NJ + 1) );
         int j = ( (hit_index_internal-1) % (NJ + 1) );
         glPushMatrix();
         glTranslatef(t[0],t[1],t[2]);
@@ -453,4 +475,10 @@ void SurfaceBezier::draw(int index_load,  bool is_selecting, int size_world)
         }
     }
     glPopMatrix();
+}
+
+
+void SurfaceBezier::setModifier(int tp)
+{
+    modifier.setModifierType(tp);
 }
