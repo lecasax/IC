@@ -53,18 +53,20 @@ public:
     // Para Edição das Curvas
     std::string createCurve(int tp, long symbolicIndex);
     void setNodeCurve(int idNode,double inc);
-	void setOrdCurve(int ord);
-	void setQuantCurv(int quant);
-	void setPesoCurv(float val);
-	void addPtC();
-	void rmvPtC();
+    void setOrdCurve(int ord);
+    void setQuantCurv(int quant);
+    void setPesoCurv(float val);
+    void addPtC();
+    void rmvPtC();
     void setMod(int tp);
     vector <std::string > ctrZ();
     vector <std::string > ctrY();
     void addNewState();
     vector < Object *> createTempPointer(vector < Object *> WORLD);
+    vector < int > createTempVector( vector <int > oldVector);
 
-	Object * getObject();
+
+    Object * getObject();
     std::string duplicateObject(int oldIndex, int newIndex);
     void update();
     std::string InterpolateNurbs( int indexCurve1, int indexCurve2, int symbolicIndex);
@@ -90,6 +92,7 @@ protected:
     int ANGLE_Y;
     int LAST_EVENT;
     std::vector<int > LIST_INDEX_OBJECT;
+    std::vector< vector<int > > LIST_INDEX_OBJECT_STATES;
 
      // events mouse e teclado
     void mouseMoved(wxMouseEvent& event);
