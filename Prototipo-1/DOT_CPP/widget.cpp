@@ -135,12 +135,12 @@ WidgetFrame::~WidgetFrame()
 
 
     m_button74->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::addPtControle ), NULL, this );
-	m_button75->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::rmvPtControle ), NULL, this );
-	m_button17->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::decNo ), NULL, this );
-	m_button16->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::incNo ), NULL, this );
-	m_button9->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::modOrdem ), NULL, this );
-	m_button91->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::modPtCurva ), NULL, this );
-	m_button92->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::modPeso ), NULL, this );
+    m_button75->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::rmvPtControle ), NULL, this );
+    m_button17->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::decNo ), NULL, this );
+    m_button16->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::incNo ), NULL, this );
+    m_button9->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::modOrdem ), NULL, this );
+    m_button91->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::modPtCurva ), NULL, this );
+    m_button92->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::modPeso ), NULL, this );
 
     m_mgr.UnInit();
 }
@@ -525,7 +525,7 @@ void WidgetFrame::keyPressed(wxKeyEvent& event)
     cout <<"Testando eventos de teclado: " << event.GetKeyCode() << endl;
     cout << "evendo de teclado...." << endl;
 
-	loadInfo();
+    loadInfo();
 }
 
 int WidgetFrame::getNumberBottomString(std::string str)
@@ -659,132 +659,132 @@ void WidgetFrame::OnPopupClickDuplicateObject(wxCommandEvent &event)
 
 wxPanel * WidgetFrame::createEditBarCurve()
 {
-	//wxGridBagSizer* gbSizer1;
-	//gbSizer1 = new wxGridBagSizer( 0, 0 );
-	//gbSizer1->SetFlexibleDirection( wxBOTH );
-	//gbSizer1->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
-	//wxBoxSizer* bSizer2;
-	//bSizer2 = new wxBoxSizer( wxVERTICAL );
+    //wxGridBagSizer* gbSizer1;
+    //gbSizer1 = new wxGridBagSizer( 0, 0 );
+    //gbSizer1->SetFlexibleDirection( wxBOTH );
+    //gbSizer1->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+    //wxBoxSizer* bSizer2;
+    //bSizer2 = new wxBoxSizer( wxVERTICAL );
 
-	m_panel4 = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* bSizer8;
-	bSizer8 = new wxBoxSizer( wxVERTICAL );
+    m_panel4 = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+    wxBoxSizer* bSizer8;
+    bSizer8 = new wxBoxSizer( wxVERTICAL );
 
-	m_button74 = new wxButton( m_panel4, wxID_ANY, wxT("Adicionar Ponto de Controle"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer8->Add( m_button74, 0, wxALL, 5 );
+    m_button74 = new wxButton( m_panel4, wxID_ANY, wxT("Adicionar Ponto de Controle"), wxDefaultPosition, wxDefaultSize, 0 );
+    bSizer8->Add( m_button74, 0, wxALL, 5 );
 
-	m_button75 = new wxButton( m_panel4, wxID_ANY, wxT("Remover Ponto de Controle"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer8->Add( m_button75, 0, wxALL, 5 );
+    m_button75 = new wxButton( m_panel4, wxID_ANY, wxT("Remover Ponto de Controle"), wxDefaultPosition, wxDefaultSize, 0 );
+    bSizer8->Add( m_button75, 0, wxALL, 5 );
 
-	//m_button76 = new wxButton( m_panel4, wxID_ANY, wxT("Mover"), wxDefaultPosition, wxDefaultSize, 0 );
-	//bSizer8->Add( m_button76, 0, wxALL, 5 );
+    //m_button76 = new wxButton( m_panel4, wxID_ANY, wxT("Mover"), wxDefaultPosition, wxDefaultSize, 0 );
+    //bSizer8->Add( m_button76, 0, wxALL, 5 );
 
-	m_staticText6 = new wxStaticText( m_panel4, wxID_ANY, wxT("Lista de Nós"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText6->Wrap( -1 );
+    m_staticText6 = new wxStaticText( m_panel4, wxID_ANY, wxT("Lista de Nós"), wxDefaultPosition, wxDefaultSize, 0 );
+    m_staticText6->Wrap( -1 );
 
-	wxBoxSizer* bSizer10;
-	bSizer10 = new wxBoxSizer( wxHORIZONTAL );
+    wxBoxSizer* bSizer10;
+    bSizer10 = new wxBoxSizer( wxHORIZONTAL );
 
-	wxArrayString m_checkList2Choices;
-	m_checkList2 = new wxListBox( m_panel4, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_checkList2Choices, 0 );
-	m_checkList2 ->SetMinSize( wxSize( 100,180 ) );
+    wxArrayString m_checkList2Choices;
+    m_checkList2 = new wxListBox( m_panel4, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_checkList2Choices, 0 );
+    m_checkList2 ->SetMinSize( wxSize( 100,180 ) );
 
-	bSizer10->Add( m_checkList2, 0, wxALL, 5 );
+    bSizer10->Add( m_checkList2, 0, wxALL, 5 );
 
-	wxBoxSizer* bSizer14;
-	bSizer14 = new wxBoxSizer( wxVERTICAL );
+    wxBoxSizer* bSizer14;
+    bSizer14 = new wxBoxSizer( wxVERTICAL );
 
-	m_button16 = new wxButton( m_panel4, wxID_ANY, wxT("Incrementar"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer14->Add( m_button16, 0, wxALL, 5 );
+    m_button16 = new wxButton( m_panel4, wxID_ANY, wxT("Incrementar"), wxDefaultPosition, wxDefaultSize, 0 );
+    bSizer14->Add( m_button16, 0, wxALL, 5 );
 
-	m_button17 = new wxButton( m_panel4, wxID_ANY, wxT("Decrementar"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer14->Add( m_button17, 0, wxALL, 5 );
+    m_button17 = new wxButton( m_panel4, wxID_ANY, wxT("Decrementar"), wxDefaultPosition, wxDefaultSize, 0 );
+    bSizer14->Add( m_button17, 0, wxALL, 5 );
 
-	//opengl->m_staticText52 = new wxStaticText( opengl->m_panel4, wxID_ANY, wxT("Valor do Incremento"), wxDefaultPosition, wxDefaultSize, 0 );
-	//opengl->m_staticText52->Wrap( -1 );
-	//bSizer14->Add( opengl->m_staticText52, 0, wxALL, 5 );
+    //opengl->m_staticText52 = new wxStaticText( opengl->m_panel4, wxID_ANY, wxT("Valor do Incremento"), wxDefaultPosition, wxDefaultSize, 0 );
+    //opengl->m_staticText52->Wrap( -1 );
+    //bSizer14->Add( opengl->m_staticText52, 0, wxALL, 5 );
 
-	//opengl->m_textCtrl4 = new wxTextCtrl( opengl->m_panel4, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	//bSizer14->Add( opengl->m_textCtrl4, 0, wxALL, 5 );
+    //opengl->m_textCtrl4 = new wxTextCtrl( opengl->m_panel4, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+    //bSizer14->Add( opengl->m_textCtrl4, 0, wxALL, 5 );
 
-	bSizer10->Add( bSizer14, 1, wxEXPAND, 5 );
+    bSizer10->Add( bSizer14, 1, wxEXPAND, 5 );
 
 
-	m_staticText8 = new wxStaticText( m_panel4, wxID_ANY, wxT("Ordem da Curva"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText8->Wrap( -1 );
-	bSizer8->Add( m_staticText8, 0, wxALL, 5 );
+    m_staticText8 = new wxStaticText( m_panel4, wxID_ANY, wxT("Ordem da Curva"), wxDefaultPosition, wxDefaultSize, 0 );
+    m_staticText8->Wrap( -1 );
+    bSizer8->Add( m_staticText8, 0, wxALL, 5 );
 
-	wxBoxSizer* bSizer61;
-	bSizer61 = new wxBoxSizer( wxHORIZONTAL );
+    wxBoxSizer* bSizer61;
+    bSizer61 = new wxBoxSizer( wxHORIZONTAL );
 
-	m_textCtrl3 = new wxTextCtrl( m_panel4, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer61->Add( m_textCtrl3, 0, wxALL, 5 );
+    m_textCtrl3 = new wxTextCtrl( m_panel4, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+    bSizer61->Add( m_textCtrl3, 0, wxALL, 5 );
 
-	m_button9 = new wxButton( m_panel4, wxID_ANY, wxT("Modificar"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer61->Add( m_button9, 0, wxALL, 5 );
+    m_button9 = new wxButton( m_panel4, wxID_ANY, wxT("Modificar"), wxDefaultPosition, wxDefaultSize, 0 );
+    bSizer61->Add( m_button9, 0, wxALL, 5 );
 
-	bSizer8->Add( bSizer61, 0, wxEXPAND, 5 );
+    bSizer8->Add( bSizer61, 0, wxEXPAND, 5 );
 
-	m_staticText51 = new wxStaticText( m_panel4, wxID_ANY, wxT("Quantidade de Pontos da Curva"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText51->Wrap( -1 );
-	bSizer8->Add( m_staticText51, 0, wxALL, 5 );
+    m_staticText51 = new wxStaticText( m_panel4, wxID_ANY, wxT("Quantidade de Pontos da Curva"), wxDefaultPosition, wxDefaultSize, 0 );
+    m_staticText51->Wrap( -1 );
+    bSizer8->Add( m_staticText51, 0, wxALL, 5 );
 
-	wxBoxSizer* bSizer611;
-	bSizer611 = new wxBoxSizer( wxHORIZONTAL );
+    wxBoxSizer* bSizer611;
+    bSizer611 = new wxBoxSizer( wxHORIZONTAL );
 
-	m_textCtrl31 = new wxTextCtrl( m_panel4, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer611->Add( m_textCtrl31, 0, wxALL, 5 );
+    m_textCtrl31 = new wxTextCtrl( m_panel4, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+    bSizer611->Add( m_textCtrl31, 0, wxALL, 5 );
 
-	m_button91 = new wxButton( m_panel4, wxID_ANY, wxT("Modificar"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer611->Add( m_button91, 0, wxALL, 5 );
+    m_button91 = new wxButton( m_panel4, wxID_ANY, wxT("Modificar"), wxDefaultPosition, wxDefaultSize, 0 );
+    bSizer611->Add( m_button91, 0, wxALL, 5 );
 
-	bSizer8->Add( bSizer611, 0, wxEXPAND, 5 );
+    bSizer8->Add( bSizer611, 0, wxEXPAND, 5 );
 
-	m_staticText5 = new wxStaticText(m_panel4, wxID_ANY, wxT("Peso do Ponto de Controle"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText5->Wrap( -1 );
-	bSizer8->Add( m_staticText5, 0, wxALL, 5 );
+    m_staticText5 = new wxStaticText(m_panel4, wxID_ANY, wxT("Peso do Ponto de Controle"), wxDefaultPosition, wxDefaultSize, 0 );
+    m_staticText5->Wrap( -1 );
+    bSizer8->Add( m_staticText5, 0, wxALL, 5 );
 
-	wxBoxSizer* bSizer612;
-	bSizer612 = new wxBoxSizer( wxHORIZONTAL );
+    wxBoxSizer* bSizer612;
+    bSizer612 = new wxBoxSizer( wxHORIZONTAL );
 
-	m_textCtrl32 = new wxTextCtrl( m_panel4, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer612->Add( m_textCtrl32, 0, wxALL, 5 );
+    m_textCtrl32 = new wxTextCtrl( m_panel4, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+    bSizer612->Add( m_textCtrl32, 0, wxALL, 5 );
 
-	m_button92 = new wxButton(m_panel4, wxID_ANY, wxT("Modificar"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer612->Add( m_button92, 0, wxALL, 5 );
+    m_button92 = new wxButton(m_panel4, wxID_ANY, wxT("Modificar"), wxDefaultPosition, wxDefaultSize, 0 );
+    bSizer612->Add( m_button92, 0, wxALL, 5 );
 
-	bSizer8->Add( bSizer612, 0, wxEXPAND, 5 );
+    bSizer8->Add( bSizer612, 0, wxEXPAND, 5 );
 
-	// Lista de Nos por Ultimo
-	bSizer8->Add( m_staticText6, 0, wxALL, 5 );
-	bSizer8->Add( bSizer10, 1, wxEXPAND, 5 );
+    // Lista de Nos por Ultimo
+    bSizer8->Add( m_staticText6, 0, wxALL, 5 );
+    bSizer8->Add( bSizer10, 1, wxEXPAND, 5 );
 
-	m_panel4->SetSizer( bSizer8 );
-	m_panel4->Layout();
-	bSizer8->Fit( m_panel4 );
+    m_panel4->SetSizer( bSizer8 );
+    m_panel4->Layout();
+    bSizer8->Fit( m_panel4 );
 
-	m_button74->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::addPtControle ), NULL, this );
-	m_button75->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::rmvPtControle ), NULL, this );
-	//m_button76->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( BasicGLPane::move ), NULL, this );
-	//m_checkList2->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::getNoSelect ), NULL, this );
-	m_button17->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::decNo ), NULL, this );
-	m_button16->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::incNo ), NULL, this );
-	m_button9->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::modOrdem ), NULL, this );
-	m_button91->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::modPtCurva ), NULL, this );
-	m_button92->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::modPeso ), NULL, this );
-	//m_textCtrl3->Connect( wxEVT_KEY_DOWN, wxKeyEventHandler( BasicGLPane::key ), NULL, this );
-	//m_textCtrl31->Connect( wxEVT_KEY_DOWN, wxKeyEventHandler( BasicGLPane::key ), NULL, this );
-	//m_textCtrl32->Connect( wxEVT_KEY_DOWN, wxKeyEventHandler( BasicGLPane::key ), NULL, this );
+    m_button74->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::addPtControle ), NULL, this );
+    m_button75->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::rmvPtControle ), NULL, this );
+    //m_button76->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( BasicGLPane::move ), NULL, this );
+    //m_checkList2->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::getNoSelect ), NULL, this );
+    m_button17->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::decNo ), NULL, this );
+    m_button16->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::incNo ), NULL, this );
+    m_button9->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::modOrdem ), NULL, this );
+    m_button91->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::modPtCurva ), NULL, this );
+    m_button92->Connect( wxEVT_LEFT_DOWN, wxMouseEventHandler( WidgetFrame::modPeso ), NULL, this );
+    //m_textCtrl3->Connect( wxEVT_KEY_DOWN, wxKeyEventHandler( BasicGLPane::key ), NULL, this );
+    //m_textCtrl31->Connect( wxEVT_KEY_DOWN, wxKeyEventHandler( BasicGLPane::key ), NULL, this );
+    //m_textCtrl32->Connect( wxEVT_KEY_DOWN, wxKeyEventHandler( BasicGLPane::key ), NULL, this );
 
-	return m_panel4;
+    return m_panel4;
 }
 
 
 void WidgetFrame::decNo( wxMouseEvent& event )
 {
-	int id = m_checkList2->GetSelection();
-	opengl->setNodeCurve(id,-0.80);
-   	event.Skip();
+    int id = m_checkList2->GetSelection();
+    opengl->setNodeCurve(id,-0.80);
+    event.Skip();
     opengl->update();
 }
 
@@ -799,28 +799,28 @@ void WidgetFrame::incNo( wxMouseEvent& event )
 
 void WidgetFrame::modOrdem( wxMouseEvent& event )
 {
-	wxString str = m_textCtrl3->GetValue();
-	int num =  wxAtoi(str);
-	opengl->setOrdCurve(num);
+    wxString str = m_textCtrl3->GetValue();
+    int num =  wxAtoi(str);
+    opengl->setOrdCurve(num);
     event.Skip();
     opengl->update();
 }
 
 void WidgetFrame::modPtCurva( wxMouseEvent& event )
 {
-	wxString str = m_textCtrl31->GetValue();
-	int num =  wxAtoi(str);
-	opengl->setQuantCurv(num);
+    wxString str = m_textCtrl31->GetValue();
+    int num =  wxAtoi(str);
+    opengl->setQuantCurv(num);
     event.Skip();
     opengl->update();
 }
 
 void WidgetFrame::modPeso( wxMouseEvent& event )
 {
-	wxString str = m_textCtrl32->GetValue();
-	double num;
-	if(!str.ToDouble(&num)){ /* error! */ }
-	opengl->setPesoCurv( (float) num);
+    wxString str = m_textCtrl32->GetValue();
+    double num;
+    if(!str.ToDouble(&num)){ /* error! */ }
+    opengl->setPesoCurv( (float) num);
     event.Skip();
     opengl->update();
 }
@@ -890,7 +890,7 @@ void WidgetFrame::loadInfo()
 void WidgetFrame::addPtControle( wxMouseEvent& event )
 {
 
-	opengl->addPtC();
+    opengl->addPtC();
     event.Skip();
     opengl->update();
 }
@@ -898,7 +898,7 @@ void WidgetFrame::addPtControle( wxMouseEvent& event )
 void WidgetFrame::rmvPtControle( wxMouseEvent& event )
 {
 
-	opengl->rmvPtC();
+    opengl->rmvPtC();
     event.Skip();
     opengl->update();
 }
@@ -935,30 +935,34 @@ void WidgetFrame::clickDesab(wxCommandEvent& event)
 void WidgetFrame::clickUndo(wxCommandEvent& event)
 {
     cout << "CTR-Z" << endl;
-    countItemTree = 0;
     m_treeCtrl->DeleteChildren(root);
     vector<std::string >  objetcsName = opengl->ctrZ();
-
+    if (objetcsName.size()){
+        countItemTree = getNumberBottomString(objetcsName[objetcsName.size()-1]);
+    }
     for (int i = 0; i < (int)objetcsName.size(); ++i){
         wxString str(objetcsName[i]);
         m_treeCtrl->AppendItem (root, str, -1, -1, NULL);
         m_treeCtrl->ExpandAll ();
-        countItemTree++;
     }
+    countItemTree++;
 }
 
 
 void WidgetFrame::clickRedo(wxCommandEvent& event)
 {
     cout << "CTR-Y" << endl;
-    countItemTree = 0;
     m_treeCtrl->DeleteChildren(root);
     vector<std::string >  objetcsName = opengl->ctrY();
+
+    if (objetcsName.size()){
+        countItemTree = getNumberBottomString(objetcsName[objetcsName.size()-1]);
+    }
 
     for (int i = 0; i < (int)objetcsName.size(); ++i){
         wxString str(objetcsName[i]);
         m_treeCtrl->AppendItem (root, str, -1, -1, NULL);
         m_treeCtrl->ExpandAll ();
-        countItemTree++;
     }
+    countItemTree++;
 }

@@ -64,6 +64,7 @@ BasicGLPane::BasicGLPane(wxWindow* parent, int* args) :
     ROTATION[0] = 45;
     ROTATION[1] = 45;
     BACKUP.push_back(WORLD);
+    LIST_INDEX_OBJECT_STATES.push_back(LIST_INDEX_OBJECT);
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
 }
 
@@ -515,6 +516,7 @@ void BasicGLPane::deleteObject(int symbolicIndex)
     if (WORLD.size() == 1){
         RENDER_MODE = true;
     }
+    addNewState();
     displayScene();
 
 }
@@ -668,6 +670,16 @@ vector < Object *> BasicGLPane::createTempPointer(vector < Object *> WORLD)
     return WORLD_TEMP;
 }
 
+vector < int > BasicGLPane::createTempVector( vector <int > oldVector)
+{
+    vector <int > NEW_TEMP;
+    for (int i = 0; i < (int)oldVector.size(); ++i){
+        NEW_TEMP.push_back(oldVector[i]);
+    }
+    return NEW_TEMP;
+}
+
+
 vector <std::string > BasicGLPane::ctrZ()
 {
     vector <std::string > listObjectsName;
@@ -676,7 +688,7 @@ vector <std::string > BasicGLPane::ctrZ()
         cout << "Aqui no BACKUP: " << POINTER_BACKUP <<" SIZE: " << BACKUP.size() <<"size_world: "<< WORLD.size()<<endl;
         POINTER_BACKUP -= 1;
         WORLD = createTempPointer(BACKUP[POINTER_BACKUP]);
-
+        LIST_INDEX_OBJECT = createTempVector(LIST_INDEX_OBJECT_STATES[POINTER_BACKUP]);
     }
     for (int i = 1; i < (int)WORLD.size(); ++i){
         std::ostringstream ss;
@@ -695,6 +707,7 @@ vector <std::string > BasicGLPane::ctrY()
     if (POINTER_BACKUP < (int) (BACKUP.size() - 1) ){
         POINTER_BACKUP += 1;
         WORLD = createTempPointer(BACKUP[POINTER_BACKUP]);
+        LIST_INDEX_OBJECT = createTempVector(LIST_INDEX_OBJECT_STATES[POINTER_BACKUP]);
 
     }
 
@@ -711,8 +724,10 @@ vector <std::string > BasicGLPane::ctrY()
 void BasicGLPane::addNewState()
 {
     vector <Object *> WORLD_TEMP = createTempPointer(WORLD);
+    vector <int > NEW_TEMP = createTempVector(LIST_INDEX_OBJECT);
     //cout << "Topos: "<<WORLD[0]->getTipo() << ", " << WORLD_TEMP[0]->getTipo() << endl;
     BACKUP.push_back(WORLD_TEMP);
+    LIST_INDEX_OBJECT_STATES.push_back(NEW_TEMP);
 
     POINTER_BACKUP = BACKUP.size()-1;
 }
