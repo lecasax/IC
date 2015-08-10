@@ -34,6 +34,26 @@ BSplines::BSplines(BSplines * bspline):Object()
 	this->setTipo("BSplines");
 }
 
+BSplines::BSplines(vector < vector <float > > ptControle, vector<double > nos):Object()
+{
+	vector<float> p1,p2,p3,p4;
+
+	quant = 80;
+	ordCurva = 4;
+	ptcSelec = -1;
+	noSelec = -1;
+	this->ptControle = ptControle;
+	this->nos = nos;
+
+	// Tipo Curva BSpline
+	setTipo("BSplines");
+	//iniNo();
+
+	this->updatePtsCurv();
+}
+
+
+
 BSplines::BSplines(float x, float y, float z):Object()
 {
 	vector<float> p1,p2,p3,p4;
@@ -403,6 +423,9 @@ void BSplines::setQuant(int valor)
 	quant = valor;
 }
 
+
+
+
 // Atualiza/Processa os Pontos da Curva B-Spline
 void BSplines::updatePtsCurv()
 {
@@ -420,7 +443,7 @@ void BSplines::updatePtsCurv()
 		inc = ( fim - inic ) / quant;
 	}
 
-	for(t = inic; t <= fim; t+=inc){
+	for(t = 0; t < fim; t+=inc){
 
 		x = y = z = 0;
 
@@ -443,6 +466,9 @@ void BSplines::updatePtsCurv()
 
 	ptsCurv = pts;
 }
+
+
+
 
 /* Private */
 

@@ -6,12 +6,13 @@
 
 using namespace std;
 
-class BSplines: public Object 
+class BSplines: public Object
 {
 
 public:
 
 	// Construtores
+	BSplines(vector < vector <float > > ptControle, vector <double > nos);
 	BSplines(BSplines * bspline);
 	BSplines(float x, float y, float z);
 	BSplines(void);
@@ -49,8 +50,8 @@ public:
 	int getPtcSelec();
 
 	// Retorna os pontos da curva B-Spline
-	// A Cada 3 elementos da lista tem-se um ponto representando 
-	// px,py,pz 	
+	// A Cada 3 elementos da lista tem-se um ponto representando
+	// px,py,pz
 	vector<float> getPtsCurva();
 
 	// Retorna a quantidade de pontos gerados para a curva
@@ -108,12 +109,12 @@ protected:
 	// Identificador do Ponto de Controle Selecionado
 	int ptcSelec;
 
-	// Lista de Nos usados para geração da curva B-Spline	
+	// Lista de Nos usados para geração da curva B-Spline
 	vector<double> nos;
 
 	// Lista de Pontos da Curva B-Spline
-	// A Cada 3 elementos da lista tem-se um ponto representando 
-	// px,py,pz 	
+	// A Cada 3 elementos da lista tem-se um ponto representando
+	// px,py,pz
 	vector<float> ptsCurv;
 
 	// Lista Bidimensional Representando os Pontos de Controle
@@ -125,7 +126,7 @@ protected:
 	// Insere um novo nó
 	void insertNode(int tipo);
 
-	// Remove um nó 
+	// Remove um nó
 	void rmvNode(int tipo);
 
 	// Normaliza a lista de nós

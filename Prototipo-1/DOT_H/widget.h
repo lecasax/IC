@@ -37,6 +37,8 @@ protected:
 
     //Objetos do menu
     wxMenuItem* menuItemCurve;
+    wxMenuItem* itemCurveRectangle;
+    wxMenuItem* itemCurveCircle;
     wxMenuItem* itemCurveBezier;
     wxMenuItem* itemCurveSpline ;
     wxMenuItem* itemCurveNurbs;
@@ -66,6 +68,8 @@ protected:
 
 
     //Eventos do subMenu
+    void itemCurveRectangleMenuSelection( wxCommandEvent& event );
+    virtual void itemCurveCircleMenuSelection( wxCommandEvent& event );
     virtual void itemCurveBezierMenuSelection( wxCommandEvent& event );
     virtual void itemCurveSplineMenuSelection( wxCommandEvent& event );
     virtual void itemCurveNurbsMenuSelection( wxCommandEvent& event );
