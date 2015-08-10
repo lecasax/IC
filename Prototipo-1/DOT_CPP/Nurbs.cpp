@@ -34,7 +34,21 @@ Nurbs::Nurbs(Nurbs * nurb):BSplines()
 	this->setTipo("Nurbs");
 }
 
+// Construtor
+Nurbs::Nurbs(vector < vector <float > > ptControle, vector<double > nos, vector<float > pesos):BSplines()
+{
 
+	this->ptControle = ptControle;
+	this->pesos = pesos;
+	this->nos = nos;
+	ordCurva = 3;
+	//iniNo();
+
+	// Tipo Curva Nurbs
+	setTipo("Nurbs");
+
+	this->updatePtsCurv();
+}
 // Construtor
 Nurbs::Nurbs(float x, float y, float z):BSplines()
 {
@@ -91,6 +105,17 @@ vector<float> Nurbs::getPesos()
 	return pesos;
 }
 
+float Nurbs::getPesoSelec()
+{
+	float val = -1;
+
+	if(ptcSelec >= 0){
+		val = pesos[ptcSelec];
+	}
+
+	return val;
+}
+
 // Altera o peso de um ponto de Controle selecionado
 void Nurbs::setPeso(float valor)
 {
@@ -119,7 +144,7 @@ void Nurbs::updatePtsCurv()
 		inc = ( fim - inic ) / quant;
 	}
 
-	for(t = inic; t <= fim; t+=inc){
+	for(t = 0; t <= 1; t+=inc){
 
 		x = y = z = 0;
 		x2 = y2 = z2 = 0;

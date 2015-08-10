@@ -6,7 +6,7 @@
 #include <string>
 #include <sys/time.h>
 #include <unistd.h>
-
+#include <wx/kbdstate.h>
 
 //struct timeval  tv1, tv2;
 
@@ -169,8 +169,20 @@ void WidgetFrame::createMenuBar()
     subMenuSurface = new wxMenu();
 
     //Constoi o Submenu das curvas
+
+
+
+
     menuItemCurve = new wxMenuItem( menuAdd, wxID_ANY, wxT("Curve"), wxEmptyString, wxITEM_NORMAL, subMenuCurve  );
     menuAdd->Append(  menuItemCurve );
+
+
+    itemCurveCircle = new wxMenuItem( subMenuCurve, wxID_ANY, wxString( wxT("Circle") ) , wxEmptyString, wxITEM_NORMAL );
+    subMenuCurve->Append(itemCurveCircle);
+
+    itemCurveRectangle = new wxMenuItem( subMenuCurve, wxID_ANY, wxString( wxT("Rectangle") ) , wxEmptyString, wxITEM_NORMAL );
+    subMenuCurve->Append(itemCurveRectangle);
+
 
     itemCurveBezier = new wxMenuItem( subMenuCurve, wxID_ANY, wxString( wxT("Bezier") ) , wxEmptyString, wxITEM_NORMAL );
     subMenuCurve->Append(itemCurveBezier);
@@ -207,6 +219,16 @@ void WidgetFrame::createMenuBar()
 
 
     /*Eventos dos submenus */
+
+
+    this->Connect( itemCurveRectangle->GetId(), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler( WidgetFrame::itemCurveRectangleMenuSelection ) );
+
+
+    this->Connect( itemCurveCircle->GetId(), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler( WidgetFrame::itemCurveCircleMenuSelection ) );
+
+
     this->Connect( itemCurveBezier->GetId(), wxEVT_COMMAND_MENU_SELECTED,
             wxCommandEventHandler( WidgetFrame::itemCurveBezierMenuSelection ) );
 
@@ -263,8 +285,9 @@ void WidgetFrame::itemCurveBezierMenuSelection( wxCommandEvent& event )
     m_treeCtrl->AppendItem (root, str, -1, -1, NULL);
     m_treeCtrl->ExpandAll ();
     countItemTree++;
-    cout << "Clicando na curva de Bezier..." << endl;
+    cout << "Criando uma curva de Bezier..." << endl;
 }
+
 
 void WidgetFrame::itemCurveSplineMenuSelection( wxCommandEvent& event )
 {
@@ -275,7 +298,7 @@ void WidgetFrame::itemCurveSplineMenuSelection( wxCommandEvent& event )
     m_treeCtrl->AppendItem (root, str, -1, -1, NULL);
     m_treeCtrl->ExpandAll ();
     countItemTree++;
-    cout << "Clicando na curva de BSpline..." << endl;
+    cout << "Criando uma curva de BSpline..." << endl;
 }
 
 void WidgetFrame::itemCurveNurbsMenuSelection( wxCommandEvent& event )
@@ -288,8 +311,36 @@ void WidgetFrame::itemCurveNurbsMenuSelection( wxCommandEvent& event )
     m_treeCtrl->AppendItem (root, str, -1, -1, NULL);
     m_treeCtrl->ExpandAll ();
     countItemTree++;
-    cout << "Clicando na curva de BSpline..." << endl;
+    cout << "Criando uma curva de BSpline..." << endl;
 }
+
+void WidgetFrame::itemCurveCircleMenuSelection( wxCommandEvent& event )
+{
+
+    std::string s(opengl->createCurve(3,countItemTree));
+    std::ostringstream ss;
+    ss << countItemTree;
+    wxString str(s + std::string(" ") + ss.str());
+    m_treeCtrl->AppendItem (root, str, -1, -1, NULL);
+    m_treeCtrl->ExpandAll ();
+    countItemTree++;
+    cout << "Criando um Circlo..." << endl;
+}
+
+void WidgetFrame::itemCurveRectangleMenuSelection( wxCommandEvent& event )
+{
+
+    std::string s(opengl->createCurve(4,countItemTree));
+    std::ostringstream ss;
+    ss << countItemTree;
+    wxString str(s + std::string(" ") + ss.str());
+    m_treeCtrl->AppendItem (root, str, -1, -1, NULL);
+    m_treeCtrl->ExpandAll ();
+    countItemTree++;
+    cout << "Criando um retangulo..." << endl;
+}
+
+
 
 void WidgetFrame::itemSurfaceBezierMenuSelection( wxCommandEvent& event )
 {
@@ -423,6 +474,10 @@ void WidgetFrame::mouseDown(wxMouseEvent& event)
     wxTreeItemId item = m_treeCtrl->HitTest(event.GetPosition(), num);
     if (item.IsOk()){
         int idObject = getNumberBottomString( m_treeCtrl->GetItemText(item).ToStdString());
+        //m_treeCtrl->UnselectAll();
+        if (!wxGetKeyState(WXK_CONTROL)){
+            m_treeCtrl->UnselectAll();
+        }
         m_treeCtrl->SelectItem(item, true);
         opengl->selectObject(idObject);
         fillCustomPanel(opengl->getPositionLastObjectSelected(),
@@ -431,6 +486,7 @@ void WidgetFrame::mouseDown(wxMouseEvent& event)
                     opengl->getTipoLastObjectSelected()
                     );
         cout << "item clicked: " << m_treeCtrl->GetItemText(item).ToStdString() << endl;
+
     }
 
     vector <float > cursor = opengl->getCursorPosition();

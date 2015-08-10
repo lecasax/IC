@@ -7,13 +7,16 @@ class Nurbs: public BSplines
 
 public:
 
-	// Construtores	
+	// Construtores
+	Nurbs(vector < vector <float > > ptControle, vector<double > nos, vector<float > pesos);
 	Nurbs(Nurbs * nurb);
 	Nurbs(float x, float y, float z);
 	~Nurbs(void);
 
 	// Retorna a lista de Pesos
 	vector<float> getPesos();
+
+	float getPesoSelec();
 
 	// Altera o peso de um ponto de Controle selecionado
 	void setPeso(float valor);
@@ -37,7 +40,7 @@ public:
 	// draw
 	//void draw(int index_load,  bool is_selecting);
 
-	//void draw(int index_load,  bool is_selecting);	
+	//void draw(int index_load,  bool is_selecting);
 
 private:
 

@@ -7,7 +7,10 @@
 #include "grid.h"
 #include "cube.h"
 #include "modifier.h"
+#include "forms.h"
 #include <algorithm>    // std::find
+
+
 #include <sstream>
 
 /*table of the events*/
@@ -604,6 +607,8 @@ std::string BasicGLPane::InterpolateNurbs( int indexCurve1, int indexCurve2, int
     vector< vector <float > > ptControle1  =  nurb1->getPtControle();
     vector <float > t = nurb->getTranslation();
     vector <float > t1 = nurb1->getTranslation();
+    vector <float > s = nurb->getScale();
+    vector <float > s1 = nurb1->getScale();
     vector <float > pontos = nurb->getPtsCurva();
     vector <float > pontos1 = nurb1->getPtsCurva();
 
@@ -612,13 +617,13 @@ std::string BasicGLPane::InterpolateNurbs( int indexCurve1, int indexCurve2, int
     for (int i = 0; i < 1; ++i){
 
         for (int j = 0; j < (int)pontos.size()/3; j++){
-            cP[i][j][0] = pontos[c]     + t[0];
-            cP[i][j][1] = pontos[c + 1] + t[1];
-            cP[i][j][2] = pontos[c + 2] + t[2];
+            cP[i][j][0] = (pontos[c] * s[0])     + t[0];
+            cP[i][j][1] = (pontos[c + 1] * s[1]) + t[1];
+            cP[i][j][2] = (pontos[c + 2] * s[2]) + t[2];
 
-            cP[i+1][j][0] = pontos1[c]      +  t1[0];
-            cP[i+1][j][1] = pontos1[c + 1]  +  t1[1];
-            cP[i+1][j][2] = pontos1[c + 2 ] +  t1[2];
+            cP[i+1][j][0] = (pontos1[c] * s1[0])      +  t1[0];
+            cP[i+1][j][1] = (pontos1[c + 1] * s1[1])  +  t1[1];
+            cP[i+1][j][2] = (pontos1[c + 2] * s1[2])  +  t1[2];
 
             c+=3;
         }
@@ -746,8 +751,38 @@ std::string BasicGLPane::createCurve(int tp, long symbolicIndex)
     }
     if(tp == 2){
         curve = new Nurbs(0,0,0);
+        //curve = new Nurbs(Forms::getCircle(0, 0 , 10, 8));
     }
+    if(tp == 3){
 
+        vector <double > nos(12, 0);
+        vector <float > pesos(9, 1);
+        nos[3] = 0.25; nos[4] = 0.25;
+        nos[5] = 0.5; nos[6] = 0.5;
+        nos[7] = 0.75; nos[8] = 0.75;
+        nos[9] = 1.0; nos[10] = 1.0; nos[11] = 1.0;
+
+        pesos[1] = 0.707106781; pesos[3] = 0.707106781;
+        pesos[5] = 0.707106781; pesos[7] = 0.707106781;
+        curve = new Nurbs(Forms::getCircle(0, 0 , 10, 8), nos, pesos);
+        //curve = new Nurbs(Forms::getCircle(0, 0 , 10, 10));
+    }
+    if (tp == 4){
+
+        vector <double > nos(13, 0);
+        vector <float > pesos(9, 1);
+
+        nos[3] = 0.25; nos[4] = 0.25;
+        nos[5] = 0.5; nos[6] = 0.5;
+        nos[7] = 0.75; nos[8] = 0.75;
+        nos[9] = 1.0; nos[10] = 1.0; nos[11] = 1.0;
+
+
+        pesos[1] = 100;  pesos[3] = 100;
+        pesos[5] = 100;  pesos[7] = 100;
+
+        curve = new Nurbs(Forms::getRecatangle(), nos, pesos);
+    }
     curve->translateObject(cursor);
     WORLD.push_back(curve);
     LIST_INDEX_OBJECT.push_back(symbolicIndex);
