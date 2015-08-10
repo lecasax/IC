@@ -1,17 +1,41 @@
 #include "bezierSurface.h"
-#include <stdio.h>
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
 #include <GL/glut.h>
 #include <GL/glu.h>
 #include <GL/gl.h>
+
 using namespace std;
+SurfaceBezier::SurfaceBezier( SurfaceBezier *surface):Object()
+{
+    setTipo("BezierSurface");
+
+    this->translation = surface->translation;
+    this->rotation = surface->rotation;
+    this->scale = surface->scale;
+    modifier = Modifier(translation[0], translation[1], translation[2]);
+
+    this->NI = surface->NI;  //dimensao na direcao de u
+    this->NJ = surface->NJ; // dimensao na direcao de v
+
+    this->RESOLUTIONI = surface->RESOLUTIONI; //resolucao na direcao I
+    this->RESOLUTIONJ = surface->RESOLUTIONJ; // resolucao na direcao J
+
+    this->weight = surface->weight;
+    this->controlPoints = surface->controlPoints;
+    surface3dBezierRenderNUBRS();
+
+
+}
 
 SurfaceBezier::SurfaceBezier():Object()
 
 {
-    cout << "NA superifice de bezier ...."<< endl;
+
+    setTipo("BezierSurface");
+
+    modifier = Modifier(translation[0], translation[1], translation[2]);
 
     this->NI = 3;  //dimensao na direcao de u
     this->NJ = 3; // dimensao na direcao de v
@@ -19,29 +43,29 @@ SurfaceBezier::SurfaceBezier():Object()
     this->RESOLUTIONI = 4; //resolucao na direcao I
     this->RESOLUTIONJ = 4; // resolucao na direcao J
 
-    vector<vector <double > > w(NI+1,vector <double >(NJ+1, 0));
-    weight = w;
+    weight = vector<vector <double > > (NI+1,vector <double >(NJ+1, 0));
 
-    vector<vector<vector <double > > > cP(NI+1,vector<vector<double> >(NJ+1,vector <double>(3,0)));
-    controlPoints  = cP;
+    controlPoints = vector<vector<vector <double > > > (NI+1,vector<vector<double> >(NJ+1,vector <double>(3,0)));
 
     createControlPoints();
 
     preencheMatrizPesos();
 
     surface3dBezierRenderNUBRS();
+
+
 }
 
 SurfaceBezier::SurfaceBezier(int ni, int nj, int resolutioni, int resolutionj):Object()
 
 {
-    cout << "NA superifice de bezier ...."<< endl;
 
+    setTipo("BezierSurface");
     this->NI = ni-1;  //dimensao na direcao de u
     this->NJ = nj-1; // dimensao na direcao de v
-    
-    this->RESOLUTIONI = resolutioni; //resolucao na direcao I
-    this->RESOLUTIONJ = resolutionj; // resolucao na direcao J
+
+    this->RESOLUTIONI = resolutioni-1; //resolucao na direcao I
+    this->RESOLUTIONJ = resolutionj-1; // resolucao na direcao J
 
 
     vector<vector <double > > w(NI+1,vector <double >(NJ+1, 0));
@@ -55,7 +79,7 @@ SurfaceBezier::SurfaceBezier(int ni, int nj, int resolutioni, int resolutionj):O
     preencheMatrizPesos();
 
     surface3dBezierRenderNUBRS();
-    
+
 }
 
 SurfaceBezier::~SurfaceBezier()
@@ -115,7 +139,7 @@ void  SurfaceBezier::surface3dBezierRenderNUBRS()
             /*calcula os pontos da superficie*/
             for (int k = 0; k <= NI ; k++) {
                 for (int l = 0; l <= NJ ; l++){
-                    bi =(combination(NI, k)  *  pow( (1.00-INTER_I), (double) (NI-k))  *  pow(INTER_I, double(k))) ; 
+                    bi =(combination(NI, k)  *  pow( (1.00-INTER_I), (double) (NI-k))  *  pow(INTER_I, double(k))) ;
                     bj =(combination(NJ, l)  *  pow( (1.00-INTER_J), (double) (NJ-l))  *  pow(INTER_J, double(l))) ;
                     output[0] += bi * bj  * controlPoints[k][l][0] * weight[k][l];
                     output[1] += bi * bj  * controlPoints[k][l][1] * weight[k][l];
@@ -134,7 +158,73 @@ void  SurfaceBezier::surface3dBezierRenderNUBRS()
     }
     surfaceBezier = surface;
 }
+void SurfaceBezier::translateObject( vector <float > newTranslation)
 
+{
+    this->translation = newTranslation;
+}
+
+void SurfaceBezier::rotateObject(vector <float > newRotation)
+{
+    this->rotation = newRotation;
+
+}
+
+
+void SurfaceBezier::setGlobalScale( float x, float y, float z)
+{
+
+    this->globalScale[0] = x;
+    this->globalScale[1] = y;
+    this->globalScale[2] = z;
+}
+
+void SurfaceBezier::setPtControleModifier(float x, float y, float z)
+{
+    int i = ( (hit_index_internal-1) / (NJ + 1) );
+    int j = ( (hit_index_internal-1) % (NJ + 1) );
+    controlPoints[i][j][0] = x;
+    controlPoints[i][j][1] = y;
+    controlPoints[i][j][2] = z;
+    surface3dBezierRenderNUBRS();
+}
+void SurfaceBezier::setPtControle(float x, float y, float z)
+{
+    int i = ( (hit_index_internal-1) / (NJ + 1) );
+    int j = ( (hit_index_internal-1) % (NJ + 1) );
+
+    vector <float > r = getRotation();
+    glm::quat quat (glm::vec3(r[0]*PI/BASE, r[1]*PI/BASE, r[2]*PI/BASE));
+    glm::quat quaternion = quat ;
+    glm::mat4 mat  = glm::toMat4(quaternion);
+
+    controlPoints[i][j][0] = (x-translation[0])/scale[0];
+    controlPoints[i][j][1] = (y-translation[1])/scale[1];
+    controlPoints[i][j][2] = (z-translation[2])/scale[2];
+
+    glm::mat4 INVERSE_ROTATE = glm::inverse(mat);
+    glm::vec4 reverse_point = INVERSE_ROTATE * glm::vec4(controlPoints[i][j][0],
+                                                         controlPoints[i][j][1],
+                                                         controlPoints[i][j][2],
+                                                         1.0f
+                                                         );
+    controlPoints[i][j][0] = reverse_point[0];
+    controlPoints[i][j][1] = reverse_point[1];
+    controlPoints[i][j][2] = reverse_point[2];
+
+    surface3dBezierRenderNUBRS();
+}
+
+vector <float > SurfaceBezier::getControlPointSelected()
+{
+    int i = ( (hit_index_internal-1) / (NJ + 1) );
+    int j = ( (hit_index_internal-1) % (NJ + 1) );
+    vector <float > selectedPoint(3, 0);
+    selectedPoint[0] = controlPoints[i][j][0];
+    selectedPoint[1] = controlPoints[i][j][1];
+    selectedPoint[2] = controlPoints[i][j][2];
+    return  selectedPoint;
+}
 
 vector <double *>  SurfaceBezier::getControlPoints()
 
@@ -168,9 +258,13 @@ void SurfaceBezier::createControlPoints(void)
     for (int i = 0; i <= NI; i++){
         for (int j = 0; j <= NJ; j++){
             controlPoints[i][j][0] = X1;
-            controlPoints[i][j][1] = 0.0;
+            //controlPoints[i][j][1] = 0.0;
             controlPoints[i][j][2] = Z1;; //+ (double) ( rand() % 100 );
             X1 += variation;
+            if (i > 0 && j < NJ && i == j){
+                controlPoints[i][j][1] = 10.0;
+                controlPoints[i][NJ-j][1] = 10.0;
+            }
 
         }
         Z1-=variation;
@@ -179,6 +273,10 @@ void SurfaceBezier::createControlPoints(void)
 
 }
 
+int SurfaceBezier::getSizeControlPoints()
+{
+    return (NI+1) * (NJ+1);
+}
 void SurfaceBezier::movePointControlSurfaceBspline(double *p, int index)
 {
 
@@ -208,145 +306,12 @@ void SurfaceBezier::preencheMatrizPesos(){
 
             //weight[i][j] = (double) ( rand() % 100 );
             weight[i][j] =  1.0;
-            cout << weight[i][j] << ", ";
+            //cout << weight[i][j] << ", ";
         }
-        cout << endl;
+        //cout << endl;
     }
 }
 
-/*void Bezier::draw(int index_load,  bool is_selecting)
-{
-    int i,k,j;
-    int sizeSeg = (int) segments.size();
-    int sizeCur = (int) ptsCurv.size();
-    vector<float> pt;
-
-    GLfloat m[16];
-    vector <float > c = getColor();
-    vector <float > r = getRotation();
-    vector <float > t = getTranslation();
-    vector <float > s = getScale();
-
-    glm::quat quat (glm::vec3(r[0]*PI/BASE, r[1]*PI/BASE, r[2]*PI/BASE));
-    glm::quat quaternion = quat ; 
-    glm::mat4 mat  = glm::toMat4(quaternion);
-
-    int count = 0;
-    for ( k = 0; k < 4; ++k){
-        for ( j = 0; j < 4; ++j){
-            m[count] = mat[k][j];
-            count++;
-        }   
-    }       
-
-    if( !render_mode && this->is_selected){
-
-        // Modo Edição
-        index_internal = 0;
-
-        if(!is_selecting){
-
-            this->updatePtsCurv();
-
-            if(this->is_selected){
-                glColor4f(GREEN);
-            } else {
-                glColor4f(RED);
-            }
-
-            glPushMatrix();
-                glBegin(GL_LINE_STRIP);
-                for(j = 0; j < sizeCur; j+=3){
-                    glVertex3f(ptsCurv[j],ptsCurv[j+1],ptsCurv[j+2]);
-                }
-                glEnd();
-            glPopMatrix();      
-        }
-
-        
-        for(i = 0; i < sizeSeg; i++){
-
-            cout << " modo edição " << endl;
-            // Point 1
-            index_internal++;
-            glLoadName(index_internal);
-            glColor4f(BLACK);
-            if(index_internal == hit_index_internal){
-                glColor4f(ORANGE);
-                this->setSelectSegments(i,1);
-            }
-            pt = segments[i].getP1();
-            glPushMatrix();
-            glTranslatef(pt[0],pt[1],0);
-            glutSolidCube(2);
-            glPopMatrix();
-            
-            // Point C
-            index_internal++;
-            glLoadName(index_internal);
-            glColor4f(BLACK);
-            if(index_internal == hit_index_internal){
-                glColor4f(ORANGE);
-                this->setSelectSegments(i,0);
-            }
-            pt = segments[i].getC();
-            glPushMatrix();
-            glTranslatef(pt[0],pt[1],pt[2]);
-            glutSolidCube(2);
-            glPopMatrix();          
-
-            // Pointe 2
-            index_internal++;
-            glLoadName(index_internal);
-            glColor4f(BLACK);
-            if(index_internal == hit_index_internal){
-                glColor4f(ORANGE);
-                this->setSelectSegments(i,2);
-            }
-            pt = segments[i].getP2();
-            glPushMatrix();
-            glTranslatef(pt[0],pt[1],pt[2]);
-            glutSolidCube(2);
-            glPopMatrix(); 
-
-
-            if(!is_selecting){
-                //Line
-                glColor4f(BLACK);
-                glPushMatrix();
-                glBegin(GL_LINES);
-                pt = segments[i].getP1();
-                glVertex3f(pt[0],pt[1],pt[2]);
-                pt = segments[i].getP2();
-                glVertex3f(pt[0],pt[1],pt[2]);
-                glEnd();
-                glPopMatrix();
-            }
-        }
-
-    } else {
-
-        // Modo Objeto
-        cout << " modo objeto " << endl;
-        glLoadName(index_load);
-
-        this->updatePtsCurv();
-
-        if(this->is_selected){
-            glColor4f(GREEN);
-        } else {
-            glColor4f(RED);
-        }
-
-        glPushMatrix();
-            glBegin(GL_LINE_STRIP);
-            for(i = 0; i < sizeCur; i+=3){
-                glVertex3f(ptsCurv[i],ptsCurv[i+1],ptsCurv[i+2]);
-            }
-            glEnd();
-        glPopMatrix();
-    }
-}*/
 
 void SurfaceBezier::drawGlQuadStripVector(vector <double *> array , int n, int m, int type)
 
@@ -365,15 +330,15 @@ void SurfaceBezier::drawGlQuadStripVector(vector <double *> array , int n, int m
 
         for (int j = 0; j < m ; j++) {
 
-         
+
             glVertex3f(array[i*m+j][0], array[i*m+j][1], array[i*m+j][2] );
-            glVertex3f(array[(1+i)*m+j][0], array[(1+i)*m+j][1], array[(1+i)*m+j][2] );   
-           
+            glVertex3f(array[(1+i)*m+j][0], array[(1+i)*m+j][1], array[(1+i)*m+j][2] );
+
         }
         glEnd();
         glPopMatrix();
     }
-    
+
 }
 
 void SurfaceBezier::drawControlPoint(int hit)
@@ -381,31 +346,55 @@ void SurfaceBezier::drawControlPoint(int hit)
     int count_object = 0;
     glEnable( GL_POINT_SMOOTH );
     glPointSize(6.0f);
-   
+
     for (int i = 0; i <= NI; i++) {
 
         for (int j = 0; j <= NJ; ++j){
-            count_object++;   
+            count_object++;
 
             glLoadName(count_object);
 
             glPushMatrix();
-                if ( ( (hit-1) /(NI + 1) ) == i && ( (hit-1) % (NJ + 1) ) == j ){
+                if ( ( (hit-1) /(NJ + 1) ) == i && ( (hit-1) % (NJ + 1) ) == j ){
                      glColor4f(ORANGE);
                 } else {
                      glColor4f(BLACK);
                 }
             glBegin(GL_POINTS);
-            glVertex3f(controlPoints[i][j][0], controlPoints[i][j][1], controlPoints[i][j][2] );     
-            glEnd();      
+            glVertex3f(controlPoints[i][j][0], controlPoints[i][j][1], controlPoints[i][j][2] );
+            glEnd();
             glPopMatrix();
         }
     }
-    
 }
 
 
-void SurfaceBezier::draw(int index_load,  bool is_selecting)
+void SurfaceBezier::drawControlPolygon()
+
+{
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glColor4f(BLACK);
+
+
+    //desenahdo o poligono de controle
+    for (int i = 0; i < NI; i++) {
+
+        glPushMatrix();
+        glBegin(GL_QUAD_STRIP);
+
+        for (int j = 0; j < NJ+1 ; j++) {
+
+
+            glVertex3f(controlPoints [i][j][0],controlPoints [i][j][1],controlPoints [i][j][2]);
+            glVertex3f(controlPoints [i+1][j][0],controlPoints [i+1][j][1],controlPoints [i+1][j][2]);
+
+        }
+        glEnd();
+        glPopMatrix();
+    }
+}
+
+void SurfaceBezier::draw(int index_load,  bool is_selecting, int size_world)
 
 {
     GLfloat m[16];
@@ -415,7 +404,7 @@ void SurfaceBezier::draw(int index_load,  bool is_selecting)
     vector <float > s = getScale();
 
     glm::quat quat (glm::vec3(r[0]*PI/BASE, r[1]*PI/BASE, r[2]*PI/BASE));
-    glm::quat quaternion = quat ; 
+    glm::quat quaternion = quat ;
     glm::mat4 mat  = glm::toMat4(quaternion);
 
     int count = 0;
@@ -423,40 +412,73 @@ void SurfaceBezier::draw(int index_load,  bool is_selecting)
         for (int j = 0; j < 4; ++j){
             m[count] = mat[k][j];
             count++;
-        }   
-    }       
+        }
+    }
+
+    //modificador
+    if(render_mode && is_selected){
+        glPushMatrix();
+        glTranslatef(translation[0], translation[1]-20, translation[2]);
+        glScalef(1/globalScale[0], 1/globalScale[1], 1/globalScale[2]);
+        modifier.draw( size_world-1, true);
+        glPopMatrix();
+    }
+
+    else if (!render_mode && is_selected && hit_index_internal >= 1){
+        int i = ( (hit_index_internal-1) / (NJ + 1) );
+        int j = ( (hit_index_internal-1) % (NJ + 1) );
+        glPushMatrix();
+        glTranslatef(t[0],t[1],t[2]);
+        glScalef(s[0], s[1], s[2]);
+        glMultMatrixf(m);
+        glTranslatef(controlPoints[i][j][0], controlPoints[i][j][1], controlPoints[i][j][2]);
+        glScalef(0.8, 0.8, 0.8);
+        glScalef(1/s[0], 1/s[1], 1/s[2]);
+        glScalef(1/globalScale[0], 1/globalScale[1], 1/globalScale[2]);
+        modifier.draw( (NI+1)*(NJ+1), true);
+        glPopMatrix();
+    }
+
     glPushMatrix();
     glTranslatef(t[0],t[1],t[2]);
-    glScalef(2, 2, 2);
-    //drawControlPoint(getControlPoints());
-    //glColor3f(0, 0, 0);
-    
+    glScalef(s[0], s[1], s[2]);
+    glMultMatrixf(m);
+
     //modo objeto
     if(render_mode){
-        glLoadName(index_load);
-        
+
         if (is_selected){
+            //modifier.draw( ( ( index_load-1 ) * 4 ) + 1, true);
             glColor4f(GREEN);
         } else {
-            glColor4f(RED);
+            glColor4f(GRAY1);
         }
-        
+
+        glLoadName(index_load);
+        //glLoadName(  index_load );
         drawGlQuadStripVector(surfaceBezier, RESOLUTIONI+1, RESOLUTIONJ+1, 1);
-    
+
     //modo Edicao
     } else if (!render_mode && is_selected){
         glColor4f(GREEN);
         if (!is_selecting){
             drawGlQuadStripVector(surfaceBezier, RESOLUTIONI+1, RESOLUTIONJ+1, 1);
+            drawControlPolygon();
         }
         drawControlPoint(hit_index_internal);
-    
+
     } else if (!render_mode && !is_selected) {
 
         if (!is_selecting){
-            glColor4f(RED);
-            drawGlQuadStripVector(surfaceBezier, RESOLUTIONI+1, RESOLUTIONJ+1, 1);        
+            glColor4f(GRAY1);
+            drawGlQuadStripVector(surfaceBezier, RESOLUTIONI+1, RESOLUTIONJ+1, 1);
         }
     }
     glPopMatrix();
+}
+
+
+void SurfaceBezier::setModifier(int tp)
+{
+    modifier.setModifierType(tp);
 }

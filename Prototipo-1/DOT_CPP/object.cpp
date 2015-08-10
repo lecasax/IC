@@ -1,6 +1,7 @@
 #include "object.h"
 #include <iostream>
 using namespace std;
+
 float *Object::point3f(float x, float y, float z)
 {
     float *p = new float[3];
@@ -16,6 +17,11 @@ float *Object::point4f(float x, float y, float z, float w)
 }
 
 
+/*Object::Object( Object *newObject)
+{
+    this = newObject;
+}*/
+
 Object::Object()
 {
 
@@ -24,13 +30,14 @@ Object::Object()
     float t[]={0, 0, 0};
     float c[]={1, 1, 1};
 
+    this->hit_index_internal = 0;
     this->index_internal = 0;
     this->is_selected = false;
     this->rotation.insert(this->rotation.end(), r, r+3);
     this->translation.insert(this->translation.end(), t, t+3);
     this->scale.insert(this->scale.end(), s, s+3 );
     this->color.insert(this->color.end(), c, c+3);
-
+    this->globalScale = vector <float > (3, 1);
 }
 Object::Object(vector < float *> vertex)
 {
@@ -83,9 +90,11 @@ void Object::setPrimitive(int GL_PRIMITIVE)
 }
 
 
-void Object::scaleObject(vector <float > newScale)
+void Object::scaleObject(float x, float y, float z)
 {
-    this->scale = newScale;
+    this->scale[0] = x;
+    this->scale[1] = y;
+    this->scale[2] = z;
 }
 
 vector <float > Object::getScale()
@@ -113,6 +122,30 @@ vector <float > Object::getRotation()
     return this->rotation;
 }
 
+void Object::setGlobalScale( float x, float y, float z)
+{
+    this->globalScale[0] = x;
+    this->globalScale[1] = y;
+    this->globalScale[2] = z;
+}
+void Object::setGlobalRotation( float x, float y, float z)
+{
+    this->globaRotation[0] = x;
+    this->globaRotation[1] = y;
+    this->globaRotation[2] = z;
+}
+
+void Object::setGlobalTranslation(vector <float > newTranslation)
+{
+    this->global_translation = newTranslation;
+}
+
+vector <float > Object::getGlobalTranslation()
+{
+    return this->global_translation;
+}
+
+
 float Object::getDepth()
 {
     return this->translation[2];
@@ -138,8 +171,12 @@ void Object::setHitIndexInternal(int val)
 {
     hit_index_internal = val;
 }
+int Object::getHitIndexInternal()
+{
+    return hit_index_internal;
+}
 
-void Object::draw(int index_load,  bool is_selecting)
+void Object::draw(int index_load,  bool is_selecting, int size_world)
 {
     cout << "Funcao virtual chamada...." << endl;
 }
@@ -155,5 +192,136 @@ string Object::getTipo()
     return tipo;
 }
 
+int Object::getSizeControlPoints()
+{
+    return 0;
+}
+
+vector <float > Object::getControlPointSelected()
+{
+    return vector <float > (3, 0);
+}
+
+void Object::setPtControleModifier(float x, float y, float z){}
+
+
+
 // Metodos da Curva
-void Object::setPtControle(float x, float y, float z) {}
+void Object::setPtControle(float x, float y, float z){}
+
+void Object::updatePtsCurv(){}
+
+
+// Duplica um Ponto de Controle Extremo
+// Um dos Pontos de Controles Extremos
+// tem de estarem selecionados
+int Object::addPtControle()
+{
+    return -1;
+}
+
+// Adiciona um Ponto de Controle Extremo
+// Um dos Pontos de Controles Extremos
+// tem de estarem selecionados
+int Object::addPtControle(float x, float y, float z)
+{
+    return -1;
+}
+
+// Retorna as Imagens dos Nós na Curva
+// As imagens dos nós são os pontos iniciais
+// de cada segmento da curva B-Spline
+vector<float> Object::getImgNo()
+{
+    vector<float> nulo;
+    return nulo;
+}
+
+float Object::getPesoSelec()
+{
+    return -1;
+}
+
+// Retorna o identificador do Nó selecionado
+int Object::getNoSelec()
+{
+    return -1;
+}
+
+// Retorna a ordem da Curva B-Spline
+int Object::getOrdCurva()
+{
+    return -1;
+}
+
+// Retorna o identificador do Ponto de Controle selecionado
+int Object::getPtcSelec()
+{
+    return -1;
+}
+
+// Retorna a quantidade de pontos gerados para a curva
+// B-Spline
+int Object::getQuant()
+{
+    return -1;
+}
+
+// Incrementa/Decrementa o valor de um nó selecionado
+int Object::incNo(double inc)
+{
+    return -1;
+}
+
+// Remove o Ponto de Controle Selecionado
+int Object::rmvPtControle()
+{
+    return -1;
+}
+
+// Define o valor da ordem da curva B-Spline
+void Object::setOrdCurva(int ord){}
+
+// Define a quantide de Pontos que terá a curva B-Spline
+void Object::setQuant(int valor){}
+
+// Nurbs
+// Retorna a lista de Pesos
+vector<float> Object::getPesos()
+{
+    vector<float> nulo;
+    return nulo;
+}
+
+// Nurbs
+// Altera o peso de um ponto de Controle selecionado
+void Object::setPeso(float valor){}
+
+// Adciona um Segmento extremo da curva,
+// os Segmentos extremos da Curva
+// tem de estar selecionados
+int Object::addSegment()
+{
+    return -1;
+}
+
+// Remove um Segmento extremo da curva,
+// os Segmentos extremos da Curva
+// tem de estar selecionados
+int Object::removeSegment()
+{
+    return -1;
+}
+
+vector<double> Object::getNo()
+{
+    vector<double> nulo;
+    return nulo;
+}
+
+void Object::setNoSelec(int id){}
+
+void Object::setModifier(int tp)
+{
+}
+

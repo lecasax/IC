@@ -1,5 +1,6 @@
 #include "Segment.h"
 #include "BezierCubic.h"
+#include "modifier.h"
 #include "Nurbs.h" // Inclusão do Objeto em Nurbs->BSpliens->Objeto
 
 //Object *bezier = new BezierCurve(0,0,0);
@@ -13,10 +14,11 @@ class BezierCurve: public Object
 public:
 
 	// Construtores
+	BezierCurve(BezierCurve *BezierCurve);
 	BezierCurve(float x, float y,float z);
 	~BezierCurve(void);
 
-	// Atualiza os pontos da Curva
+	// Atualiza os pontos da Curva 
 	void updatePtsCurv();
 
 	// Retorna os pontos da Curva
@@ -41,28 +43,40 @@ public:
 	// selecionado
 	void setPtControle(float x, float y,float z);
 
-	// Adciona um Segmento extremo da curva,
+	// Adciona um Segmento extremo da curva, 
 	// os Segmentos extremos da Curva
 	// tem de estar selecionados
 	int addSegment();
 
-	// Remove um Segmento extremo da curva,
+	// Remove um Segmento extremo da curva, 
 	// os Segmentos extremos da Curva
 	// tem de estar selecionados
-	int removeSegment();
+	int removeSegment();	
 
 	// draw
-	void draw(int index_load,  bool is_selecting);
+	void draw(int index_load,  bool is_selecting, int size_world);
 
+	int getSizeControlPoints();
+
+	vector <float > getControlPointSelected();
+
+	void setPtControleModifier(float x, float y, float z);
+
+	void setModifier(int tp);
+
+		
+	
 private:
 
 	// Bezier Cubica
 	BezierCubic bzcubic;
 
-	// Todos os Pontos da Curva de Bezier
+	Modifier modifier;
+
+	// Todos os Pontos da Curva de Bezier 
 	// Pontos da Curva de Bezier Cubica
-	// A Cada 3 elementos tem-se um ponto representando
-	// px,py,pz
+	// A Cada 3 elementos tem-se um ponto representando 
+	// px,py,pz 	
 	vector<float> ptsCurv;
 
 	// Lista de Segmentos de Controle da Curva

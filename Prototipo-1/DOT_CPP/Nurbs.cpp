@@ -1,6 +1,54 @@
 #include "Nurbs.h"
 #include <iostream>
 
+
+Nurbs::Nurbs(Nurbs * nurb):BSplines()
+{
+
+	this->translation = nurb->translation;
+    this->rotation = nurb->rotation;
+    this->scale = nurb->scale;
+
+	// Quantidade de Pontos da Curva
+	this->quant = nurb->getQuant();
+
+	// Ordem da Curva B-Spline
+	this->ordCurva = nurb->getOrdCurva();
+
+	// Lista de Nos usados para geração da curva B-Spline
+	this->nos = nurb->getNo();
+
+	// Lista de Pontos da Curva B-Spline
+	// A Cada 3 elementos da lista tem-se um ponto representando
+	// px,py,pz
+	this->ptsCurv = nurb->getPtsCurva();
+
+	// Lista Bidimensional Representando os Pontos de Controle
+	this->ptControle = nurb->getPtControle();
+
+	// Lista de Pesos
+	this->pesos = nurb->getPesos();
+
+	this->updatePtsCurv();
+
+	this->setTipo("Nurbs");
+}
+
+// Construtor
+Nurbs::Nurbs(vector < vector <float > > ptControle, vector<double > nos, vector<float > pesos):BSplines()
+{
+
+	this->ptControle = ptControle;
+	this->pesos = pesos;
+	this->nos = nos;
+	ordCurva = 3;
+	//iniNo();
+
+	// Tipo Curva Nurbs
+	setTipo("Nurbs");
+
+	this->updatePtsCurv();
+}
 // Construtor
 Nurbs::Nurbs(float x, float y, float z):BSplines()
 {
@@ -57,6 +105,17 @@ vector<float> Nurbs::getPesos()
 	return pesos;
 }
 
+float Nurbs::getPesoSelec()
+{
+	float val = -1;
+
+	if(ptcSelec >= 0){
+		val = pesos[ptcSelec];
+	}
+
+	return val;
+}
+
 // Altera o peso de um ponto de Controle selecionado
 void Nurbs::setPeso(float valor)
 {
@@ -85,7 +144,7 @@ void Nurbs::updatePtsCurv()
 		inc = ( fim - inic ) / quant;
 	}
 
-	for(t = inic; t <= fim; t+=inc){
+	for(t = 0; t <= 1; t+=inc){
 
 		x = y = z = 0;
 		x2 = y2 = z2 = 0;

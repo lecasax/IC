@@ -31,7 +31,10 @@
 
 #include  <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/glm.hpp>
 
+#include <GL/glut.h>
 #include <GL/glu.h>
 #include <GL/gl.h>
 #include <vector>
@@ -58,21 +61,33 @@ public:
 	int  getPrimitive();
 	void setColor( vector <float > color);
 	vector <float >  getColor();
-	void scaleObject(vector <float > newScale);
+	void scaleObject(float x, float y, float z);
 	vector <float > getScale();
-	void translateObject( vector <float > newTranslation);
 	vector <float >getTranslation();
-	void rotateObject(vector <float > newRotation);
 	vector <float >getRotation();
-	virtual void draw(int index_load, bool is_selecting);
+	virtual void rotateObject(vector <float > newRotation);
+	virtual void setGlobalScale( float x, float y, float z);
+	virtual void setGlobalRotation( float x, float y, float z);
+	virtual void draw(int index_load, bool is_selecting, int size_world);
 	void setTipo(const char * val);
 	string getTipo();
 	void setSelected(bool is_selected);
 	void setRenderMode(bool mode);
 	bool getRenderMode();
 	float getDepth();
+	void setGlobalTranslation(vector <float > newTranslation);
+	vector <float > getGlobalTranslation();
 
 	void setHitIndexInternal(int val);
+	int  getHitIndexInternal();
+
+	virtual int getSizeControlPoints();
+
+	virtual vector <float > getControlPointSelected();
+
+	virtual void setPtControleModifier(float x, float y, float z);
+
+	virtual void translateObject( vector <float > newTranslation);	
 
 	/*****************************************************/
 	// Metodos das Curvas
@@ -80,6 +95,75 @@ public:
 	// selecionado
 	virtual void setPtControle(float x, float y, float z);
 
+	// Atualiza os pontos da Curva
+	virtual void updatePtsCurv();
+
+	// Duplica um Ponto de Controle Extremo
+	// Um dos Pontos de Controles Extremos
+	// tem de estarem selecionados
+	virtual int addPtControle();
+
+	// Adiciona um Ponto de Controle Extremo
+	// Um dos Pontos de Controles Extremos
+	// tem de estarem selecionados
+	virtual int addPtControle(float x, float y, float z);
+
+	// Retorna as Imagens dos Nós na Curva
+	// As imagens dos nós são os pontos iniciais
+	// de cada segmento da curva B-Spline
+	virtual vector<float> getImgNo();
+
+	// Retorna o identificador do Nó selecionado
+	virtual int getNoSelec();
+
+	// Retorna a ordem da Curva B-Spline
+	virtual int getOrdCurva();
+
+	// Retorna o identificador do Ponto de Controle selecionado
+	virtual int getPtcSelec();
+
+	// Retorna a quantidade de pontos gerados para a curva
+	// B-Spline
+	virtual int getQuant();
+
+	// Incrementa/Decrementa o valor de um nó selecionado
+	virtual int incNo(double inc);
+
+	// Remove o Ponto de Controle Selecionado
+	virtual int rmvPtControle();
+
+	// Define o valor da ordem da curva B-Spline
+	virtual void setOrdCurva(int ord);
+
+	// Define a quantide de Pontos que terá a curva B-Spline
+	virtual void setQuant(int valor);
+
+	// Nurbs
+	// Retorna a lista de Pesos
+	virtual vector<float> getPesos();
+	virtual float getPesoSelec();
+
+	// Retorna os Nós
+	virtual vector<double> getNo();
+
+	// Define o identificador do Nó Selecionado
+	virtual void setNoSelec(int id);
+
+	// Nurbs
+	// Altera o peso de um ponto de Controle selecionado
+	virtual void setPeso(float valor);
+
+	// Adciona um Segmento extremo da curva, 
+	// os Segmentos extremos da Curva
+	// tem de estar selecionados
+	virtual int addSegment();
+
+	// Remove um Segmento extremo da curva, 
+	// os Segmentos extremos da Curva
+	// tem de estar selecionados
+	virtual int removeSegment();
+
+	virtual void setModifier(int tp);	
 
 protected:
 
@@ -90,6 +174,8 @@ protected:
 	vector < float  > translation;
 	vector < float  > scale;
 	vector < float  > color;
+	vector < float  > global_translation;
+
 	bool is_selected;
 
 	// Indice dos Objetos Interno no Modo Edição
@@ -102,6 +188,9 @@ protected:
 	bool visible;
 	int GL_PRIMITIVE;
 	string tipo;
+
+	vector <float > globalScale;
+	vector <float > globaRotation;
 };
 
 

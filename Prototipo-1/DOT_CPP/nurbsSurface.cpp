@@ -1,5 +1,4 @@
 #include "nurbsSurface.h"
-#include <stdio.h>
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
@@ -7,24 +6,152 @@
 #include <GL/glu.h>
 #include <GL/gl.h>
 
-
-
-
-
 using namespace std;
-    
+
+SurfaceNurbs::SurfaceNurbs(SurfaceNurbs *surface):Object()
+{
+
+    this->translation = surface->translation;
+    this->rotation = surface->rotation;
+    this->scale = surface->scale;
+    modifier = Modifier(translation[0], translation[1], translation[2]);
+
+    this->NI = surface->NI;  //dimensao na direcao de u
+    this->NJ = surface->NJ; // dimensao na direcao de v
+
+    this->TI = surface->TI; //Ordem 4 e grau 3 na direcao de U
+    this->TJ = surface->TJ; //Ordem 4 e grau 3 na direcao de V
+
+
+    this->RESOLUTIONI = surface->RESOLUTIONI; //resolucao na direcao I
+    this->RESOLUTIONJ = surface->RESOLUTIONJ; // resolucao na direcao J
+
+    this->weight = surface->weight;
+    this->controlPoints = surface->controlPoints;
+
+    this->uknots = surface->uknots;
+    this->vknots = surface->vknots;
+    setTipo(surface->getTipo().c_str());
+    surface3dBsplineRenderNURBS();
+}
+
+SurfaceNurbs::SurfaceNurbs(int ni, int nj, int resolutioni, int resolutionj, int degree, int type,
+                             vector<vector<vector <double > > > cP):Object()
+{
+    modifier = Modifier(translation[0], translation[1], translation[2]);
+
+    this->RESOLUTIONI = resolutioni; //resolucao na direcao I
+    this->RESOLUTIONJ = resolutionj; // resolucao na direcao J
+
+    this->NI = ni;  //dimensao na direcao de u
+    this->NJ = nj; // dimensao na direcao de v
+
+    this->TI = degree; //Ordem 4 e grau 3 na direcao de U
+    this->TJ = degree; //Ordem 4 e grau 3 na direcao de V
+
+    if (ni+1 == 2 || nj+1 == 2){
+        this->TI = this->TJ = 2;
+    }
+
+    else if (ni+1 == 3 || nj+1 == 3){
+        this->TI = this->TJ = 3;
+    }
+
+    //this->TI = 2; //Ordem 4 e grau 3 na direcao de U
+    //this->TJ = 2; //Ordem 4 e grau 3 na direcao de V
+
+    vector<vector <double > > w(NI+1,vector <double >(NJ+1, 0));
+    weight = w;
+
+    controlPoints  = cP;
+
+    uknots = new double[NI + TI + 1];
+    vknots = new double[NJ + TJ + 1];
+
+    splineKnotsDouble(uknots, NI, TI);
+    splineKnotsDouble(vknots, NJ, TJ);
+
+    if (type == 1){
+        setTipo("BSplineSurface");
+        preencheMatrizPesos();
+    } else {
+        setTipo("NurbsSurface");
+        preencheMatrizPesosRandom();
+    }
+    surface3dBsplineRenderNURBS();
+
+}
+
+
+
+
+SurfaceNurbs::SurfaceNurbs(int ni, int nj, int resolutioni, int resolutionj, int degree, int type):Object()
+
+{
+
+    //setTipo("NurbsSurface");
+    modifier = Modifier(translation[0], translation[1], translation[2]);
+
+    this->RESOLUTIONI = resolutioni-1; //resolucao na direcao I
+    this->RESOLUTIONJ = resolutionj-1; // resolucao na direcao J
+
+    this->NI = ni-1;  //dimensao na direcao de u
+    this->NJ = nj-1; // dimensao na direcao de v
+
+    this->TI = degree; //Ordem 4 e grau 3 na direcao de U
+    this->TJ = degree; //Ordem 4 e grau 3 na direcao de V
+
+    if (ni+1 == 2 || nj+1 == 2){
+        this->TI = this->TJ = 2;
+    }
+
+    else if (ni+1 == 3 || nj+1 == 3){
+        this->TI = this->TJ = 3;
+    }
+
+    //this->TI = 2; //Ordem 4 e grau 3 na direcao de U
+    //this->TJ = 2; //Ordem 4 e grau 3 na direcao de V
+
+    vector<vector <double > > w(NI+1,vector <double >(NJ+1, 0));
+    weight = w;
+
+    vector<vector<vector <double > > > cP(NI+1,vector<vector<double> >(NJ+1,vector <double>(3,0)));
+    controlPoints  = cP;
+
+    uknots = new double[NI + TI + 1];
+    vknots = new double[NJ + TJ + 1];
+
+    splineKnotsDouble(uknots, NI, TI);
+    splineKnotsDouble(vknots, NJ, TJ);
+
+    createControlPoints();
+    //createControlPointsSpehere();
+    if (type == 1){
+        setTipo("BSplineSurface");
+        preencheMatrizPesos();
+    } else {
+        setTipo("NurbsSurface");
+        preencheMatrizPesosRandom();
+    }
+    surface3dBsplineRenderNURBS();
+}
+
+
+
 
 SurfaceNurbs::SurfaceNurbs():Object()
 
 {
 
+    setTipo("NurbsSurface");
+    modifier = Modifier(translation[0], translation[1], translation[2]);
 
-    this->RESOLUTIONI = 16; //resolucao na direcao I
-    this->RESOLUTIONJ = 16; // resolucao na direcao J
+    this->RESOLUTIONI = 6; //resolucao na direcao I
+    this->RESOLUTIONJ = 6; // resolucao na direcao J
 
     this->NI = 5;  //dimensao na direcao de u
     this->NJ = 5; // dimensao na direcao de v
-    
+
     this->TI = 4; //Ordem 4 e grau 3 na direcao de U
     this->TJ = 4; //Ordem 4 e grau 3 na direcao de V
 
@@ -49,12 +176,9 @@ SurfaceNurbs::SurfaceNurbs():Object()
 SurfaceNurbs::~SurfaceNurbs()
 
 {
-    cout << "Limpando a memoria...\n";
     delete uknots;
     delete vknots;
 }
-
-
 
 
 // Recursive computation of B-spline functions. By Sumanta
@@ -69,7 +193,7 @@ double SurfaceNurbs::Bspline(int i, int m, double *knots, double u)
    }
    else
    {
-      if ( knots[i+m-1] == knots[i] ) 
+      if ( knots[i+m-1] == knots[i] )
       {
          if ( u == knots[i] ) coef1 = 1;
          else coef1 = 0;
@@ -108,7 +232,7 @@ vector <double *>  SurfaceNurbs::getControlPoints()
 
     for (int i = 0; i <= NI; i++){
         for (int j = 0; j <= NJ; j++)
-        {   
+        {
             double *vec = new double[3];
             vec[0] = controlPoints[i][j][0];
             vec[1] = controlPoints[i][j][1];
@@ -173,10 +297,13 @@ void SurfaceNurbs::createControlPoints(void)
     for (int i = 0; i <= NI; i++){
         for (int j = 0; j <= NJ; j++){
             controlPoints[i][j][0] = X1;
-            controlPoints[i][j][1] = 0.0;
+            //controlPoints[i][j][1] = 0.0;
             controlPoints[i][j][2] = Z1; //+ (double) ( rand() % 100 );
             X1 += variation;
-
+            if (i > 0 && j < NJ && i == j){
+                controlPoints[i][j][1] = 10.0;
+                controlPoints[i][NJ-j][1] = 10.0;
+            }
         }
         Z1-=variation;
         X1 = xInitial;
@@ -202,6 +329,7 @@ void SurfaceNurbs::movePointControlSurfaceBspline(double *p, int index)
     }
 }
 
+//para as bsplines
 void SurfaceNurbs::preencheMatrizPesos(){
 
 
@@ -212,10 +340,85 @@ void SurfaceNurbs::preencheMatrizPesos(){
 
             //weight[i][j] = (double) ( rand() % 100 );
             weight[i][j] =  1.0;
-            cout << weight[i][j] << ", ";
+            //cout << weight[i][j] << ", ";
         }
         cout << endl;
     }
+}
+//para as nurbs
+void SurfaceNurbs::preencheMatrizPesosRandom(){
+
+
+    srand(10);
+    for (int i = 0; i <= NI; i++){
+
+        for (int j = 0; j <= NJ; j++) {
+
+            weight[i][j] = (double) ( rand() % 100 );
+            //weight[i][j] =  1.0;
+            //cout << weight[i][j] << ", ";
+        }
+        cout << endl;
+    }
+}
+
+void SurfaceNurbs::setGlobalScale( float x, float y, float z)
+{
+
+    this->globalScale[0] = x;
+    this->globalScale[1] = y;
+    this->globalScale[2] = z;
+}
+
+vector <float > SurfaceNurbs::getControlPointSelected()
+{
+    int i = ( (hit_index_internal-1) / (NJ + 1) );
+    int j = ( (hit_index_internal-1) % (NJ + 1) );
+    vector <float > selectedPoint(3, 0);
+    selectedPoint[0] = controlPoints[i][j][0];
+    selectedPoint[1] = controlPoints[i][j][1];
+    selectedPoint[2] = controlPoints[i][j][2];
+    return  selectedPoint;
+}
+int SurfaceNurbs::getSizeControlPoints()
+
+{
+    return (NI+1) * (NJ+1);
+}
+
+void SurfaceNurbs::setPtControleModifier(float x, float y, float z)
+{
+    int i = ( (hit_index_internal-1) / (NJ + 1) );
+    int j = ( (hit_index_internal-1) % (NJ + 1) );
+    controlPoints[i][j][0] = x;
+    controlPoints[i][j][1] = y;
+    controlPoints[i][j][2] = z;
+    surface3dBsplineRenderNURBS();
+}
+void SurfaceNurbs::setPtControle(float x, float y, float z)
+{
+
+    int i = ( (hit_index_internal-1) / (NJ + 1) );
+    int j = ( (hit_index_internal-1) % (NJ + 1) );
+    vector <float > r = getRotation();
+    glm::quat quat (glm::vec3(r[0]*PI/BASE, r[1]*PI/BASE, r[2]*PI/BASE));
+    glm::quat quaternion = quat ;
+    glm::mat4 mat  = glm::toMat4(quaternion);
+
+    controlPoints[i][j][0] = (x-translation[0])/scale[0];
+    controlPoints[i][j][1] = (y-translation[1])/scale[1];
+    controlPoints[i][j][2] = (z-translation[2])/scale[2];
+
+    glm::mat4 INVERSE_ROTATE = glm::inverse(mat);
+    glm::vec4 reverse_point = INVERSE_ROTATE * glm::vec4(controlPoints[i][j][0],
+                                                         controlPoints[i][j][1],
+                                                         controlPoints[i][j][2],
+                                                         1.0f
+                                                         );
+    controlPoints[i][j][0] = reverse_point[0];
+    controlPoints[i][j][1] = reverse_point[1];
+    controlPoints[i][j][2] = reverse_point[2];
+    surface3dBsplineRenderNURBS();
 }
 
 
@@ -237,37 +440,14 @@ void SurfaceNurbs::drawGlQuadStripVector(vector <double *> array , int n, int m,
 
         for (int j = 0; j < m ; j++) {
 
-         
+
         glVertex3f(array[i*m+j][0], array[i*m+j][1], array[i*m+j][2] );
-        glVertex3f(array[(1+i)*m+j][0], array[(1+i)*m+j][1], array[(1+i)*m+j][2] );   
-           
+        glVertex3f(array[(1+i)*m+j][0], array[(1+i)*m+j][1], array[(1+i)*m+j][2] );
+
         }
         glEnd();
         glPopMatrix();
     }
-    
-    //glColor4f(BLACK);
-
-
-    //desenahdo o poligono de controle
-    /*for (int i = 0; i < NI; i++) {
-
-        glPushMatrix();
-        glBegin(GL_QUAD_STRIP);
-
-        for (int j = 0; j < NJ+1 ; j++) {
-
-         
-            glVertex3f(controlPoints [i][j][0],controlPoints [i][j][1],controlPoints [i][j][2]);  
-            glVertex3f(controlPoints [i+1][j][0],controlPoints [i+1][j][1],controlPoints [i+1][j][2]);  
-
-        }
-        glEnd();
-        glPopMatrix();
-    }*/
-    
-
-
 
 }
 
@@ -276,31 +456,56 @@ void  SurfaceNurbs::drawControlPoint(int hit)
     int count_object = 0;
     glEnable( GL_POINT_SMOOTH );
     glPointSize(6.0f);
-   
+
     for (int i = 0; i <= NI; i++) {
 
         for (int j = 0; j <= NJ; ++j){
-            count_object++;   
+            count_object++;
 
             glLoadName(count_object);
 
             glPushMatrix();
-                if ( ( (hit-1) /(NI + 1) ) == i && ( (hit-1) % (NJ + 1) ) == j ){
+                if ( ( (hit-1) /(NJ + 1) ) == i && ( (hit-1) % (NJ + 1) ) == j ){
                      glColor4f(ORANGE);
                 } else {
                      glColor4f(BLACK);
                 }
             glBegin(GL_POINTS);
-            glVertex3f(controlPoints[i][j][0], controlPoints[i][j][1], controlPoints[i][j][2] );     
-            glEnd();      
+            glVertex3f(controlPoints[i][j][0], controlPoints[i][j][1], controlPoints[i][j][2] );
+            glEnd();
             glPopMatrix();
         }
     }
-    
+
+}
+
+void SurfaceNurbs::drawControlPolygon()
+
+{
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glColor4f(BLACK);
+
+
+    //desenahdo o poligono de controle
+    for (int i = 0; i < NI; i++) {
+
+        glPushMatrix();
+        glBegin(GL_QUAD_STRIP);
+
+        for (int j = 0; j < NJ+1 ; j++) {
+
+
+            glVertex3f(controlPoints [i][j][0],controlPoints [i][j][1],controlPoints [i][j][2]);
+            glVertex3f(controlPoints [i+1][j][0],controlPoints [i+1][j][1],controlPoints [i+1][j][2]);
+
+        }
+        glEnd();
+        glPopMatrix();
+    }
 }
 
 
-void SurfaceNurbs::draw(int index_load,  bool is_selecting)
+void SurfaceNurbs::draw(int index_load,  bool is_selecting, int size_world)
 
 {
     GLfloat m[16];
@@ -310,7 +515,7 @@ void SurfaceNurbs::draw(int index_load,  bool is_selecting)
     vector <float > s = getScale();
 
     glm::quat quat (glm::vec3(r[0]*PI/BASE, r[1]*PI/BASE, r[2]*PI/BASE));
-    glm::quat quaternion = quat ; 
+    glm::quat quaternion = quat ;
     glm::mat4 mat  = glm::toMat4(quaternion);
 
     int count = 0;
@@ -318,40 +523,73 @@ void SurfaceNurbs::draw(int index_load,  bool is_selecting)
         for (int j = 0; j < 4; ++j){
             m[count] = mat[k][j];
             count++;
-        }   
-    }       
+        }
+    }
+
+    //modificador para o objeto inteiro
+    if(render_mode && is_selected){
+        glPushMatrix();
+        glTranslatef(translation[0], translation[1]-20, translation[2]);
+        glScalef(1/globalScale[0], 1/globalScale[1], 1/globalScale[2]);
+        modifier.draw( size_world-1 , true);
+        glPopMatrix();
+    }
+
+    //modificador para o ponto de controle
+    else if (!render_mode && is_selected && hit_index_internal >= 1){
+        int i = ( (hit_index_internal-1) / (NJ + 1) );
+        int j = ( (hit_index_internal-1) % (NJ + 1) );
+        glPushMatrix();
+        glTranslatef(t[0],t[1],t[2]);
+        glScalef(s[0], s[1], s[2]);
+        glMultMatrixf(m);
+        glTranslatef(controlPoints[i][j][0], controlPoints[i][j][1], controlPoints[i][j][2]);
+        glScalef(0.8, 0.8, 0.8);
+        glScalef(1/s[0], 1/s[1], 1/s[2]);
+        glScalef(1/globalScale[0], 1/globalScale[1], 1/globalScale[2]);
+        modifier.draw( (NI+1)*(NJ+1), true);
+        glPopMatrix();
+    }
+
     glPushMatrix();
     glTranslatef(t[0],t[1],t[2]);
-    glScalef(2, 2, 2);
+    glScalef(s[0], s[1], s[2]);
+    glMultMatrixf(m);
     //drawControlPoint(getControlPoints());
     //glColor3f(0, 0, 0);
-    
+
     //modo objeto
     if(render_mode){
-        glLoadName(index_load);
-        
+
         if (is_selected){
             glColor4f(GREEN);
         } else {
-            glColor4f(RED);
+            glColor4f(GRAY1);
         }
-        
+
+        glLoadName(index_load);
         drawGlQuadStripVector( surfaceNurbs, RESOLUTIONI+1, RESOLUTIONJ+1, 1);
-    
+
     //modo Edicao
     } else if (!render_mode && is_selected){
         glColor4f(GREEN);
         if (!is_selecting){
             drawGlQuadStripVector( surfaceNurbs, RESOLUTIONI+1, RESOLUTIONJ+1, 1);
+            drawControlPolygon();
         }
         drawControlPoint(hit_index_internal);
-    
+
     } else if (!render_mode && !is_selected) {
 
         if (!is_selecting){
-            glColor4f(RED);
-            drawGlQuadStripVector( surfaceNurbs, RESOLUTIONI+1, RESOLUTIONJ+1, 1);        
+            glColor4f(GRAY1);
+            drawGlQuadStripVector( surfaceNurbs, RESOLUTIONI+1, RESOLUTIONJ+1, 1);
         }
     }
-    glPopMatrix();
+       glPopMatrix();
+}
+
+void SurfaceNurbs::setModifier(int tp)
+{
+    modifier.setModifierType(tp);
 }
